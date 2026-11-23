@@ -1,6 +1,7 @@
 # Perfectionnement
 
 Jeu de cartes biblique en duel (Godot 4.7, Android). Spécification : [docs/PRD.md](docs/PRD.md).
+Serveur Nakama (connexion, règles pour le client) : [docs/SERVEUR.md](docs/SERVEUR.md).
 
 ## Commandes
 
