@@ -50,4 +50,31 @@ test("InitModule est défini", function () {
   assert.strictEqual(typeof g.InitModule, "function");
 });
 
+// Nakama retrouve chaque hook et RPC par son nom dans la portée globale : une fonction anonyme
+// écrite dans l'appel fait refuser tout le module au démarrage (voir docs/SERVEUR.md).
+test("hooks et RPC passés par des variables globales nommées", function () {
+  const enregistres = [];
+  const initializer = new Proxy({}, {
+    get: function (_cible, methode) {
+      return function () {
+        const fn = Array.prototype.find.call(arguments, function (a) { return typeof a === "function"; });
+        enregistres.push({ methode: String(methode), fn: fn });
+      };
+    },
+  });
+  const logger = { info: function () {}, warn: function () {}, error: function () {}, debug: function () {} };
+  g.InitModule({}, logger, {}, initializer);
+  assert.ok(enregistres.length > 0, "aucun enregistrement");
+  const globales = Object.keys(g).map(function (k) { return g[k]; });
+  // Les const de premier niveau ne sont pas des propriétés du contexte : on les relit par leur nom.
+  const noms = code.match(/^(?:const|var|let|function)\s+([A-Za-z_$][\w$]*)/gm) || [];
+  noms.forEach(function (decl) {
+    const nom = decl.split(/\s+/)[1];
+    globales.push(vm.runInContext("typeof " + nom + " !== 'undefined' ? " + nom + " : undefined", g));
+  });
+  enregistres.forEach(function (e) {
+    assert.ok(globales.indexOf(e.fn) >= 0, e.methode + " reçoit une fonction anonyme");
+  });
+});
+
 console.log("\n" + ok + " tests serveur réussis");
