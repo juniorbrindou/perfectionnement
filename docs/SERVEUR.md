@@ -185,11 +185,9 @@ compte de test, supprimé depuis (sa ligne du classement part avec lui) :
 
 ## Reste à faire côté serveur
 
-- **0.2.6, connexion Google** : le client envoie un jeton d'identité Google (`link_google_async`, ou
-  `authenticate_google_async` avec `create=false` quand le compte Google appartient déjà à un joueur).
-  Identifiant OAuth « Application Web » du projet Google Cloud (public, il est dans l'APK) :
-  `492954893860-3abik9silaiiea1toaf5nt473dj9bc1d.apps.googleusercontent.com`.
-  Le serveur doit n'accepter que les jetons dont l'audience (`aud`) est cet identifiant. Si la configuration de
-  Nakama le permet, la renseigner. Sinon, ajouter des hooks `before` sur l'authentification et le rattachement
-  Google qui refusent tout autre `aud` (Nakama vérifie déjà la signature). Sans cela, un jeton Google émis pour
-  n'importe quelle application ouvre un compte.
+- **0.2.6, connexion Google** : **fait le 2026-11-23.** La configuration de Nakama porte
+  `google_auth.client_ids: ["492954893860-3abik9silaiiea1toaf5nt473dj9bc1d.apps.googleusercontent.com"]`, si bien
+  que Nakama vérifie lui-même l'audience (`aud`) en plus de la signature, sans hook. L'avertissement de
+  démarrage « Google auth config missing client ID » a disparu. Un jeton forgé pour une autre application est
+  refusé (401, « Could not authenticate Google profile. »). Aucun vrai jeton Google n'a encore été essayé : le
+  premier passera par le téléphone.
