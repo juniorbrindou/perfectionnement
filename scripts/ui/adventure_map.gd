@@ -95,20 +95,27 @@ func _won(level: int) -> Array:
 	return _stars.get(str(level), [])
 
 
-## Même règle que le serveur : le niveau 1 est ouvert, puis il faut une étoile au précédent.
 func _is_open(level: int) -> bool:
-	return level == 1 or not _won(level - 1).is_empty()
+	return is_open(_stars, level)
+
+
+func _current_level() -> int:
+	return current_level(_stars, _levels().size())
+
+
+## Même règle que le serveur : le niveau 1 est ouvert, puis il faut une étoile au précédent.
+static func is_open(stars: Dictionary, level: int) -> bool:
+	return level == 1 or not stars.get(str(level - 1), []).is_empty()
 
 
 ## Le niveau à jouer : le premier ouvert sans étoile, sinon le dernier ouvert.
-func _current_level() -> int:
+static func current_level(stars: Dictionary, count: int) -> int:
 	var last := 1
-	for i in _levels().size():
-		var level := i + 1
-		if not _is_open(level):
+	for level in range(1, count + 1):
+		if not is_open(stars, level):
 			break
 		last = level
-		if _won(level).is_empty():
+		if stars.get(str(level), []).is_empty():
 			return level
 	return last
 

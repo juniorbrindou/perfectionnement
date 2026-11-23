@@ -26,6 +26,8 @@ var username := ""
 var email := ""
 var wallet := {}
 var last_error := ""
+var bread_today := false  ## Pain quotidien reçu aujourd'hui (maintenant ou plus tôt).
+var bread_gain := 0  ## Talents reçus par le pain pendant cette session.
 
 var _rng := RandomNumberGenerator.new()
 
@@ -96,10 +98,16 @@ func claim_bread() -> void:
 		push_warning("Pain quotidien : %s" % _message(r.get_exception()))
 		return
 	var data = JSON.parse_string(r.payload)
-	if data is Dictionary and data.get("accorde", false):
+	if not data is Dictionary:
+		return
+	bread_today = true
+	if data.get("accorde", false):
 		wallet["talents"] = int(data.get("talents", talents()))
+		bread_gain = int(data.get("gain", 0))
 		account_changed.emit()
-		bread_received.emit(int(data.get("gain", 0)))
+		bread_received.emit(bread_gain)
+	else:
+		account_changed.emit()
 
 
 ## Arcade jouée sur le serveur (RPC « arcade », voir server/src/arcade.ts). Renvoie la

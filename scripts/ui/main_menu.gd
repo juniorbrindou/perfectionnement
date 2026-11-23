@@ -1,297 +1,491 @@
 extends Control
-## Écran d'accueil (maquette « Accueil ») : arche de pierre éclairée, titre dans une
-## bulle, paquet de cartes qui s'ouvre en éventail, modes de jeu en bas.
+## Écran d'accueil, d'après l'illustration validée (assets/accueil/accueil.png).
+##
+## L'image porte le décor, le titre et les cartes des modes. Le code pose par-dessus ce
+## qui change (pseudo, talents, progression de l'aventure, pain quotidien), rend les
+## cartes touchables et les anime : elles s'allument à l'arrivée, l'Aventure respire et un
+## reflet la traverse, une carte touchée se soulève. Les coordonnées ci-dessous sont des
+## pixels de l'image (941 px de large).
 
 const P := preload("res://scripts/ui/ui_theme.gd")
+const Map := preload("res://scripts/ui/adventure_map.gd")
+const ART := preload("res://assets/accueil/accueil.png")
+const ADVENTURE_PATH := "res://data/aventure.json"
+
+const ART_W := 941.0
+const ART_USED_H := 1515.0  ## Au-dessous, la barre d'onglets de l'image est écartée.
+
+const AVATAR := Rect2(46, 18, 124, 124)
+const NAME_PATCH := Rect2(186, 34, 292, 102)  ## Pseudo, niveau et barre d'XP de l'image.
+const PROFILE_TAP := Rect2(40, 18, 444, 124)
+const CROWN := Rect2(200, 76, 36, 32)
+const TALENT_PATCH := Rect2(604, 43, 96, 44)
+const TALENT_PILL := Rect2(500, 32, 214, 92)
+const BELL := Rect2(751, 35, 74, 74)
+const GEAR := Rect2(842, 35, 74, 74)
+const LOGO_GLOW := Rect2(300, 150, 340, 180)
+const ADVENTURE := Rect2(28, 583, 888, 384)
+const LEVEL_PILL := Rect2(489, 796, 394, 54)
+const STAR_ON := Rect2(745, 801, 44, 42)
+const STAR_OFF := Rect2(826, 801, 44, 42)
+const TWO := Rect2(28, 1000, 276, 332)
+const ONLINE := Rect2(330, 1000, 279, 332)
+const ROOMS := Rect2(636, 1000, 280, 332)
+const ONLINE_BUTTON := Rect2(376, 1260, 191, 54)
+const ROOMS_BUTTON := Rect2(680, 1260, 191, 54)
+const BREAD := Rect2(25, 1362, 890, 143)
+const BREAD_TEXT := Rect2(298, 1432, 494, 50)
+const CHECK := Rect2(794, 1394, 90, 90)
+
+const PANEL_BLUE := Color("1e3c6e")
+const PARCHMENT := Color("fcda9f")
+const INK := Color("3a2412")
+const GROUND := Color("352f2f")  ## Sol au bas de l'image.
+const SKY_HIGH := Color("1a4fae")
+const SKY_LOW := Color("296dd7")  ## Ciel en haut de l'image.
+const ART_H := 1672.0
+const NAV_TOP := 1526.0  ## Barre d'onglets de l'image, de NAV_TOP à ART_H.
+## Onglets de la barre du bas (abscisses dans l'image).
+const NAV_TABS := [
+	[30.0, 200.0, ""],
+	[210.0, 390.0, "Le classement arrive bientôt."],
+	[395.0, 580.0, "Les récompenses arrivent bientôt."],
+	[585.0, 760.0, "Les règles du jeu arrivent bientôt."],
+	[765.0, 915.0, "profil"],
+]
+
+var _s := 1.0  ## Échelle image → écran.
+var _top := 0.0  ## Décalage vertical de l'image.
+var _name: Label
+var _initial: Label
+var _level: Label
+var _talents: Label
+var _level_text: Label
+var _stars: Array = []
+var _bread_text: Label
+var _check: Control
+var _check_patch: Control
+var _adventure: Control
+var _cards: Array = []
 
 
 func _ready() -> void:
 	theme = P.get_theme()
-	var wall := Shapes.StoneWall.new()
-	wall.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(wall)
+	# L'image est réduite à l'écran : les mipmaps évitent le crénelage.
+	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	var screen := get_viewport_rect().size
+	_s = screen.x / ART_W
+	var used := ART_USED_H * _s
+	var nav_h := (ART_H - NAV_TOP) * _s
+	# Écran plus allongé que l'image (19,5:9 contre 16:9) : le ciel continue au-dessus, la
+	# barre d'onglets de l'image se cale en bas de l'écran et le sol remplit l'entre-deux.
+	var free := screen.y - used - nav_h
+	var with_nav := free >= P.px(8)
+	_top = clampf(free * 0.45, 0.0, P.px(70)) if with_nav else clampf((screen.y - used) / 2.0, 0.0, P.px(40))
+	var bottom := _top + used
+	_add_gradient(Rect2(0, bottom - 2, screen.x, screen.y - bottom + 2), GROUND, Color("1b1a2c"))
+	_add_gradient(Rect2(0, 0, screen.x, _top + 2), SKY_HIGH, SKY_LOW)
+	_add_crop(Rect2(0, 0, ART_W, ART_USED_H), Rect2(0, _top, screen.x, used))
+	# Raccords fondus : le haut de l'image dans le ciel, son bas dans le sol.
+	_add_gradient(Rect2(0, _top, screen.x, 16 * _s), SKY_LOW, Color(SKY_LOW, 0))
+	_add_gradient(Rect2(0, bottom - 26 * _s, screen.x, 26 * _s), Color(GROUND, 0), GROUND)
+	if with_nav:
+		_build_nav(screen.y - nav_h)
 
-	var arch := Shapes.Arch.new()
-	_place_center_x(arch, 300, 560, 90)
-	add_child(arch)
-	var light := Shapes.Glow.new()
-	light.set_anchors_preset(Control.PRESET_FULL_RECT)
-	light.center = Vector2(0.5, 0.3)
-	light.color = Color("fff2c2")
-	light.radius_ratio = 0.7
-	arch.add_child(light)
+	var glow := Shapes.Glow.new()
+	glow.color = Color(1.0, 0.92, 0.65, 0.5)
+	glow.radius_ratio = 0.5
+	_place(glow, LOGO_GLOW)
+	add_child(glow)
+	var gt := glow.create_tween().set_loops()
+	gt.tween_property(glow, "modulate:a", 0.25, 1.8).set_trans(Tween.TRANS_SINE)
+	gt.tween_property(glow, "modulate:a", 1.0, 1.8).set_trans(Tween.TRANS_SINE)
 
-	var floor_panel := Panel.new()
-	var fs := P.box(Color("5a2d12"), 0)
-	fs.corner_radius_top_left = P.px(120)
-	fs.corner_radius_top_right = P.px(120)
-	floor_panel.add_theme_stylebox_override("panel", fs)
-	floor_panel.anchor_top = 1.0
-	floor_panel.anchor_bottom = 1.0
-	floor_panel.anchor_right = 1.0
-	floor_panel.offset_left = -P.px(40)
-	floor_panel.offset_right = P.px(40)
-	floor_panel.offset_top = -P.px(250)
-	floor_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(floor_panel)
-
-	for side in [-1, 1]:
-		var who := "David" if side < 0 else "Esther"
-		var slot := Panel.new()
-		var ss := P.box(Color(P.NIGHT, 0.25), P.px(48))
-		ss.corner_radius_bottom_left = P.px(16)
-		ss.corner_radius_bottom_right = P.px(16)
-		ss.border_color = Color(P.CREAM, 0.7)
-		ss.set_border_width_all(P.px(3))
-		slot.add_theme_stylebox_override("panel", ss)
-		slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		slot.size = Vector2(P.px(96), P.px(150))
-		slot.position = Vector2(P.px(8) if side < 0 else P.px(390 - 8 - 96), P.px(250))
-		var sl := P.label("Illustration\n%s" % who, 12, P.CREAM, 900)
-		sl.set_anchors_preset(Control.PRESET_FULL_RECT)
-		sl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		slot.add_child(sl)
-		add_child(slot)
-
-	_title_bubble()
-	_card_fan()
-	_bottom_actions()
-	_player_pill()
-
-
-## Pastille du joueur en haut à gauche : pseudo et état de connexion ; ouvre le profil.
-var _pill: Button
-var _pill_row: HBoxContainer
-var _talents: Control
-var _talents_label: Label
-
-
-func _player_pill() -> void:
-	_pill = Button.new()
-	_pill.focus_mode = Control.FOCUS_NONE
-	var s := P.box(Color(P.NIGHT, 0.75), P.px(999), P.px(6), P.px(5))
-	for state in ["normal", "hover", "pressed", "hover_pressed"]:
-		_pill.add_theme_stylebox_override(state, s)
-	_pill.position = Vector2(P.px(16), P.px(40))
-	_pill.custom_minimum_size = Vector2(P.px(150), P.px(36))
-	_pill.pressed.connect(func(): get_tree().change_scene_to_file("res://scenes/profile.tscn"))
-	add_child(_pill)
-	_pill_row = P.hbox(8)
-	_pill_row.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_pill_row.offset_left = P.px(5)
-	_pill_row.offset_right = -P.px(12)
-	_pill.add_child(_pill_row)
-	_talents = PanelContainer.new()
-	_talents.add_theme_stylebox_override("panel", P.box(Color(P.NIGHT, 0.75), P.px(999), P.px(6), P.px(5)))
-	_talents.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_talents.anchor_left = 1.0
-	_talents.anchor_right = 1.0
-	_talents.grow_horizontal = Control.GROW_DIRECTION_BEGIN
-	_talents.offset_right = -P.px(16)
-	_talents.offset_top = P.px(40)
-	var trow := P.hbox(6)
-	var coin := P.circle(P.YELLOW, 26)
-	var t := P.title("T", 15, P.NIGHT)
-	t.set_anchors_preset(Control.PRESET_FULL_RECT)
-	t.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	coin.add_child(t)
-	trow.add_child(coin)
-	_talents_label = P.label("", 14, P.CREAM, 900)
-	_talents_label.autowrap_mode = TextServer.AUTOWRAP_OFF
-	_talents_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	trow.add_child(_talents_label)
-	trow.add_child(P.spacer(0))
-	_talents.add_child(trow)
-	add_child(_talents)
-	_refresh_pill()
-	Online.account_changed.connect(_refresh_pill)
+	_build_top_bar()
+	_build_cards()
+	_build_bread()
+	_refresh()
+	Online.account_changed.connect(_refresh)
 	Online.state_changed.connect(_on_online_state)
 	Online.bread_received.connect(_on_bread)
+	_load_progress()
+	_deal()
 
 
-func _on_online_state(_s) -> void:
-	_refresh_pill()
+# ---------------------------------------------------------------- Image
+
+func _r(r: Rect2) -> Rect2:
+	return Rect2(r.position * _s + Vector2(0, _top), r.size * _s)
 
 
-func _refresh_pill() -> void:
-	for child in _pill_row.get_children():
-		child.queue_free()
-	var online: bool = Online.is_online()
-	var shown: String = Online.username if online else ("Connexion…" if Online.state == Online.State.CONNECTING else "Hors ligne")
-	var av := P.avatar(shown if online else "?", P.TEAL if online else Color("8d86a3"), 26)
-	av.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	_pill_row.add_child(av)
-	var l := P.label(shown, 14, P.CREAM, 900, HORIZONTAL_ALIGNMENT_LEFT)
+func _place(c: Control, r: Rect2) -> void:
+	var rr := _r(r)
+	c.position = rr.position
+	c.size = rr.size
+
+
+func _crop_texture(region: Rect2) -> AtlasTexture:
+	var t := AtlasTexture.new()
+	t.atlas = ART
+	t.region = region
+	return t
+
+
+func _texture_rect(region: Rect2) -> TextureRect:
+	var tr := TextureRect.new()
+	tr.texture = _crop_texture(region)
+	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tr.stretch_mode = TextureRect.STRETCH_SCALE
+	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return tr
+
+
+func _add_crop(region: Rect2, screen_rect: Rect2) -> TextureRect:
+	var tr := _texture_rect(region)
+	tr.position = screen_rect.position
+	tr.size = screen_rect.size
+	add_child(tr)
+	return tr
+
+
+## Barre d'onglets de l'image, calée en bas de l'écran.
+func _build_nav(y: float) -> void:
+	var w := get_viewport_rect().size.x
+	_add_crop(Rect2(0, NAV_TOP, ART_W, ART_H - NAV_TOP), Rect2(0, y, w, (ART_H - NAV_TOP) * _s))
+	for tab in NAV_TABS:
+		var message: String = tab[2]
+		if message.is_empty():
+			continue
+		var b := Button.new()
+		b.flat = true
+		b.focus_mode = Control.FOCUS_NONE
+		for state in ["normal", "hover", "pressed", "hover_pressed", "focus"]:
+			b.add_theme_stylebox_override(state, StyleBoxEmpty.new())
+		b.position = Vector2(tab[0] * _s, y)
+		b.size = Vector2((tab[1] - tab[0]) * _s, (ART_H - NAV_TOP) * _s)
+		b.pressed.connect(_open_profile if message == "profil" else _toast.bind(message))
+		add_child(b)
+
+
+## Dégradé vertical, du haut vers le bas.
+func _add_gradient(screen_rect: Rect2, from: Color, to: Color) -> void:
+	var g := Gradient.new()
+	g.set_color(0, from)
+	g.set_color(1, to)
+	var tex := GradientTexture2D.new()
+	tex.gradient = g
+	tex.fill_from = Vector2(0.5, 0)
+	tex.fill_to = Vector2(0.5, 1)
+	var tr := TextureRect.new()
+	tr.texture = tex
+	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tr.stretch_mode = TextureRect.STRETCH_SCALE
+	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tr.position = screen_rect.position
+	tr.size = screen_rect.size
+	add_child(tr)
+
+
+## Pièce posée sur une carte : rectangle de l'image, relatif à la carte.
+func _on_card(card_region: Rect2, r: Rect2, c: Control, parent: Control) -> void:
+	c.position = (r.position - card_region.position) * _s
+	c.size = r.size * _s
+	parent.add_child(c)
+
+
+func _patch(color: Color, radius_img: float) -> Panel:
+	var p := Panel.new()
+	p.add_theme_stylebox_override("panel", P.box(color, int(radius_img * _s)))
+	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return p
+
+
+## Texte dont la taille est donnée en pixels de l'image, pour s'aligner sur ses textes.
+func _text(text: String, img_px: float, color: Color, weight: int = 900) -> Label:
+	var l := P.label(text, img_px * _s / P.SCALE, color, weight, HORIZONTAL_ALIGNMENT_LEFT)
 	l.autowrap_mode = TextServer.AUTOWRAP_OFF
-	l.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	_pill_row.add_child(l)
-	_pill.reset_size()
-	_talents.visible = online
-	_talents_label.text = "%d talents" % Online.talents()
+	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	return l
 
 
-## Pain quotidien reçu : bandeau doré au milieu de l'écran.
+# ---------------------------------------------------------------- Barre du haut
+
+func _build_top_bar() -> void:
+	# Chaque pièce reprend la place exacte de celle de l'image qu'elle remplace.
+	var patch := _patch(PANEL_BLUE, 10)
+	_place(patch, NAME_PATCH)
+	add_child(patch)
+	_name = _text("", 30, P.CREAM)
+	_place(_name, Rect2(200, 38, 270, 34))
+	add_child(_name)
+	var crown := _texture_rect(CROWN)
+	_place(crown, CROWN)
+	add_child(crown)
+	_level = _text("Niveau 1", 25, P.CREAM, 800)
+	_place(_level, Rect2(242, 76, 220, 32))
+	add_child(_level)
+	var bar := _patch(Color("2c3b52"), 6)
+	_place(bar, Rect2(200, 115, 232, 13))
+	add_child(bar)
+
+	var avatar := Control.new()
+	_place(avatar, AVATAR)
+	avatar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(avatar)
+	var ring := Panel.new()
+	ring.set_anchors_preset(Control.PRESET_FULL_RECT)
+	ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ring.add_theme_stylebox_override("panel", _round(Color("1f8f8c"), Color("f6c24a"), AVATAR.size.x * _s))
+	avatar.add_child(ring)
+	_initial = P.title("", 26, P.CREAM)
+	_initial.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_initial.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	avatar.add_child(_initial)
+
+	var tp := _patch(Color("1f3a6b"), 8)
+	_place(tp, TALENT_PATCH)
+	add_child(tp)
+	_talents = _text("", 38, P.CREAM)
+	_talents.set_anchors_preset(Control.PRESET_FULL_RECT)
+	tp.add_child(_talents)
+
+	_tap_zone(PROFILE_TAP, _open_profile)
+	_tap_zone(TALENT_PILL, func(): _toast("Les talents se gagnent en jouant, et 10 arrivent chaque jour avec le pain quotidien."))
+	_tap_zone(BELL, func(): _toast("Aucune notification pour l'instant."))
+	_tap_zone(GEAR, _open_profile)
+
+
+func _round(fill: Color, border: Color, diameter: float) -> StyleBoxFlat:
+	var s := StyleBoxFlat.new()
+	s.bg_color = fill
+	s.set_corner_radius_all(int(diameter))
+	s.border_color = border
+	s.set_border_width_all(int(maxf(3, 6 * _s)))
+	s.anti_aliasing = true
+	return s
+
+
+func _tap_zone(r: Rect2, action: Callable) -> Button:
+	var b := Button.new()
+	b.flat = true
+	b.focus_mode = Control.FOCUS_NONE
+	b.mouse_filter = Control.MOUSE_FILTER_STOP
+	for state in ["normal", "hover", "pressed", "hover_pressed", "focus", "disabled"]:
+		b.add_theme_stylebox_override(state, StyleBoxEmpty.new())
+	_place(b, r)
+	b.pressed.connect(action)
+	add_child(b)
+	return b
+
+
+func _open_profile() -> void:
+	get_tree().change_scene_to_file("res://scenes/profile.tscn")
+
+
+# ---------------------------------------------------------------- Cartes des modes
+
+func _build_cards() -> void:
+	_adventure = _card(ADVENTURE, 30, _go.bind("res://scenes/adventure.tscn"))
+	var pill := _patch(Color(0.09, 0.07, 0.07, 0.92), 26)
+	_on_card(ADVENTURE, LEVEL_PILL, pill, _adventure)
+	_level_text = _text("Genèse, niveau 1/8", 25, P.CREAM)
+	_on_card(ADVENTURE, Rect2(508, 798, 232, 50), _level_text, _adventure)
+	_stars.clear()
+	for x in [745.0, 787.0, 827.0]:
+		var star := _texture_rect(STAR_OFF)
+		_on_card(ADVENTURE, Rect2(x, STAR_ON.position.y, STAR_ON.size.x, STAR_ON.size.y), star, _adventure)
+		_stars.append(star)
+	_add_shine(_adventure, 30)
+	# L'Aventure respire doucement (jamais en dessous de sa taille : l'image reste cachée).
+	var bt := _adventure.create_tween().set_loops()
+	bt.tween_property(_adventure, "scale", Vector2(1.015, 1.015), 1.9).set_trans(Tween.TRANS_SINE)
+	bt.tween_property(_adventure, "scale", Vector2.ONE, 1.9).set_trans(Tween.TRANS_SINE)
+
+	_card(TWO, 26, _go.bind("res://scenes/local_setup.tscn"))
+	var online := _card(ONLINE, 26, func(): _toast("Les parties en ligne arrivent bientôt."))
+	_soon(online, ONLINE, ONLINE_BUTTON, Color("eef3e2"))
+	var rooms := _card(ROOMS, 26, func(): _toast("Les salons arrivent bientôt."))
+	_soon(rooms, ROOMS, ROOMS_BUTTON, Color("f6e4fb"))
+
+
+## Une carte de l'image, touchable : elle se soulève quand on la touche.
+func _card(region: Rect2, radius_img: float, action: Callable) -> Control:
+	var card := Control.new()
+	_place(card, region)
+	card.pivot_offset = card.size / 2
+	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(card)
+	var art := _texture_rect(region)
+	art.set_anchors_preset(Control.PRESET_FULL_RECT)
+	card.add_child(art)
+	var b := Button.new()
+	b.flat = true
+	b.focus_mode = Control.FOCUS_NONE
+	for state in ["normal", "hover", "pressed", "hover_pressed", "focus", "disabled"]:
+		b.add_theme_stylebox_override(state, StyleBoxEmpty.new())
+	b.set_anchors_preset(Control.PRESET_FULL_RECT)
+	b.z_index = 2
+	b.button_down.connect(func():
+		var t := card.create_tween()
+		t.tween_property(card, "scale", Vector2(1.05, 1.05), 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT))
+	b.button_up.connect(func():
+		var t := card.create_tween()
+		t.tween_property(card, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT))
+	b.pressed.connect(action)
+	card.add_child(b)
+	card.set_meta("radius", radius_img)
+	_cards.append(card)
+	return card
+
+
+## Mode pas encore disponible : son bouton devient « Bientôt ».
+func _soon(card: Control, region: Rect2, button: Rect2, fill: Color) -> void:
+	var p := _patch(fill, button.size.y / 2)
+	_on_card(region, button, p, card)
+	var row := P.hbox(6)
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.set_anchors_preset(Control.PRESET_FULL_RECT)
+	p.add_child(row)
+	var lock := Shapes.Icon.new("cadenas", Color("33264f"), 16)
+	lock.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(lock)
+	row.add_child(_text("Bientôt", 28, Color("33264f")))
+
+
+## Reflet qui traverse la carte de temps en temps.
+func _add_shine(card: Control, radius_img: float) -> void:
+	var mask := Panel.new()
+	mask.add_theme_stylebox_override("panel", P.box(Color.WHITE, int(radius_img * _s)))
+	mask.clip_children = CanvasItem.CLIP_CHILDREN_ONLY
+	mask.set_anchors_preset(Control.PRESET_FULL_RECT)
+	mask.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	card.add_child(mask)
+	var g := Gradient.new()
+	g.set_color(0, Color(1, 1, 1, 0))
+	g.set_color(1, Color(1, 1, 1, 0))
+	g.add_point(0.5, Color(1, 1, 1, 0.38))
+	var tex := GradientTexture2D.new()
+	tex.gradient = g
+	tex.fill_from = Vector2(0, 0.5)
+	tex.fill_to = Vector2(1, 0.5)
+	var band := TextureRect.new()
+	band.texture = tex
+	band.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	band.stretch_mode = TextureRect.STRETCH_SCALE
+	band.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	band.size = Vector2(card.size.x * 0.35, card.size.y * 1.8)
+	band.rotation_degrees = 18
+	band.position = Vector2(-band.size.x * 2, -card.size.y * 0.4)
+	mask.add_child(band)
+	var t := band.create_tween().set_loops()
+	t.tween_interval(2.5)
+	t.tween_property(band, "position:x", card.size.x * 1.3, 1.1).set_trans(Tween.TRANS_SINE)
+	t.tween_callback(func(): band.position.x = -band.size.x * 2)
+
+
+## Arrivée : les cartes s'allument l'une après l'autre.
+func _deal() -> void:
+	for i in _cards.size():
+		var c: Control = _cards[i]
+		c.modulate = Color(1.7, 1.6, 1.3)
+		var t := c.create_tween()
+		t.tween_interval(0.12 * i + 0.1)
+		t.tween_property(c, "modulate", Color.WHITE, 0.5).set_trans(Tween.TRANS_SINE)
+
+
+func _go(scene: String) -> void:
+	get_tree().change_scene_to_file(scene)
+
+
+# ---------------------------------------------------------------- Pain quotidien
+
+func _build_bread() -> void:
+	var bread := _card(BREAD, 18, func(): _toast("10 talents arrivent chaque jour, à ta première connexion."))
+	var patch := _patch(PARCHMENT, 10)
+	_on_card(BREAD, BREAD_TEXT, patch, bread)
+	_bread_text = _text("", 27, INK, 800)
+	_bread_text.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_bread_text.offset_left = 10 * _s
+	patch.add_child(_bread_text)
+	_check_patch = _patch(PARCHMENT, 45)
+	_on_card(BREAD, CHECK, _check_patch, bread)
+	_check = _texture_rect(CHECK)
+	_check.pivot_offset = CHECK.size * _s / 2
+	_on_card(BREAD, CHECK, _check, bread)
+
+
 func _on_bread(gain: int) -> void:
+	Online.bread_today = true
+	Online.bread_gain = gain
+	_refresh()
+	_check.scale = Vector2(0.2, 0.2)
+	var t := _check.create_tween()
+	t.tween_property(_check, "scale", Vector2.ONE, 0.45).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+# ---------------------------------------------------------------- Données
+
+func _on_online_state(_s2) -> void:
+	_refresh()
+	if Online.is_online():
+		_load_progress()
+
+
+func _refresh() -> void:
+	var online: bool = Online.is_online()
+	_name.text = Online.username if online else ("Connexion…" if Online.state == Online.State.CONNECTING else "Hors ligne")
+	_initial.text = (Online.username.substr(0, 1) if online else "?").to_upper()
+	_talents.text = str(Online.talents()) if online else "–"
+	if Online.bread_gain > 0:
+		_bread_text.text = "Tu as reçu %d talents !" % Online.bread_gain
+	elif Online.bread_today:
+		_bread_text.text = "Déjà reçu. Reviens demain !"
+	else:
+		_bread_text.text = "Connecte-toi pour le recevoir."
+	var shown := Online.bread_today
+	_check.visible = shown
+	_check_patch.visible = not shown
+
+
+func _load_progress() -> void:
+	if not Online.is_online() or not Online.has_email():
+		return
+	var r := await Online.arcade({"action": "etat"})
+	if r.has("erreur") or not is_inside_tree():
+		return
+	var stars: Dictionary = r.get("etoiles", {})
+	var count := 8
+	var data = JSON.parse_string(FileAccess.get_file_as_string(ADVENTURE_PATH))
+	if data is Dictionary and not data.get("chapitres", []).is_empty():
+		count = data["chapitres"][0].get("niveaux", []).size()
+	var level := Map.current_level(stars, count)
+	_level_text.text = "Genèse, niveau %d/%d" % [level, count]
+	var won: Array = stars.get(str(level), [])
+	for i in 3:
+		(_stars[i] as TextureRect).texture = _crop_texture(STAR_ON if i < won.size() else STAR_OFF)
+
+
+# ---------------------------------------------------------------- Commun
+
+func _toast(text: String) -> void:
 	var box := PanelContainer.new()
-	var s := P.box(P.NIGHT, P.px(18), P.px(18), P.px(14))
-	s.border_color = P.YELLOW
-	s.set_border_width_all(P.px(3))
+	var s := P.box(Color(0.08, 0.1, 0.2, 0.94), P.px(18), P.px(18), P.px(12))
+	s.border_color = Color("f6c24a")
+	s.set_border_width_all(P.px(2))
 	box.add_theme_stylebox_override("panel", s)
-	box.anchor_left = 0.1
-	box.anchor_right = 0.9
-	box.anchor_top = 0.42
-	box.anchor_bottom = 0.42
+	box.anchor_left = 0.08
+	box.anchor_right = 0.92
+	box.anchor_top = 0.5
+	box.anchor_bottom = 0.5
 	box.grow_vertical = Control.GROW_DIRECTION_BOTH
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var v := P.vbox(2)
-	v.add_child(P.title("Pain quotidien", 22, P.YELLOW))
-	v.add_child(P.title("+%d talents" % gain, 30, P.CREAM))
-	box.add_child(v)
+	box.z_index = 10
+	box.add_child(P.label(text, 16, P.CREAM, 800))
 	add_child(box)
-	box.scale = Vector2(0.6, 0.6)
-	box.resized.connect(func(): box.pivot_offset = box.size / 2)
 	var t := box.create_tween()
-	t.tween_property(box, "scale", Vector2.ONE, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	t.tween_interval(2.2)
 	t.tween_property(box, "modulate:a", 0.0, 0.4)
 	t.tween_callback(box.queue_free)
-
-func _place_center_x(c: Control, w: float, h: float, top: float) -> void:
-	c.anchor_left = 0.5
-	c.anchor_right = 0.5
-	c.offset_left = -P.px(w) / 2.0
-	c.offset_right = P.px(w) / 2.0
-	c.offset_top = P.px(top)
-	c.offset_bottom = P.px(top + h)
-
-
-func _title_bubble() -> void:
-	var holder := Control.new()
-	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_place_center_x(holder, 330, 110, 108)
-	add_child(holder)
-	var bubble := PanelContainer.new()
-	var s := P.box(P.CREAM, P.px(26), P.px(20), P.px(12))
-	s.border_color = P.VIOLET
-	s.set_border_width_all(P.px(5))
-	s.border_width_bottom = P.px(11)
-	bubble.add_theme_stylebox_override("panel", s)
-	bubble.set_anchors_preset(Control.PRESET_FULL_RECT)
-	bubble.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var v := P.vbox(2)
-	v.alignment = BoxContainer.ALIGNMENT_CENTER
-	v.add_child(P.title("Perfectionnement", 34, P.FRAMBOISE))
-	v.add_child(P.label("Le duel des cartes bibliques", 14, P.VIOLET, 900))
-	bubble.add_child(v)
-	holder.add_child(bubble)
-	holder.resized.connect(func(): holder.pivot_offset = holder.size / 2)
-	holder.rotation_degrees = -3
-
-
-## Deux cartes questions et un dos, qui s'ouvrent en éventail à l'arrivée.
-func _card_fan() -> void:
-	var stage := Control.new()
-	stage.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_place_center_x(stage, 300, 290, 330)
-	add_child(stage)
-	var cards: Array[Control] = [
-		_mini_question(P.TEAL, "Combien de fils Jacob avait-il ?", ["Sept", "Douze", "Dix", "Trois"]),
-		_mini_question(P.GOLD, "Quel roi demanda la sagesse ?", ["David", "Saül", "Salomon", "Josias"]),
-		_back_card(),
-	]
-	var sizes := [Vector2(128, 186), Vector2(128, 186), Vector2(146, 212)]
-	var targets := [Vector2(6, 40), Vector2(166, 40), Vector2(77, 10)]
-	var angles := [-14.0, 13.0, 0.0]
-	for i in cards.size():
-		var c := cards[i]
-		c.size = Vector2(P.px(sizes[i].x), P.px(sizes[i].y))
-		c.pivot_offset = c.size / 2
-		c.position = Vector2(P.px(targets[2].x), P.px(targets[2].y))
-		stage.add_child(c)
-	var t := create_tween().set_parallel()
-	for i in 2:
-		var target := Vector2(P.px(targets[i].x), P.px(targets[i].y))
-		t.tween_property(cards[i], "position", target, 0.7).set_delay(0.2).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		t.tween_property(cards[i], "rotation_degrees", angles[i], 0.7).set_delay(0.2).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-
-
-func _mini_question(color: Color, question: String, answers: Array) -> Control:
-	var card := PanelContainer.new()
-	var s := P.box(color, P.px(14), P.px(10), P.px(10))
-	s.border_color = P.YELLOW
-	s.set_border_width_all(P.px(4))
-	s.shadow_color = Color(0, 0, 0, 0.35)
-	s.shadow_size = P.px(10)
-	s.shadow_offset = Vector2(0, P.px(8))
-	card.add_theme_stylebox_override("panel", s)
-	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var v := P.vbox(8)
-	card.add_child(v)
-	var q := PanelContainer.new()
-	q.add_theme_stylebox_override("panel", P.box(P.CREAM, P.px(10), P.px(6), P.px(8)))
-	q.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	q.add_child(P.label(question, 10, P.NIGHT, 900))
-	v.add_child(q)
-	var band := PanelContainer.new()
-	band.add_theme_stylebox_override("panel", P.box(P.FRAMBOISE, P.px(8), P.px(8), P.px(6)))
-	band.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var lines := P.vbox(0)
-	for i in answers.size():
-		var row := P.hbox(4)
-		for part in [["%s)" % CardView.LETTERS[i], P.YELLOW], [answers[i], P.CREAM]]:
-			var l := P.title(part[0], 12, part[1], HORIZONTAL_ALIGNMENT_LEFT)
-			l.autowrap_mode = TextServer.AUTOWRAP_OFF
-			row.add_child(l)
-		lines.add_child(row)
-	band.add_child(lines)
-	v.add_child(band)
-	return card
-
-
-func _back_card() -> Control:
-	var card := Panel.new()
-	card.add_theme_stylebox_override("panel", P.box(P.FRAMBOISE, P.px(16)))
-	card.clip_children = CanvasItem.CLIP_CHILDREN_AND_DRAW
-	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var art := Shapes.CardBackArt.new()
-	art.set_anchors_preset(Control.PRESET_FULL_RECT)
-	card.add_child(art)
-	var border := Panel.new()
-	var bs := P.box(Color.TRANSPARENT, P.px(16))
-	bs.border_color = P.YELLOW
-	bs.set_border_width_all(P.px(5))
-	bs.draw_center = false
-	border.add_theme_stylebox_override("panel", bs)
-	border.set_anchors_preset(Control.PRESET_FULL_RECT)
-	border.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	card.add_child(border)
-	return card
-
-
-func _bottom_actions() -> void:
-	var m := P.margins(18, 0, 18, 24)
-	m.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(m)
-	var v := P.vbox(12)
-	v.alignment = BoxContainer.ALIGNMENT_END
-	m.add_child(v)
-	var play := P.button("Jouer à deux", func(): get_tree().change_scene_to_file("res://scenes/local_setup.tscn"), 25)
-	play.custom_minimum_size = Vector2(0, P.px(68))
-	v.add_child(play)
-	var grid := GridContainer.new()
-	grid.columns = 3
-	grid.add_theme_constant_override("h_separation", P.px(8))
-	var adventure := P.button("Aventure", func(): get_tree().change_scene_to_file("res://scenes/adventure.tscn"), 17, "GhostButton")
-	adventure.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	adventure.custom_minimum_size = Vector2(0, P.px(56))
-	grid.add_child(adventure)
-	for mode_name in ["En ligne", "Salons"]:
-		var b := P.button("%s\nbientôt" % mode_name, func(): pass, 15, "GhostButton")
-		b.disabled = true
-		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		b.custom_minimum_size = Vector2(0, P.px(56))
-		grid.add_child(b)
-	v.add_child(grid)
 
 
 func _notification(what: int) -> void:
