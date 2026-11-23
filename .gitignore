@@ -1,0 +1,14 @@
+# Godot
+.godot/
+/android/
+*.translation
+
+# Builds
+build/
+*.apk
+*.aab
+*.keystore
+
+# Système
+.DS_Store
+Thumbs.db
