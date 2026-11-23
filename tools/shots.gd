@@ -106,9 +106,11 @@ func _arcade() -> void:
 	a._clear_overlay()
 	a._stars = {"1": ["lait", "manne"], "2": ["lait"], "3": ["lait"]}
 	a._loaded = true
-	a._refresh()
+	a._select(4)
 	await _shot("22_aventure_carte")
-	a._show_level(4)
+	a._select(1)
+	a._choice = "solide"
+	a._refresh()
 	await _shot("23_aventure_niveau")
 
 	var session = root.get_node("Session")

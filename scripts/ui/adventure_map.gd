@@ -1,72 +1,105 @@
 extends Control
-## Arcade solo : la carte d'aventure (maquettes « Arcade solo : la carte d'aventure »,
-## « choisir la difficulté du niveau », « invité sans compte »).
+## Arcade solo : la carte d'aventure, d'après l'image peinte validée (assets/aventure/aventure.png,
+## préparée par tools/aventure_image.ps1 : numéros, étoiles et « Niveau 1 » effacés).
 ##
-## Chaque niveau se joue contre le Scribe dans l'une des trois difficultés ; chaque
-## difficulté gagnée donne son étoile, et la première victoire ouvre le niveau suivant.
-## La progression et les talents viennent du serveur (RPC « arcade »).
+## Les niveaux sont posés sur le chemin peint : une pièce dorée quand le niveau est ouvert, une
+## pierre au cadenas sinon. Le panneau du bas montre le niveau choisi et ses trois difficultés ;
+## « Jouer » lance la partie contre le Scribe. Chaque difficulté gagnée donne son étoile, et la
+## première victoire ouvre le niveau suivant. La progression et les talents viennent du serveur
+## (RPC « arcade »). Les coordonnées sont des pixels de l'image (941 px de large).
 
 const P := preload("res://scripts/ui/ui_theme.gd")
+const ART := preload("res://assets/aventure/aventure.png")
+const COIN := preload("res://assets/aventure/piece.png")
+const STONE := preload("res://assets/aventure/pierre.png")
+const STAR := preload("res://assets/aventure/etoile.png")
 const ADVENTURE_PATH := "res://data/aventure.json"
 const DIFFICULTIES: Array[String] = ["lait", "manne", "solide"]
 const STAKES := {"lait": 2, "manne": 5, "solide": 10}
-## Centres des niveaux sur la maquette (390 px de large) ; MAP_TOP..MAP_BOTTOM est la
-## bande de la maquette répartie sur la hauteur disponible.
-const POINTS := [Vector2(195, 720), Vector2(300, 660), Vector2(190, 590), Vector2(80, 520),
-	Vector2(180, 440), Vector2(300, 380), Vector2(210, 300), Vector2(100, 230)]
-const MAP_TOP := 190.0
-const MAP_BOTTOM := 750.0
-const GRASS := Color("5fb36a")
+
+const ART_W := 941.0
+const ART_H := 1672.0
+const ART_CUT := 142.0  ## L'image commence sous sa barre peinte (remplacée par TopBar).
+const SKY_HIGH := Color("1a4fae")
+const SKY_AT_CUT := Color("2c9ffd")  ## Ciel de l'image à la hauteur ART_CUT.
+
+## Les niveaux sur le chemin, du bas vers le château : centre, largeur visible, ce que l'image
+## y peint déjà (« piece », « pierre » ou rien) et, pour une pierre peinte, le centre de son cadenas.
+const SPOTS := [
+	[Vector2(265, 958), 194.0, "piece", Vector2.ZERO],
+	[Vector2(462, 1002), 104.0, "", Vector2.ZERO],
+	[Vector2(585, 895), 174.0, "pierre", Vector2(586, 880)],
+	[Vector2(452, 842), 100.0, "", Vector2.ZERO],
+	[Vector2(420, 730), 160.0, "pierre", Vector2(420, 720)],
+	[Vector2(614, 678), 96.0, "", Vector2.ZERO],
+	[Vector2(537, 568), 145.0, "pierre", Vector2(539, 560)],
+	[Vector2(720, 440), 140.0, "pierre", Vector2(720, 430)],
+]
+const RIBBON := Rect2(330, 1136, 281, 56)
+const CELLS := [Rect2(44, 1180, 284, 278), Rect2(333, 1180, 276, 278), Rect2(614, 1180, 288, 278)]
+## Étoiles de chaque difficulté (Lait 1, Manne 2, Nourriture solide 3), à leur place peinte.
+const CELL_STARS := [[Vector2(189, 1411)], [Vector2(444, 1411), Vector2(497, 1411)],
+	[Vector2(711, 1411), Vector2(759, 1411), Vector2(806, 1411)]]
+const CELL_STAR_W := 52.0
+const PLAY := Rect2(222, 1450, 500, 112)
+const STAKE_PILL := Rect2(596, 1428, 140, 46)
+const BACK := Rect2(32, 1520, 114, 114)
 
 var _chapter: Dictionary = {}
 var _stars: Dictionary = {}  ## "niveau" → difficultés gagnées
-var _by_chapter: Dictionary = {}  ## "niveau" → difficulté → les livres du chapitre suffisent
 var _loaded := false
-var _map: MapArt
+var _busy := false
+var _s := 1.0
+var _top := 0.0
 var _nodes: Array = []
-var _header_stars: Label
-var _play: Button
+var _selected := 0
+var _choice := "lait"
+var _ribbon: Label
+var _cell_marks: Array = []
+var _cell_stars: Array = []
+var _stake: Label
+var _play_veil: Panel
 var _overlay: Control
-var _sheet_level := 0
-var _sheet_choice := ""
-var _sheet_error: Label
 
 
 func _ready() -> void:
 	theme = P.get_theme()
+	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	var data = JSON.parse_string(FileAccess.get_file_as_string(ADVENTURE_PATH))
 	if data is Dictionary and not data.get("chapitres", []).is_empty():
 		_chapter = data["chapitres"][0]
-	var bg := ColorRect.new()
-	bg.color = GRASS
-	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
-	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(bg)
+	var screen := get_viewport_rect().size
+	_s = screen.x / ART_W
+	_top = maxf(screen.y - ART_H * _s, 0.0)
+	var bar := TopBar.attach(self)
 
-	_map = MapArt.new()
-	_map.set_anchors_preset(Control.PRESET_FULL_RECT)
-	var top := TopBar.attach(self).bottom()
-	_map.offset_top = top + P.px(66)
-	_map.offset_bottom = -P.px(92)
-	_map.resized.connect(_layout_nodes)
-	add_child(_map)
-	for i in _levels().size():
-		var n := LevelNode.new(i + 1)
+	# Le ciel et ses nuages entre la barre du haut et l'image, comme à l'accueil.
+	var art_y := _top + ART_CUT * _s
+	_gradient(Rect2(0, 0, screen.x, art_y + 2), SKY_HIGH, SKY_AT_CUT)
+	var clouds := SkyClouds.new()
+	clouds.position = Vector2(0, bar.bottom())
+	clouds.size = Vector2(screen.x, maxf(art_y - bar.bottom() + 30 * _s, 0))
+	add_child(clouds)
+	var art := TextureRect.new()
+	var atlas := AtlasTexture.new()
+	atlas.atlas = ART
+	atlas.region = Rect2(0, ART_CUT, ART_W, ART_H - ART_CUT)
+	art.texture = atlas
+	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	art.stretch_mode = TextureRect.STRETCH_SCALE
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	art.position = Vector2(0, art_y)
+	art.size = Vector2(screen.x, (ART_H - ART_CUT) * _s)
+	add_child(art)
+	_gradient(Rect2(0, art_y, screen.x, 40 * _s), SKY_AT_CUT, Color(SKY_AT_CUT, 0))
+
+	for i in mini(_levels().size(), SPOTS.size()):
+		var n := LevelNode.new(i + 1, SPOTS[i], _s)
+		n.position = _r(Rect2(SPOTS[i][0], Vector2.ZERO)).position - n.size / 2
 		n.pressed.connect(_on_node.bind(i + 1))
-		_map.add_child(n)
+		add_child(n)
 		_nodes.append(n)
-
-	_build_header()
-	var m := P.margins(16, 0, 16, 18)
-	m.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(m)
-	var v := P.vbox(0)
-	v.alignment = BoxContainer.ALIGNMENT_END
-	m.add_child(v)
-	_play = P.button("Chargement…", _on_play, 22)
-	_play.custom_minimum_size = Vector2(0, P.px(62))
-	_play.disabled = true
-	v.add_child(_play)
+	_build_panel()
 
 	_overlay = Control.new()
 	_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -84,13 +117,6 @@ func _ready() -> void:
 
 func _levels() -> Array:
 	return _chapter.get("niveaux", [])
-
-
-func _level_name(level: int) -> String:
-	for l in _levels():
-		if int(l["id"]) == level:
-			return str(l["nom"])
-	return "Niveau %d" % level
 
 
 func _won(level: int) -> Array:
@@ -124,98 +150,187 @@ static func current_level(stars: Dictionary, count: int) -> int:
 
 func _load_progress() -> void:
 	var r := await Online.arcade({"action": "etat"})
+	if not is_inside_tree():
+		return
 	if r.has("erreur"):
-		_play.text = "Réessayer"
-		_play.disabled = false
-		_toast(r["erreur"])
+		_show_notice("Carte indisponible", str(r["erreur"]), "Réessayer", _retry)
 		return
 	_stars = r.get("etoiles", {})
-	_by_chapter = r.get("duChapitre", {})
 	_loaded = true
+	var level := _current_level()
+	if Session.arcade_open_level > 0 and _is_open(Session.arcade_open_level):
+		level = Session.arcade_open_level
+	Session.arcade_open_level = 0
+	_select(level)
+
+
+## Choisit un niveau : la difficulté proposée est la première qu'il reste à gagner.
+func _select(level: int) -> void:
+	_selected = level
+	_choice = "lait"
+	for d in DIFFICULTIES:
+		if not d in _won(level):
+			_choice = d
+			break
 	_refresh()
-	if Session.arcade_open_level > 0:
-		var level := Session.arcade_open_level
-		Session.arcade_open_level = 0
-		if _is_open(level):
-			_show_level(level)
-
-
-func _on_play() -> void:
-	if _loaded:
-		_show_level(_current_level())
-	else:
-		get_tree().reload_current_scene()
 
 
 func _refresh() -> void:
-	var total := 0
 	for i in _nodes.size():
 		var level := i + 1
-		var won := _won(level).size()
-		total += won
-		var state := LevelNode.State.LOCKED
-		if _loaded and _is_open(level):
-			state = LevelNode.State.CURRENT if level == _current_level() else LevelNode.State.OPEN
-		_nodes[i].set_state(state, won)
-	_header_stars.text = "%d / %d" % [total, _levels().size() * 3]
-	if _loaded:
-		_play.text = "Jouer le niveau %d" % _current_level()
-		_play.disabled = false
-
-
-func _layout_nodes() -> void:
-	for i in _nodes.size():
-		var n: LevelNode = _nodes[i]
-		n.position = _map.to_local_point(POINTS[i]) - n.size / 2
+		(_nodes[i] as LevelNode).set_state(_loaded and _is_open(level), _won(level).size(), level == _selected)
+	_ribbon.text = "Niveau %d" % maxi(_selected, 1)
+	for i in DIFFICULTIES.size():
+		var d := DIFFICULTIES[i]
+		(_cell_marks[i] as Control).visible = _loaded and d == _choice
+		for star in _cell_stars[i]:
+			(star as TextureRect).modulate = Color.WHITE if d in _won(_selected) else LevelNode.DIM
+	var stake: int = STAKES[_choice]
+	_stake.text = str(stake)
+	_play_veil.visible = not _loaded or _busy or Online.talents() < stake
 
 
 func _on_node(level: int) -> void:
-	if _loaded and _is_open(level):
-		_show_level(level)
-	elif _loaded:
+	if not _loaded or _busy:
+		return
+	if _is_open(level):
+		_select(level)
+	else:
 		_toast("Gagne le niveau %d pour ouvrir celui-ci." % (level - 1))
 
 
-# ---------------------------------------------------------------- En-tête
+# ---------------------------------------------------------------- Panneau du bas
 
-func _build_header() -> void:
-	var bar := PanelContainer.new()
-	var s := P.box(P.VIOLET, 0, P.px(16), P.px(12))
-	s.corner_radius_bottom_left = P.px(26)
-	s.corner_radius_bottom_right = P.px(26)
-	s.content_margin_top = P.px(10)
-	s.shadow_color = Color(P.NIGHT, 0.4)
-	s.shadow_offset = Vector2(0, P.px(6))
-	bar.add_theme_stylebox_override("panel", s)
-	bar.set_anchors_preset(Control.PRESET_TOP_WIDE)
-	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(bar)
-	bar.offset_top = _map.offset_top - P.px(66)  # sous la barre du haut
-	var row := P.hbox(10)
-	bar.add_child(row)
-	var back := P.button("‹", _to_menu, 26, "GhostButton")
-	back.custom_minimum_size = Vector2(P.px(40), P.px(40))
-	back.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	row.add_child(back)
-	var titles := P.vbox(0)
-	titles.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	titles.add_child(P.title(str(_chapter.get("nom", "Aventure")), 22, P.YELLOW, HORIZONTAL_ALIGNMENT_LEFT))
-	titles.add_child(P.label(str(_chapter.get("resume", "")), 13, P.LILAC, 800, HORIZONTAL_ALIGNMENT_LEFT))
-	row.add_child(titles)
-	var pill := PanelContainer.new()
-	pill.add_theme_stylebox_override("panel", P.box(Color(1, 1, 1, 0.12), P.px(999), P.px(12), P.px(6)))
-	pill.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+func _build_panel() -> void:
+	_ribbon = P.title("", RIBBON.size.y * 0.62 * _s / P.SCALE, Color("fff1d6"))
+	_ribbon.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_place(_ribbon, RIBBON)
+
+	for i in CELLS.size():
+		var mark := Panel.new()
+		var st := P.box(Color(1.0, 0.85, 0.4, 0.0), int(22 * _s))
+		st.border_color = Color("e8a417")
+		st.set_border_width_all(maxi(3, int(7 * _s)))
+		mark.add_theme_stylebox_override("panel", st)
+		mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_place(mark, CELLS[i].grow(-6))
+		_cell_marks.append(mark)
+		var stars: Array = []
+		for c in CELL_STARS[i]:
+			var star := TextureRect.new()
+			star.texture = STAR
+			star.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			star.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			star.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			var w := CELL_STAR_W * float(STAR.get_width()) / 68.0
+			_place(star, Rect2(c - Vector2(w, w) / 2, Vector2(w, w)))
+			stars.append(star)
+		_cell_stars.append(stars)
+		var diff := DIFFICULTIES[i]
+		_tap(CELLS[i], func():
+			if _loaded and not _busy:
+				_choice = diff
+				_refresh())
+
+	# Mise du niveau, en pastille sur le coin du bouton « Jouer ».
+	var pill := Panel.new()
+	var ps := P.box(Color("10235c"), int(STAKE_PILL.size.y * _s / 2))
+	ps.border_color = Color("f2c14e")
+	ps.set_border_width_all(maxi(2, int(3 * _s)))
+	pill.add_theme_stylebox_override("panel", ps)
 	pill.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var ph := P.hbox(5)
-	ph.add_child(Shapes.Stars.new(1, 1, 15))
-	_header_stars = P.label("", 14, P.CREAM, 900)
-	_header_stars.autowrap_mode = TextServer.AUTOWRAP_OFF
-	ph.add_child(_header_stars)
-	pill.add_child(ph)
-	row.add_child(pill)
+	pill.z_index = 1
+	_place(pill, STAKE_PILL)
+	var row := P.hbox(int(6 * _s))
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.set_anchors_preset(Control.PRESET_FULL_RECT)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pill.add_child(row)
+	var coins := TextureRect.new()
+	coins.texture = TopBar.COINS
+	coins.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	coins.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	coins.custom_minimum_size = Vector2(34, 30) * _s
+	coins.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	coins.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(coins)
+	_stake = P.title("", 30 * _s / P.SCALE, Color.WHITE)
+	_stake.autowrap_mode = TextServer.AUTOWRAP_OFF
+	_stake.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(_stake)
+
+	# Bouton grisé tant que la partie ne peut pas partir (chargement, talents insuffisants).
+	_play_veil = Panel.new()
+	_play_veil.add_theme_stylebox_override("panel", P.box(Color(0.12, 0.1, 0.08, 0.45), int(PLAY.size.y * _s / 2)))
+	_play_veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_place(_play_veil, PLAY.grow(-6))
+	_tap(PLAY, _on_play)
+	_tap(BACK, _to_menu)
 
 
-# ---------------------------------------------------------------- Panneau du niveau
+func _on_play() -> void:
+	if not _loaded or _busy:
+		return
+	var stake: int = STAKES[_choice]
+	if Online.talents() < stake:
+		_toast("Il te faut %d talents pour jouer en %s." % [stake, CardData.DIFFICULTY_LABELS[_choice]])
+		return
+	_busy = true
+	_refresh()
+	var r := await Online.arcade({"action": "commencer", "niveau": _selected, "difficulte": _choice})
+	if not is_inside_tree():
+		return
+	if r.has("erreur"):
+		_busy = false
+		_refresh()
+		_toast(str(r["erreur"]))
+		return
+	Session.arcade_start = r
+	get_tree().change_scene_to_file("res://scenes/arcade_match.tscn")
+
+
+# ---------------------------------------------------------------- Image
+
+func _r(r: Rect2) -> Rect2:
+	return Rect2(r.position * _s + Vector2(0, _top), r.size * _s)
+
+
+func _place(c: Control, r: Rect2) -> void:
+	var rr := _r(r)
+	c.position = rr.position
+	c.size = rr.size
+	add_child(c)
+
+
+func _tap(r: Rect2, action: Callable) -> void:
+	var b := Button.new()
+	b.flat = true
+	b.focus_mode = Control.FOCUS_NONE
+	for state in ["normal", "hover", "pressed", "hover_pressed", "focus", "disabled"]:
+		b.add_theme_stylebox_override(state, StyleBoxEmpty.new())
+	b.pressed.connect(action)
+	_place(b, r)
+
+
+func _gradient(r: Rect2, from: Color, to: Color) -> void:
+	var g := Gradient.new()
+	g.set_color(0, from)
+	g.set_color(1, to)
+	var tex := GradientTexture2D.new()
+	tex.gradient = g
+	tex.fill_from = Vector2(0.5, 0)
+	tex.fill_to = Vector2(0.5, 1)
+	var tr := TextureRect.new()
+	tr.texture = tex
+	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tr.stretch_mode = TextureRect.STRETCH_SCALE
+	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tr.position = r.position
+	tr.size = r.size
+	add_child(tr)
+
+
+# ---------------------------------------------------------------- Fenêtres
 
 func _clear_overlay() -> void:
 	for c in _overlay.get_children():
@@ -230,170 +345,6 @@ func _dim(alpha: float) -> void:
 	dim.mouse_filter = Control.MOUSE_FILTER_STOP
 	_overlay.add_child(dim)
 	_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
-
-
-func _show_level(level: int) -> void:
-	_sheet_level = level
-	if _sheet_choice.is_empty() or not _sheet_choice in DIFFICULTIES:
-		_sheet_choice = "lait"
-		for d in DIFFICULTIES:
-			if not d in _won(level):
-				_sheet_choice = d
-				break
-	_build_sheet()
-
-
-func _build_sheet() -> void:
-	_clear_overlay()
-	_dim(0.55)
-	var level := _sheet_level
-
-	var sheet := PanelContainer.new()
-	var s := P.box(P.VIOLET, 0, P.px(18), P.px(22))
-	s.corner_radius_top_left = P.px(30)
-	s.corner_radius_top_right = P.px(30)
-	s.border_color = P.YELLOW
-	s.border_width_top = P.px(4)
-	s.content_margin_bottom = P.px(14)
-	sheet.add_theme_stylebox_override("panel", s)
-	sheet.anchor_top = 1.0
-	sheet.anchor_bottom = 1.0
-	sheet.anchor_right = 1.0
-	sheet.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	sheet.mouse_filter = Control.MOUSE_FILTER_STOP
-	_overlay.add_child(sheet)
-	var v := P.vbox(0)
-	sheet.add_child(v)
-
-	var head := P.hbox(12)
-	var badge := P.circle(P.YELLOW, 52)
-	badge.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	var num := P.title(str(level), 26, P.NIGHT)
-	num.set_anchors_preset(Control.PRESET_FULL_RECT)
-	num.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	badge.add_child(num)
-	head.add_child(badge)
-	var titles := P.vbox(2)
-	titles.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	titles.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	titles.add_child(P.title(_level_name(level), 26, P.YELLOW, HORIZONTAL_ALIGNMENT_LEFT))
-	titles.add_child(P.label(_content_text(), 14, P.LILAC, 800, HORIZONTAL_ALIGNMENT_LEFT))
-	head.add_child(titles)
-	v.add_child(head)
-
-	v.add_child(P.spacer(16))
-	var foe := PanelContainer.new()
-	foe.add_theme_stylebox_override("panel", P.box(Color(1, 1, 1, 0.08), P.px(14), P.px(12), P.px(8)))
-	foe.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var fh := P.hbox(10)
-	var av := scribe_avatar(38)
-	av.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	fh.add_child(av)
-	var fl := P.label("Ton adversaire : le Scribe. Il se trompe plus souvent quand la difficulté monte.", 14, P.CREAM, 800, HORIZONTAL_ALIGNMENT_LEFT)
-	fl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	fh.add_child(fl)
-	foe.add_child(fh)
-	v.add_child(foe)
-
-	v.add_child(P.spacer(18))
-	v.add_child(P.title("Choisis ta difficulté", 18, P.CREAM, HORIZONTAL_ALIGNMENT_LEFT))
-	v.add_child(P.spacer(10))
-	var choices := P.vbox(10)
-	for i in DIFFICULTIES.size():
-		choices.add_child(_difficulty_button(DIFFICULTIES[i], i + 1, level))
-	v.add_child(choices)
-
-	v.add_child(P.spacer(14))
-	var hint := "Chaque difficulté gagnée donne son étoile."
-	if level < _levels().size() and _is_open(level + 1):
-		hint += " Le niveau %d est déjà ouvert." % (level + 1)
-	v.add_child(P.label(hint, 14, P.LILAC))
-	_sheet_error = P.label("", 14, Color("ff8fb8"), 900)
-	_sheet_error.visible = false
-	v.add_child(_sheet_error)
-
-	v.add_child(P.spacer(16))
-	var stake: int = STAKES[_sheet_choice]
-	var enough := Online.talents() >= stake
-	var go := P.button("Jouer en %s : %d talents" % [CardData.DIFFICULTY_LABELS[_sheet_choice], stake] if enough
-		else "Il te faut %d talents" % stake, func(): pass, 22)
-	go.custom_minimum_size = Vector2(0, P.px(62))
-	go.disabled = not enough
-	go.pressed.connect(_start.bind(go))
-	v.add_child(go)
-	var back := _link("Retour à la carte", _clear_overlay)
-	v.add_child(back)
-
-
-func _content_text() -> String:
-	var books: Array[String] = []
-	books.assign(_chapter.get("livres", []))
-	# Le serveur dit si le chapitre a assez de cartes ; sinon, il tire dans toute la Bible.
-	if _by_chapter.get(str(_sheet_level), {}).get(_sheet_choice, false):
-		return "Questions sur %s" % ", ".join(books)
-	return "Questions sur toute la Bible"
-
-
-func _difficulty_button(diff: String, rank: int, level: int) -> Button:
-	var selected := diff == _sheet_choice
-	var won := diff in _won(level)
-	var color := P.difficulty_color(diff)
-	var b := Button.new()
-	b.focus_mode = Control.FOCUS_NONE
-	b.custom_minimum_size = Vector2(0, P.px(64))
-	var s := P.box(color, P.px(16), P.px(14), 0)
-	s.border_color = color.darkened(0.35)
-	s.border_width_bottom = P.px(4)
-	if selected:
-		s.border_color = P.CREAM
-		s.set_border_width_all(P.px(4))
-		s.shadow_color = Color(P.YELLOW, 0.45)
-		s.shadow_size = P.px(6)
-	for state in ["normal", "hover", "pressed", "hover_pressed"]:
-		b.add_theme_stylebox_override(state, s)
-	var dark := diff == "manne"
-	var text_color := P.NIGHT if dark else P.CREAM
-	var row := P.hbox(12)
-	row.set_anchors_preset(Control.PRESET_FULL_RECT)
-	row.offset_left = P.px(14)
-	row.offset_right = -P.px(14)
-	var name_label := P.title(CardData.DIFFICULTY_LABELS[diff], 21, text_color, HORIZONTAL_ALIGNMENT_LEFT)
-	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	name_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	name_label.autowrap_mode = TextServer.AUTOWRAP_OFF
-	row.add_child(name_label)
-	var stars := Shapes.Stars.new(rank, 3, 17)
-	stars.on_color = P.NIGHT if dark else P.YELLOW
-	stars.off_color = Color(P.NIGHT, 0.3) if dark else Color(1, 1, 1, 0.35)
-	stars.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	row.add_child(stars)
-	var tag := PanelContainer.new()
-	tag.add_theme_stylebox_override("panel", P.box(Color(P.NIGHT, 0.15 if dark else 0.3), P.px(999), P.px(10), P.px(4)))
-	tag.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var tl := P.label("Gagné" if won else "Mise %d" % STAKES[diff], 14, text_color, 900)
-	tl.autowrap_mode = TextServer.AUTOWRAP_OFF
-	tag.add_child(tl)
-	row.add_child(tag)
-	b.add_child(row)
-	b.pressed.connect(func():
-		_sheet_choice = diff
-		_build_sheet())
-	return b
-
-
-func _start(go: Button) -> void:
-	go.disabled = true
-	go.text = "Préparation de la partie…"
-	var r := await Online.arcade({"action": "commencer", "niveau": _sheet_level, "difficulte": _sheet_choice})
-	if r.has("erreur"):
-		_sheet_error.text = r["erreur"]
-		_sheet_error.visible = true
-		go.disabled = false
-		go.text = "Réessayer"
-		return
-	Session.arcade_start = r
-	get_tree().change_scene_to_file("res://scenes/arcade_match.tscn")
 
 
 # ---------------------------------------------------------------- Invité, hors ligne
@@ -543,96 +494,52 @@ func _to_menu() -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_GO_BACK_REQUEST:
-		if _sheet_level > 0 and _overlay.get_child_count() > 0 and Online.has_account():
-			_sheet_level = 0
-			_clear_overlay()
-		else:
-			_to_menu()
+		_to_menu()
 
 
-# ---------------------------------------------------------------- Dessin de la carte
+# ---------------------------------------------------------------- Niveaux
 
-## Le décor : prairie, jardin, arche, pays de Canaan et le chemin entre les niveaux.
-class MapArt extends Control:
-	func _init() -> void:
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
-		resized.connect(queue_redraw)
-
-	## Point de la maquette (390 px de large) → position dans ce contrôle.
-	func to_local_point(p: Vector2) -> Vector2:
-		var t := (p.y - MAP_TOP) / (MAP_BOTTOM - MAP_TOP)
-		return Vector2(p.x / 390.0 * size.x, t * size.y)
-
-	func _ellipse(center: Vector2, radii: Vector2, color: Color) -> void:
-		draw_set_transform(center, 0, radii / radii.x)
-		draw_circle(Vector2.ZERO, radii.x, color)
-		draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
-
-	func _caption(text: String, at: Vector2, color: Color) -> void:
-		var font := UiTheme.body_font(900)
-		var fs := UiTheme.px(12)
-		draw_string(font, at + Vector2(0, UiTheme.px(1)), text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(0, 0, 0, 0.35))
-		draw_string(font, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, color)
-
-	func _draw() -> void:
-		if size.x < 40 or size.y < 40:
-			return
-		var k := size.x / 390.0
-		# Jardin d'Éden (en haut à gauche), arche (à droite), pays de Canaan (en bas).
-		_ellipse(to_local_point(Vector2(55, 170)), Vector2(85, 60) * k, Color("3e9150"))
-		_ellipse(to_local_point(Vector2(29, 160)), Vector2(17, 23) * k, Color("2f7a3f"))
-		_ellipse(to_local_point(Vector2(72, 152)), Vector2(20, 27) * k, Color("2f7a3f"))
-		_caption("Le jardin d'Éden", to_local_point(Vector2(12, 205)), UiTheme.CREAM)
-		var ark := to_local_point(Vector2(317, 490))
-		var hull := PackedVector2Array([ark + Vector2(-55, -18) * k, ark + Vector2(55, -18) * k, ark + Vector2(40, 18) * k, ark + Vector2(-40, 18) * k])
-		draw_colored_polygon(hull, Color("8a5a2b"))
-		draw_rect(Rect2(ark + Vector2(-25, -42) * k, Vector2(50, 26) * k), Color("a46d36"))
-		_caption("L'arche de Noé", to_local_point(Vector2(270, 530)), UiTheme.CREAM)
-		_ellipse(to_local_point(Vector2(80, 645)), Vector2(60, 35) * k, Color("e7c98a"))
-		_caption("Le pays de Canaan", to_local_point(Vector2(26, 700)), Color("4a3418"))
-
-		var curve := Curve2D.new()
-		var pts: Array[Vector2] = []
-		for p in POINTS:
-			pts.append(to_local_point(p))
-		for i in pts.size():
-			var prev := pts[maxi(i - 1, 0)]
-			var next := pts[mini(i + 1, pts.size() - 1)]
-			var tangent := (next - prev) * 0.25
-			curve.add_point(pts[i], -tangent, tangent)
-		var line := curve.tessellate()
-		var outer := Color("b58552")
-		draw_polyline(line, outer, 26 * k, true)
-		draw_polyline(line, Color("d6a86f"), 16 * k, true)
-		# Pointillés : des coupures régulières dans le sable du chemin.
-		var length := curve.get_baked_length()
-		var d := 0.0
-		var step := 28.0 * k
-		while d < length:
-			var a := curve.sample_baked(d + 18 * k)
-			var b := curve.sample_baked(minf(d + step, length))
-			if d + 18 * k < length:
-				draw_line(a, b, outer, 16 * k, true)
-			d += step
-
-
-## Un niveau sur la carte : pastille numérotée et ses étoiles.
+## Un niveau sur le chemin : pièce dorée numérotée et ses étoiles s'il est ouvert, pierre au
+## cadenas numéroté sinon. Une pierre déjà peinte dans l'image n'est pas redessinée : on n'écrit
+## que son numéro ; une pièce posée dessus est un peu plus large pour la couvrir.
 class LevelNode extends Control:
 	signal pressed
-	enum State { LOCKED, OPEN, CURRENT }
+	const DIM := Color(0.4, 0.34, 0.3)  ## Étoile pas encore gagnée.
+	## Repères dans les découpes : centre de la pièce visible (192 px) et de la pierre (174 px).
+	const COIN_CENTER := Vector2(105, 83)
+	const COIN_W := 194.0
+	const COIN_FACE := Vector2(105, 60)
+	const STONE_CENTER := Vector2(95, 75)
+	const STONE_W := 174.0
+	const STONE_LOCK := Vector2(96, 60)
+
 	var level := 1
-	var state := State.LOCKED
-	var stars := 0
+	var width := 100.0  ## Largeur visible à l'écran.
+	var painted := ""
+	var lock := Vector2.ZERO  ## Cadenas peint, relatif au centre (écran).
+	var open := false
+	var won := 0
+	var selected := false
+	var _t := 0.0
 
-	func _init(n: int) -> void:
+	func _init(n: int, spot: Array, s: float) -> void:
 		level = n
+		width = float(spot[1]) * s
+		painted = spot[2]
+		if painted == "pierre":
+			lock = (Vector2(spot[3]) - Vector2(spot[0])) * s
 		mouse_filter = Control.MOUSE_FILTER_STOP
-		custom_minimum_size = Vector2(UiTheme.px(80), UiTheme.px(80))
-		size = custom_minimum_size
+		size = Vector2(width, width) * 1.15
 
-	func set_state(s: State, won: int) -> void:
-		state = s
-		stars = won
+	func set_state(is_open: bool, stars: int, is_selected: bool) -> void:
+		open = is_open
+		won = stars
+		selected = is_selected and is_open
+		set_process(selected)
+		queue_redraw()
+
+	func _process(delta: float) -> void:
+		_t += delta
 		queue_redraw()
 
 	func _gui_input(event: InputEvent) -> void:
@@ -642,29 +549,47 @@ class LevelNode extends Control:
 
 	func _draw() -> void:
 		var c := size / 2
-		var current := state == State.CURRENT
-		var r := UiTheme.px(34 if current else 24)
-		var fill := UiTheme.VIOLET
-		var ring := UiTheme.YELLOW
-		var text_color := UiTheme.CREAM
-		if state == State.LOCKED:
-			fill = Color("8d86a3")
-			ring = Color("d9d4e6")
-		elif current:
-			draw_circle(c + Vector2(0, UiTheme.px(6)), r + UiTheme.px(5), UiTheme.EMBER)
-			draw_circle(c, r + UiTheme.px(9), Color(UiTheme.YELLOW, 0.35))
-			fill = UiTheme.YELLOW
-			ring = UiTheme.CREAM
-			text_color = UiTheme.NIGHT
-		draw_circle(c, r + UiTheme.px(4 if not current else 5), ring)
-		draw_circle(c, r, fill)
+		if open:
+			var w := width * (1.12 if painted == "pierre" else 1.0)
+			if selected:
+				# Halo qui respire sous le niveau choisi.
+				var pulse := 0.75 + 0.25 * sin(_t * 3.0)
+				for i in 12:
+					var r := w * (0.6 + i * 0.045)
+					draw_set_transform(c + Vector2(0, w * 0.05), 0, Vector2(1, 0.78))
+					draw_circle(Vector2.ZERO, r, Color(1.0, 0.86, 0.4, 0.11 * pulse))
+				draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
+			var k := w / COIN_W
+			draw_texture_rect(COIN, Rect2(c - COIN_CENTER * k, Vector2(COIN.get_width(), COIN.get_height()) * k), false)
+			_number(c + (COIN_FACE - COIN_CENTER) * k, w * 0.42, Color("4a2208"), Color("ffe6a0"))
+			# Les petites étapes ne montrent leurs étoiles que choisies (sinon elles se chevauchent).
+			if painted.is_empty() and not selected:
+				return
+			for i: int in [0, 2, 1]:
+				var dx: float = (i - 1) * 0.29 * w
+				var dy: float = -0.55 * w if i == 1 else -0.495 * w
+				var sw: float = (0.36 if i == 1 else 0.27) * w
+				_star(c + Vector2(dx, dy), sw, (i - 1) * 0.25, i < won)
+		elif painted == "pierre":
+			_number(c + lock, width * 0.2, Color("f4f1ea"), Color("1d1f27"))
+		else:
+			var k := width / STONE_W
+			draw_texture_rect(STONE, Rect2(c - STONE_CENTER * k, Vector2(STONE.get_width(), STONE.get_height()) * k), false)
+			_number(c + (STONE_LOCK - STONE_CENTER) * k, width * 0.2, Color("f4f1ea"), Color("1d1f27"))
+
+	## Étoile de la découpe (68 px visibles), tournée et grisée si elle n'est pas gagnée.
+	func _star(at: Vector2, w: float, angle: float, gained: bool) -> void:
+		var tw := w * STAR.get_width() / 68.0
+		var th := tw * STAR.get_height() / STAR.get_width()
+		draw_set_transform(at, angle, Vector2.ONE)
+		draw_texture_rect(STAR, Rect2(-tw / 2, -th / 2, tw, th), false, Color.WHITE if gained else DIM)
+		draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
+
+	func _number(at: Vector2, font_size: float, color: Color, outline: Color) -> void:
 		var font := UiTheme.TITLE_FONT
-		var fs := UiTheme.px(30 if current else 22)
+		var fs := int(font_size)
 		var t := str(level)
 		var ts := font.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
-		draw_string(font, Vector2(c.x - ts.x / 2, c.y + (font.get_ascent(fs) - font.get_descent(fs)) / 2), t, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, text_color)
-		if state != State.LOCKED and stars > 0:
-			var s := UiTheme.px(13)
-			for i in 3:
-				var sc := Vector2(c.x + (i - 1) * (s + UiTheme.px(2)), c.y - r - UiTheme.px(12))
-				draw_colored_polygon(Shapes.Stars.star_points(sc, s / 2), UiTheme.YELLOW if i < stars else Color(1, 1, 1, 0.45))
+		var pos := Vector2(at.x - ts.x / 2, at.y + (font.get_ascent(fs) - font.get_descent(fs)) / 2)
+		draw_string_outline(font, pos, t, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, maxi(2, int(fs * 0.12)), outline)
+		draw_string(font, pos, t, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, color)
