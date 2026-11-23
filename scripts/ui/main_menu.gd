@@ -14,15 +14,8 @@ const ADVENTURE_PATH := "res://data/aventure.json"
 
 const ART_W := 941.0
 
-const AVATAR := Rect2(46, 18, 124, 124)
-const NAME_PATCH := Rect2(186, 34, 292, 102)  ## Pseudo, niveau et barre d'XP de l'image.
-const PROFILE_TAP := Rect2(40, 18, 444, 124)
-const CROWN := Rect2(200, 76, 36, 32)
-const XP_BAR := Rect2(200, 115, 232, 13)
-const TALENT_PATCH := Rect2(604, 43, 96, 44)
-const TALENT_PILL := Rect2(500, 32, 214, 92)
-const BELL := Rect2(751, 35, 74, 74)
-const GEAR := Rect2(842, 35, 74, 74)
+const TOP_BAND := Rect2(0, 6, 941, 146)  ## Barre du haut, remontée en haut de l'écran.
+const ART_CUT := 152.0  ## L'image commence sous ses pastilles du haut (remplacées par la barre).
 const LOGO_GLOW := Rect2(300, 150, 340, 180)
 const ADVENTURE := Rect2(28, 583, 888, 384)
 const LEVEL_PILL := Rect2(489, 796, 394, 54)
@@ -37,11 +30,10 @@ const BREAD := Rect2(25, 1362, 890, 143)
 const BREAD_TEXT := Rect2(298, 1432, 494, 50)
 const CHECK := Rect2(794, 1394, 90, 90)
 
-const PANEL_BLUE := Color("1e3c6e")
 const PARCHMENT := Color("fcda9f")
 const INK := Color("3a2412")
 const SKY_HIGH := Color("1a4fae")
-const SKY_LOW := Color("296dd7")  ## Ciel en haut de l'image.
+const SKY_AT_CUT := Color("5f9bf0")  ## Ciel de l'image à la hauteur ART_CUT.
 const ART_H := 1672.0
 const NAV_TOP := 1526.0  ## Barre d'onglets de l'image, de NAV_TOP à ART_H.
 ## Onglets de la barre du bas (abscisses dans l'image).
@@ -53,13 +45,9 @@ const NAV_TABS := [
 	[765.0, 915.0, "profil"],
 ]
 
+var _bar: TopBar
 var _s := 1.0  ## Échelle image → écran.
 var _top := 0.0  ## Décalage vertical de l'image.
-var _name: Label
-var _initial: Label
-var _level: Label
-var _xp_fill: Panel
-var _talents: Label
 var _level_text: Label
 var _stars: Array = []
 var _bread_text: Label
@@ -79,13 +67,18 @@ func _ready() -> void:
 	# allongé qu'elle (19,5:9 contre 16:9) gagne du ciel en haut, où passent des nuages.
 	var art_h := ART_H * _s
 	_top = maxf(screen.y - art_h, 0.0)
-	_add_gradient(Rect2(0, 0, screen.x, _top + 2), SKY_HIGH, SKY_LOW)
+	# La barre du haut est collée en haut de l'écran (sous la barre d'état d'Android) ; le
+	# ciel et ses nuages passent entre elle et l'image, dont la bande des pastilles est retirée.
+	var bar_h := TOP_BAND.size.y * _s
+	var sky_top := _safe_top() + bar_h
+	var art_y := _top + ART_CUT * _s
+	_add_gradient(Rect2(0, 0, screen.x, art_y + 2), SKY_HIGH, SKY_AT_CUT)
 	var clouds := Clouds.new()
-	clouds.position = Vector2.ZERO
-	clouds.size = Vector2(screen.x, _top + 30 * _s)
+	clouds.position = Vector2(0, sky_top)
+	clouds.size = Vector2(screen.x, maxf(art_y - sky_top + 30 * _s, 0))
 	add_child(clouds)
-	_add_crop(Rect2(0, 0, ART_W, ART_H), Rect2(0, _top, screen.x, art_h))
-	_add_gradient(Rect2(0, _top, screen.x, 16 * _s), SKY_LOW, Color(SKY_LOW, 0))
+	_add_crop(Rect2(0, ART_CUT, ART_W, ART_H - ART_CUT), Rect2(0, art_y, screen.x, art_h - ART_CUT * _s))
+	_add_gradient(Rect2(0, art_y, screen.x, 40 * _s), SKY_AT_CUT, Color(SKY_AT_CUT, 0))
 	_build_nav(_top + NAV_TOP * _s)
 
 	var glow := Shapes.Glow.new()
@@ -97,7 +90,9 @@ func _ready() -> void:
 	gt.tween_property(glow, "modulate:a", 0.25, 1.8).set_trans(Tween.TRANS_SINE)
 	gt.tween_property(glow, "modulate:a", 1.0, 1.8).set_trans(Tween.TRANS_SINE)
 
-	_build_top_bar()
+	_bar = TopBar.new()
+	_bar.message.connect(_toast)
+	add_child(_bar)
 	_build_cards()
 	_build_bread()
 	_refresh()
@@ -118,6 +113,14 @@ func _place(c: Control, r: Rect2) -> void:
 	var rr := _r(r)
 	c.position = rr.position
 	c.size = rr.size
+
+
+## Hauteur de la barre d'état d'Android (zone sûre), en pixels du jeu.
+func _safe_top() -> float:
+	var win := DisplayServer.window_get_size()
+	if OS.get_name() != "Android" or win.y <= 0:
+		return 0.0
+	return DisplayServer.get_display_safe_area().position.y * get_viewport_rect().size.y / win.y
 
 
 func _crop_texture(region: Rect2) -> AtlasTexture:
@@ -200,80 +203,6 @@ func _text(text: String, img_px: float, color: Color, weight: int = 900) -> Labe
 	l.autowrap_mode = TextServer.AUTOWRAP_OFF
 	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	return l
-
-
-# ---------------------------------------------------------------- Barre du haut
-
-func _build_top_bar() -> void:
-	# Chaque pièce reprend la place exacte de celle de l'image qu'elle remplace.
-	var patch := _patch(PANEL_BLUE, 10)
-	_place(patch, NAME_PATCH)
-	add_child(patch)
-	_name = _text("", 30, P.CREAM)
-	_place(_name, Rect2(200, 38, 270, 34))
-	add_child(_name)
-	var crown := _texture_rect(CROWN)
-	_place(crown, CROWN)
-	add_child(crown)
-	_level = _text("Niveau 1", 25, P.CREAM, 800)
-	_place(_level, Rect2(242, 76, 220, 32))
-	add_child(_level)
-	var bar := _patch(Color("2c3b52"), 6)
-	_place(bar, XP_BAR)
-	add_child(bar)
-	_xp_fill = _patch(Color("f6b93b"), 6)
-	_xp_fill.position = Vector2.ZERO
-	_xp_fill.size = Vector2(0, bar.size.y)
-	bar.add_child(_xp_fill)
-
-	var avatar := Control.new()
-	_place(avatar, AVATAR)
-	avatar.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(avatar)
-	var ring := Panel.new()
-	ring.set_anchors_preset(Control.PRESET_FULL_RECT)
-	ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	ring.add_theme_stylebox_override("panel", _round(Color("1f8f8c"), Color("f6c24a"), AVATAR.size.x * _s))
-	avatar.add_child(ring)
-	_initial = P.title("", 26, P.CREAM)
-	_initial.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_initial.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	avatar.add_child(_initial)
-
-	var tp := _patch(Color("1f3a6b"), 8)
-	_place(tp, TALENT_PATCH)
-	add_child(tp)
-	_talents = _text("", 38, P.CREAM)
-	_talents.set_anchors_preset(Control.PRESET_FULL_RECT)
-	tp.add_child(_talents)
-
-	_tap_zone(PROFILE_TAP, _open_profile)
-	_tap_zone(TALENT_PILL, func(): _toast("Les talents se gagnent en jouant, et 10 arrivent chaque jour avec le pain quotidien."))
-	_tap_zone(BELL, func(): _toast("Aucune notification pour l'instant."))
-	_tap_zone(GEAR, _open_profile)
-
-
-func _round(fill: Color, border: Color, diameter: float) -> StyleBoxFlat:
-	var s := StyleBoxFlat.new()
-	s.bg_color = fill
-	s.set_corner_radius_all(int(diameter))
-	s.border_color = border
-	s.set_border_width_all(int(maxf(3, 6 * _s)))
-	s.anti_aliasing = true
-	return s
-
-
-func _tap_zone(r: Rect2, action: Callable) -> Button:
-	var b := Button.new()
-	b.flat = true
-	b.focus_mode = Control.FOCUS_NONE
-	b.mouse_filter = Control.MOUSE_FILTER_STOP
-	for state in ["normal", "hover", "pressed", "hover_pressed", "focus", "disabled"]:
-		b.add_theme_stylebox_override(state, StyleBoxEmpty.new())
-	_place(b, r)
-	b.pressed.connect(action)
-	add_child(b)
-	return b
 
 
 func _open_profile() -> void:
@@ -429,17 +358,7 @@ func _on_online_state(_s2) -> void:
 
 
 func _refresh() -> void:
-	var online: bool = Online.is_online()
-	_name.text = Online.username if online else ("Connexion…" if Online.state == Online.State.CONNECTING else "Hors ligne")
-	_initial.text = (Online.username.substr(0, 1) if online else "?").to_upper()
-	_talents.text = str(Online.talents()) if online else "–"
-	var p := Progression.from_xp(Online.xp() if online else 0)
-	_level.text = "Niveau %d" % p["level"]
-	var ratio := float(p["in_level"]) / float(p["to_next"])
-	var fill_w := XP_BAR.size.x * _s * ratio
-	_xp_fill.visible = ratio > 0.0
-	# Un minimum visible, pour que la barre ne paraisse pas cassée à 1 XP.
-	_xp_fill.size.x = maxf(fill_w, XP_BAR.size.y * _s)
+	_bar.refresh()
 	if Online.bread_gain > 0:
 		_bread_text.text = "Tu as reçu %d talents !" % Online.bread_gain
 	elif Online.bread_today:
@@ -527,3 +446,4 @@ class Clouds extends Control:
 			for i in PUFFS.size():
 				var p: Vector2 = PUFFS[i]
 				draw_circle(Vector2(x + p.x * r, y + p.y * r), RADII[i] * r, Color(1, 1, 1, 0.85))
+

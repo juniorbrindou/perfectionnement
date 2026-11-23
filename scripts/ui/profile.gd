@@ -19,6 +19,7 @@ func _ready() -> void:
 	_body.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_body)
+	_body.offset_top = TopBar.attach(self).bottom()
 	Online.account_changed.connect(_rebuild)
 	Online.state_changed.connect(_on_online_state)
 	_show(Session.profile_view as View)
@@ -38,7 +39,7 @@ func _show(v: View) -> void:
 func _rebuild() -> void:
 	for c in _body.get_children():
 		c.queue_free()
-	var m := P.margins(20, 44, 20, 24)
+	var m := P.margins(20, 20, 20, 24)
 	m.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_body.add_child(m)
 	var col := P.vbox(14)

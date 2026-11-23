@@ -26,17 +26,19 @@ var region := Rect2()
 var parent: Control
 
 
-static func cover(host: Control, texture: Texture2D) -> Painted:
+## top : haut de la place laissée à l'image (sous la barre du haut).
+static func cover(host: Control, texture: Texture2D, top: float = 0.0) -> Painted:
 	var p := Painted.new()
 	p.parent = host
 	var screen := host.get_viewport_rect().size
 	var full := Vector2(texture.get_width(), texture.get_height())
 	p.region = Rect2(Vector2(BEZEL, BEZEL), full - Vector2(BEZEL, BEZEL) * 2)
-	p.s = screen.y / p.region.size.y
+	var avail := screen.y - top
+	p.s = avail / p.region.size.y
 	if p.region.size.x * p.s > screen.x:
 		p.s = screen.x / p.region.size.x
 	var size := p.region.size * p.s
-	p.origin = Vector2((screen.x - size.x) / 2, maxf(0, screen.y - size.y))
+	p.origin = Vector2((screen.x - size.x) / 2, top + maxf(0, avail - size.y))
 	var back := TextureRect.new()
 	back.texture = texture
 	back.expand_mode = TextureRect.EXPAND_IGNORE_SIZE

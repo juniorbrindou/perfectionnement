@@ -45,7 +45,8 @@ func _ready() -> void:
 
 	_map = MapArt.new()
 	_map.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_map.offset_top = P.px(96)
+	var top := TopBar.attach(self).bottom()
+	_map.offset_top = top + P.px(66)
 	_map.offset_bottom = -P.px(92)
 	_map.resized.connect(_layout_nodes)
 	add_child(_map)
@@ -182,13 +183,14 @@ func _build_header() -> void:
 	var s := P.box(P.VIOLET, 0, P.px(16), P.px(12))
 	s.corner_radius_bottom_left = P.px(26)
 	s.corner_radius_bottom_right = P.px(26)
-	s.content_margin_top = P.px(40)
+	s.content_margin_top = P.px(10)
 	s.shadow_color = Color(P.NIGHT, 0.4)
 	s.shadow_offset = Vector2(0, P.px(6))
 	bar.add_theme_stylebox_override("panel", s)
 	bar.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(bar)
+	bar.offset_top = _map.offset_top - P.px(66)  # sous la barre du haut
 	var row := P.hbox(10)
 	bar.add_child(row)
 	var back := P.button("‹", _to_menu, 26, "GhostButton")
@@ -245,7 +247,6 @@ func _build_sheet() -> void:
 	_clear_overlay()
 	_dim(0.55)
 	var level := _sheet_level
-	_overlay.add_child(_talents_pill())
 
 	var sheet := PanelContainer.new()
 	var s := P.box(P.VIOLET, 0, P.px(18), P.px(22))
@@ -496,34 +497,6 @@ func _retry() -> void:
 
 
 # ---------------------------------------------------------------- Commun
-
-func _talents_pill() -> Control:
-	var pill := PanelContainer.new()
-	var s := P.box(P.VIOLET, P.px(999), P.px(6), P.px(5))
-	s.border_color = P.YELLOW
-	s.set_border_width_all(P.px(2))
-	pill.add_theme_stylebox_override("panel", s)
-	pill.anchor_left = 1.0
-	pill.anchor_right = 1.0
-	pill.grow_horizontal = Control.GROW_DIRECTION_BEGIN
-	pill.offset_right = -P.px(16)
-	pill.offset_top = P.px(44)
-	pill.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var row := P.hbox(6)
-	var coin := P.circle(P.YELLOW, 24)
-	var t := P.title("T", 15, P.NIGHT)
-	t.set_anchors_preset(Control.PRESET_FULL_RECT)
-	t.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	coin.add_child(t)
-	row.add_child(coin)
-	var l := P.label("%d talents" % Online.talents(), 15, P.CREAM, 900)
-	l.autowrap_mode = TextServer.AUTOWRAP_OFF
-	l.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	row.add_child(l)
-	row.add_child(P.spacer(0))
-	pill.add_child(row)
-	return pill
-
 
 func _link(text: String, on_pressed: Callable) -> Button:
 	var b := P.button(text, on_pressed, 15)

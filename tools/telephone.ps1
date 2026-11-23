@@ -11,6 +11,7 @@ Set-Location (Split-Path $PSScriptRoot -Parent)
 New-Item -ItemType Directory -Force build | Out-Null
 
 $godot = "$env:LOCALAPPDATA\Microsoft\WinGet\Packages\GodotEngine.GodotEngine_Microsoft.Winget.Source_8wekyb3d8bbwe\godot_console.exe"
+$godotExe = Join-Path (Split-Path $godot) "Godot_v4.7.2-stable_win64.exe"
 $adb = "D:\flutter-android-sdk\Sdk\platform-tools\adb.exe"
 $package = "com.juniorbrindou.perfectionnement"
 $apk = "build\perfectionnement-debug.apk"
@@ -36,14 +37,21 @@ switch ($action) {
         Write-Host "1/3 Export de l'APK (1 à 3 minutes)..."
         # Build Gradle (greffon Google) : le modèle Android est installé au premier export.
         $template = if (Test-Path "android/build") { @() } else { @("--install-android-build-template") }
-        & $godot --headless --path . @template --export-debug "Android" $apk 2>&1 | Select-String "ERROR"
+        # Le démon Gradle hérite des sorties de Godot et reste en vie après l'export : si on lisait
+        # ces sorties par un tuyau, on attendrait sans fin. On les écrit dans un fichier et on
+        # n'attend que Godot lui-même.
+        $log = "build\export.log"
+        $p = Start-Process $godotExe -NoNewWindow -PassThru -RedirectStandardOutput $log -RedirectStandardError "$log.err" `
+            -ArgumentList (@("--headless", "--path", ".") + $template + @("--export-debug", "Android", $apk))
+        $p.WaitForExit()
+        Get-Content $log, "$log.err" -ErrorAction SilentlyContinue | Select-String "ERROR"
         # L'export redémarre adb : on se connecte ensuite.
         Write-Host "2/3 Installation sur le téléphone..."
         Connect-Phone
         & $adb -s $device install -r $apk | Select-Object -Last 1
         Write-Host "3/3 Lancement du jeu."
         & $adb -s $device shell am force-stop $package
-        & $adb -s $device shell monkey -p $package -c android.intent.category.LAUNCHER 1 | Out-Null
+        & $adb -s $device shell monkey -p $package -c android.intent.category.LAUNCHER 1 2>&1 | Out-Null
     }
     "logs" {
         Connect-Phone

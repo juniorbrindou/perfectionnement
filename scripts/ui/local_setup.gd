@@ -25,7 +25,8 @@ func _ready() -> void:
 	scroll.set_anchors_preset(Control.PRESET_FULL_RECT)
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	add_child(scroll)
-	var margin := UiTheme.margins(20, 44, 20, 30)
+	scroll.offset_top = TopBar.attach(self).bottom()
+	var margin := UiTheme.margins(20, 20, 20, 30)
 	margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(margin)
 	var v := UiTheme.vbox(12)

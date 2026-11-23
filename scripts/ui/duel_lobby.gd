@@ -76,6 +76,7 @@ var _stake_label: Label
 var _join_block: Control
 var _join_match := ""
 var _art: Painted
+var _bar: TopBar
 
 
 func _ready() -> void:
@@ -84,6 +85,7 @@ func _ready() -> void:
 	_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_layer)
+	_bar = TopBar.attach(self)
 	Online.duel_matched.connect(_on_matched)
 	Online.duel_view_received.connect(_on_view)
 	Online.account_changed.connect(_on_account)
@@ -125,7 +127,7 @@ func _clear() -> void:
 ## Écran peint : l'image en fond, ses boutons « retour » et « accueil » touchables.
 func _painted(texture: Texture2D, back: Rect2, home: Rect2, on_back: Callable) -> Painted:
 	_clear()
-	_art = Painted.cover(_layer, texture)
+	_art = Painted.cover(_layer, texture, _bar.bottom())
 	_art.tap(back, on_back)
 	_art.tap(home, func():
 		await _leave_current()
@@ -155,13 +157,6 @@ func _show_choice() -> void:
 	veil.add_theme_stylebox_override("panel", _veil_style(art.s))
 	var col := P.vbox(12)
 	art.place(col, Rect2(22, 82, 240, 546))
-	var talents := P.hbox(6)
-	talents.alignment = BoxContainer.ALIGNMENT_CENTER
-	talents.add_child(G.icon(G.COINS, 20, 17))
-	var tl := P.label("%d talents" % Online.talents() if Online.is_online() else "Hors ligne", 15, Painted.GOLD_TEXT, 900)
-	tl.autowrap_mode = TextServer.AUTOWRAP_OFF
-	talents.add_child(tl)
-	col.add_child(talents)
 	col.add_child(P.label("Un adversaire au hasard, des questions sur toute la Bible. Choisis ta difficulté :", 14, Color("d8e3ff"), 800))
 	_cards.clear()
 	for level in LEVELS:
