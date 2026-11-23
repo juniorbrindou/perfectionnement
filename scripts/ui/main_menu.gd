@@ -56,7 +56,51 @@ func _ready() -> void:
 	_title_bubble()
 	_card_fan()
 	_bottom_actions()
+	_player_pill()
 
+
+## Pastille du joueur en haut à gauche : pseudo et état de connexion ; ouvre le profil.
+var _pill: Button
+var _pill_row: HBoxContainer
+
+
+func _player_pill() -> void:
+	_pill = Button.new()
+	_pill.focus_mode = Control.FOCUS_NONE
+	var s := P.box(Color(P.NIGHT, 0.75), P.px(999), P.px(6), P.px(5))
+	for state in ["normal", "hover", "pressed", "hover_pressed"]:
+		_pill.add_theme_stylebox_override(state, s)
+	_pill.position = Vector2(P.px(16), P.px(40))
+	_pill.custom_minimum_size = Vector2(P.px(150), P.px(36))
+	_pill.pressed.connect(func(): get_tree().change_scene_to_file("res://scenes/profile.tscn"))
+	add_child(_pill)
+	_pill_row = P.hbox(8)
+	_pill_row.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_pill_row.offset_left = P.px(5)
+	_pill_row.offset_right = -P.px(12)
+	_pill.add_child(_pill_row)
+	_refresh_pill()
+	Online.account_changed.connect(_refresh_pill)
+	Online.state_changed.connect(_on_online_state)
+
+
+func _on_online_state(_s) -> void:
+	_refresh_pill()
+
+
+func _refresh_pill() -> void:
+	for child in _pill_row.get_children():
+		child.queue_free()
+	var online: bool = Online.is_online()
+	var shown: String = Online.username if online else ("Connexion…" if Online.state == Online.State.CONNECTING else "Hors ligne")
+	var av := P.avatar(shown if online else "?", P.TEAL if online else Color("8d86a3"), 26)
+	av.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_pill_row.add_child(av)
+	var l := P.label(shown, 14, P.CREAM, 900, HORIZONTAL_ALIGNMENT_LEFT)
+	l.autowrap_mode = TextServer.AUTOWRAP_OFF
+	l.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_pill_row.add_child(l)
+	_pill.reset_size()
 
 func _place_center_x(c: Control, w: float, h: float, top: float) -> void:
 	c.anchor_left = 0.5
@@ -140,8 +184,10 @@ func _mini_question(color: Color, question: String, answers: Array) -> Control:
 	var lines := P.vbox(0)
 	for i in answers.size():
 		var row := P.hbox(4)
-		row.add_child(P.title("%s)" % CardView.LETTERS[i], 12, P.YELLOW, HORIZONTAL_ALIGNMENT_LEFT))
-		row.add_child(P.title(answers[i], 12, P.CREAM, HORIZONTAL_ALIGNMENT_LEFT))
+		for part in [["%s)" % CardView.LETTERS[i], P.YELLOW], [answers[i], P.CREAM]]:
+			var l := P.title(part[0], 12, part[1], HORIZONTAL_ALIGNMENT_LEFT)
+			l.autowrap_mode = TextServer.AUTOWRAP_OFF
+			row.add_child(l)
 		lines.add_child(row)
 	band.add_child(lines)
 	v.add_child(band)
@@ -150,11 +196,7 @@ func _mini_question(color: Color, question: String, answers: Array) -> Control:
 
 func _back_card() -> Control:
 	var card := Panel.new()
-	var s := P.box(P.FRAMBOISE, P.px(16))
-	s.shadow_color = Color(0, 0, 0, 0.4)
-	s.shadow_size = P.px(14)
-	s.shadow_offset = Vector2(0, P.px(10))
-	card.add_theme_stylebox_override("panel", s)
+	card.add_theme_stylebox_override("panel", P.box(P.FRAMBOISE, P.px(16)))
 	card.clip_children = CanvasItem.CLIP_CHILDREN_AND_DRAW
 	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var art := Shapes.CardBackArt.new()

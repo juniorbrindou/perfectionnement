@@ -35,6 +35,12 @@ func _wrong(m) -> String:
 func _run() -> void:
 	change_scene_to_file("res://scenes/main_menu.tscn")
 	await _shot("01_accueil")
+	change_scene_to_file("res://scenes/profile.tscn")
+	await _shot("01b_profil")
+	current_scene._show(1)
+	await _shot("01c_creer_compte")
+	current_scene._show(2)
+	await _shot("01d_retrouver_compte")
 	change_scene_to_file("res://scenes/local_setup.tscn")
 	await _shot("02_configuration")
 

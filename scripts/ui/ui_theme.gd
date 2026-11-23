@@ -44,7 +44,8 @@ static func body_font(weight: int = 800) -> Font:
 	if not _fonts.has(weight):
 		var f := FontVariation.new()
 		f.base_font = NUNITO
-		f.variation_opentype = {"wght": weight}
+		# La clé doit être le code OpenType de l'axe (entier), pas son nom.
+		f.variation_opentype = {TextServerManager.get_primary_interface().name_to_tag("wght"): weight}
 		_fonts[weight] = f
 	return _fonts[weight]
 

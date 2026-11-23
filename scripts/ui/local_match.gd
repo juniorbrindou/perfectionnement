@@ -465,7 +465,9 @@ func _show_result(result: Dictionary, choice: String, timed_out: bool) -> void:
 		ss.set_border_width_all(P.px(3))
 		stamp.add_theme_stylebox_override("panel", ss)
 		stamp.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		stamp.add_child(P.title("Carte de %s détruite" % names[owner_idx], 16, P.CREAM))
+		var stamp_text := P.title("Carte de %s détruite" % names[owner_idx], 16, P.CREAM)
+		stamp_text.autowrap_mode = TextServer.AUTOWRAP_OFF
+		stamp.add_child(stamp_text)
 		stamp.anchor_left = 1.0
 		stamp.anchor_right = 1.0
 		stamp.anchor_top = 0.4
