@@ -1,57 +1,197 @@
 extends Control
-## Écran d'accueil.
+## Écran d'accueil (maquette « Accueil ») : arche de pierre éclairée, titre dans une
+## bulle, paquet de cartes qui s'ouvre en éventail, modes de jeu en bas.
+
+const P := preload("res://scripts/ui/ui_theme.gd")
 
 
 func _ready() -> void:
-	theme = UiTheme.get_theme()
-	UiTheme.background(self)
+	theme = P.get_theme()
+	var wall := Shapes.StoneWall.new()
+	wall.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(wall)
 
-	var col := UiTheme.vbox(0)
-	col.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(col)
+	var arch := Shapes.Arch.new()
+	_place_center_x(arch, 300, 560, 90)
+	add_child(arch)
+	var light := Shapes.Glow.new()
+	light.set_anchors_preset(Control.PRESET_FULL_RECT)
+	light.center = Vector2(0.5, 0.3)
+	light.color = Color("fff2c2")
+	light.radius_ratio = 0.7
+	arch.add_child(light)
 
-	var top := MarginContainer.new()
-	_margins(top, 48, 150, 48, 36)
-	col.add_child(top)
-	var head := UiTheme.vbox(14)
-	top.add_child(head)
-	var title := UiTheme.scripture("Perfectionnement", 74, false, true)
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	head.add_child(title)
-	var verse := UiTheme.scripture("« pour le perfectionnement des saints »\nÉphésiens 4:12", 26, false, false, true)
-	verse.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	verse.modulate = Color(1, 1, 1, 0.6)
-	head.add_child(verse)
+	var floor_panel := Panel.new()
+	var fs := P.box(Color("5a2d12"), 0)
+	fs.corner_radius_top_left = P.px(120)
+	fs.corner_radius_top_right = P.px(120)
+	floor_panel.add_theme_stylebox_override("panel", fs)
+	floor_panel.anchor_top = 1.0
+	floor_panel.anchor_bottom = 1.0
+	floor_panel.anchor_right = 1.0
+	floor_panel.offset_left = -P.px(40)
+	floor_panel.offset_right = P.px(40)
+	floor_panel.offset_top = -P.px(250)
+	floor_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(floor_panel)
 
-	col.add_child(UiTheme.weave_band(30))
+	for side in [-1, 1]:
+		var who := "David" if side < 0 else "Esther"
+		var slot := Panel.new()
+		var ss := P.box(Color(P.NIGHT, 0.25), P.px(48))
+		ss.corner_radius_bottom_left = P.px(16)
+		ss.corner_radius_bottom_right = P.px(16)
+		ss.border_color = Color(P.CREAM, 0.7)
+		ss.set_border_width_all(P.px(3))
+		slot.add_theme_stylebox_override("panel", ss)
+		slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		slot.size = Vector2(P.px(96), P.px(150))
+		slot.position = Vector2(P.px(8) if side < 0 else P.px(390 - 8 - 96), P.px(250))
+		var sl := P.label("Illustration\n%s" % who, 12, P.CREAM, 900)
+		sl.set_anchors_preset(Control.PRESET_FULL_RECT)
+		sl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		slot.add_child(sl)
+		add_child(slot)
 
-	var body := MarginContainer.new()
-	_margins(body, 48, 36, 48, 64)
-	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	col.add_child(body)
-	var v := UiTheme.vbox(18)
-	body.add_child(v)
-	v.add_child(UiTheme.label("Un duel de questions bibliques. Chacun pose ses cartes à l'autre : une bonne réponse détruit la carte posée. Celui qui n'a plus de cartes perd.", 26, "", HORIZONTAL_ALIGNMENT_LEFT))
-
-	var push := Control.new()
-	push.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	v.add_child(push)
-
-	v.add_child(UiTheme.button("Jouer à deux sur ce téléphone",
-		func(): get_tree().change_scene_to_file("res://scenes/local_setup.tscn"), 30))
-	var soon := UiTheme.label("Bientôt : arcade solo, duel en ligne et salons.", 22, "", HORIZONTAL_ALIGNMENT_LEFT)
-	soon.modulate = Color(1, 1, 1, 0.55)
-	v.add_child(soon)
-	var footer := UiTheme.label("Version %s, références Louis Segond 1910" % ProjectSettings.get_setting("application/config/version"), 18, "", HORIZONTAL_ALIGNMENT_LEFT)
-	footer.modulate = Color(1, 1, 1, 0.35)
-	v.add_child(footer)
+	_title_bubble()
+	_card_fan()
+	_bottom_actions()
 
 
-func _margins(m: MarginContainer, left: int, top: int, right: int, bottom: int) -> void:
-	m.add_theme_constant_override("margin_left", left)
-	m.add_theme_constant_override("margin_top", top)
-	m.add_theme_constant_override("margin_right", right)
-	m.add_theme_constant_override("margin_bottom", bottom)
+func _place_center_x(c: Control, w: float, h: float, top: float) -> void:
+	c.anchor_left = 0.5
+	c.anchor_right = 0.5
+	c.offset_left = -P.px(w) / 2.0
+	c.offset_right = P.px(w) / 2.0
+	c.offset_top = P.px(top)
+	c.offset_bottom = P.px(top + h)
+
+
+func _title_bubble() -> void:
+	var holder := Control.new()
+	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_place_center_x(holder, 330, 110, 108)
+	add_child(holder)
+	var bubble := PanelContainer.new()
+	var s := P.box(P.CREAM, P.px(26), P.px(20), P.px(12))
+	s.border_color = P.VIOLET
+	s.set_border_width_all(P.px(5))
+	s.border_width_bottom = P.px(11)
+	bubble.add_theme_stylebox_override("panel", s)
+	bubble.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bubble.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var v := P.vbox(2)
+	v.alignment = BoxContainer.ALIGNMENT_CENTER
+	v.add_child(P.title("Perfectionnement", 34, P.FRAMBOISE))
+	v.add_child(P.label("Le duel des cartes bibliques", 14, P.VIOLET, 900))
+	bubble.add_child(v)
+	holder.add_child(bubble)
+	holder.resized.connect(func(): holder.pivot_offset = holder.size / 2)
+	holder.rotation_degrees = -3
+
+
+## Deux cartes questions et un dos, qui s'ouvrent en éventail à l'arrivée.
+func _card_fan() -> void:
+	var stage := Control.new()
+	stage.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_place_center_x(stage, 300, 290, 330)
+	add_child(stage)
+	var cards: Array[Control] = [
+		_mini_question(P.TEAL, "Combien de fils Jacob avait-il ?", ["Sept", "Douze", "Dix", "Trois"]),
+		_mini_question(P.GOLD, "Quel roi demanda la sagesse ?", ["David", "Saül", "Salomon", "Josias"]),
+		_back_card(),
+	]
+	var sizes := [Vector2(128, 186), Vector2(128, 186), Vector2(146, 212)]
+	var targets := [Vector2(6, 40), Vector2(166, 40), Vector2(77, 10)]
+	var angles := [-14.0, 13.0, 0.0]
+	for i in cards.size():
+		var c := cards[i]
+		c.size = Vector2(P.px(sizes[i].x), P.px(sizes[i].y))
+		c.pivot_offset = c.size / 2
+		c.position = Vector2(P.px(targets[2].x), P.px(targets[2].y))
+		stage.add_child(c)
+	var t := create_tween().set_parallel()
+	for i in 2:
+		var target := Vector2(P.px(targets[i].x), P.px(targets[i].y))
+		t.tween_property(cards[i], "position", target, 0.7).set_delay(0.2).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		t.tween_property(cards[i], "rotation_degrees", angles[i], 0.7).set_delay(0.2).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+func _mini_question(color: Color, question: String, answers: Array) -> Control:
+	var card := PanelContainer.new()
+	var s := P.box(color, P.px(14), P.px(10), P.px(10))
+	s.border_color = P.YELLOW
+	s.set_border_width_all(P.px(4))
+	s.shadow_color = Color(0, 0, 0, 0.35)
+	s.shadow_size = P.px(10)
+	s.shadow_offset = Vector2(0, P.px(8))
+	card.add_theme_stylebox_override("panel", s)
+	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var v := P.vbox(8)
+	card.add_child(v)
+	var q := PanelContainer.new()
+	q.add_theme_stylebox_override("panel", P.box(P.CREAM, P.px(10), P.px(6), P.px(8)))
+	q.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	q.add_child(P.label(question, 10, P.NIGHT, 900))
+	v.add_child(q)
+	var band := PanelContainer.new()
+	band.add_theme_stylebox_override("panel", P.box(P.FRAMBOISE, P.px(8), P.px(8), P.px(6)))
+	band.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var lines := P.vbox(0)
+	for i in answers.size():
+		var row := P.hbox(4)
+		row.add_child(P.title("%s)" % CardView.LETTERS[i], 12, P.YELLOW, HORIZONTAL_ALIGNMENT_LEFT))
+		row.add_child(P.title(answers[i], 12, P.CREAM, HORIZONTAL_ALIGNMENT_LEFT))
+		lines.add_child(row)
+	band.add_child(lines)
+	v.add_child(band)
+	return card
+
+
+func _back_card() -> Control:
+	var card := Panel.new()
+	var s := P.box(P.FRAMBOISE, P.px(16))
+	s.shadow_color = Color(0, 0, 0, 0.4)
+	s.shadow_size = P.px(14)
+	s.shadow_offset = Vector2(0, P.px(10))
+	card.add_theme_stylebox_override("panel", s)
+	card.clip_children = CanvasItem.CLIP_CHILDREN_AND_DRAW
+	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var art := Shapes.CardBackArt.new()
+	art.set_anchors_preset(Control.PRESET_FULL_RECT)
+	card.add_child(art)
+	var border := Panel.new()
+	var bs := P.box(Color.TRANSPARENT, P.px(16))
+	bs.border_color = P.YELLOW
+	bs.set_border_width_all(P.px(5))
+	bs.draw_center = false
+	border.add_theme_stylebox_override("panel", bs)
+	border.set_anchors_preset(Control.PRESET_FULL_RECT)
+	border.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	card.add_child(border)
+	return card
+
+
+func _bottom_actions() -> void:
+	var m := P.margins(18, 0, 18, 24)
+	m.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(m)
+	var v := P.vbox(12)
+	v.alignment = BoxContainer.ALIGNMENT_END
+	m.add_child(v)
+	var play := P.button("Jouer à deux", func(): get_tree().change_scene_to_file("res://scenes/local_setup.tscn"), 25)
+	play.custom_minimum_size = Vector2(0, P.px(68))
+	v.add_child(play)
+	var grid := GridContainer.new()
+	grid.columns = 3
+	grid.add_theme_constant_override("h_separation", P.px(8))
+	for mode_name in ["Aventure", "En ligne", "Salons"]:
+		var b := P.button("%s\nbientôt" % mode_name, func(): pass, 15, "GhostButton")
+		b.disabled = true
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		b.custom_minimum_size = Vector2(0, P.px(56))
+		grid.add_child(b)
+	v.add_child(grid)
 
 
 func _notification(what: int) -> void:

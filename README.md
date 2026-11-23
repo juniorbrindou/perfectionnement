@@ -3,7 +3,20 @@
 Jeu de cartes biblique en duel (Godot 4.7, Android). Spécification : [docs/PRD.md](docs/PRD.md).
 Serveur Nakama (connexion, règles pour le client) : [docs/SERVEUR.md](docs/SERVEUR.md).
 
-## Commandes
+## Raccourcis (double-clic ou depuis le terminal)
+
+| Fichier | Effet |
+|---|---|
+| `editeur` | Ouvre le projet dans l'éditeur Godot |
+| `deployer` | Exporte l'APK, l'installe sur le téléphone et lance le jeu |
+| `logs` | Journal du jeu en direct |
+| `capture` | Capture d'écran du téléphone dans `build\captures` |
+| `tests` | Tests des règles et du contenu |
+
+L'adresse du téléphone (débogage sans fil) est demandée une fois puis retenue.
+Si elle change : `.\deployer 192.168.1.2:41234`.
+
+## Commandes détaillées
 
 ```sh
 # Tests des règles et du contenu

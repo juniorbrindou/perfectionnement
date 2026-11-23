@@ -1,7 +1,8 @@
 extends SceneTree
-## Parcourt les écrans principaux et enregistre une capture de chacun.
-## godot --path . --script res://tools/shots.gd -- <dossier_de_sortie>
-## (sans --headless : il faut un rendu réel).
+## Parcourt tous les écrans et toutes les étapes d'une partie pour détecter les
+## erreurs d'exécution. godot --headless --path . --script res://tools/shots.gd
+## Avec un rendu réel (sans --headless), enregistre aussi une capture par étape
+## dans le dossier passé après « -- ».
 
 var _out := "user://shots"
 
@@ -14,64 +15,72 @@ func _initialize() -> void:
 	_run.call_deferred()
 
 
-func _shot(name: String) -> void:
+func _shot(step_name: String) -> void:
 	await create_timer(0.9).timeout
 	await process_frame
 	if DisplayServer.get_name() == "headless":
-		print("étape ", name)
+		print("étape ", step_name)
 		return
-	var img := root.get_viewport().get_texture().get_image()
-	img.save_png(_out.path_join(name + ".png"))
-	print("capture ", name)
+	root.get_viewport().get_texture().get_image().save_png(_out.path_join(step_name + ".png"))
+	print("capture ", step_name)
+
+
+func _wrong(m) -> String:
+	for o in m.duel.presented:
+		if o != m.duel.played.data.answer:
+			return o
+	return ""
 
 
 func _run() -> void:
 	change_scene_to_file("res://scenes/main_menu.tscn")
-	await _shot("01_menu")
+	await _shot("01_accueil")
 	change_scene_to_file("res://scenes/local_setup.tscn")
-	await _shot("02_setup")
+	await _shot("02_configuration")
 
 	change_scene_to_file("res://scenes/local_match.tscn")
 	await _shot("03_depart")
 	var m = current_scene
-	# Le joueur 1 répond juste à la question de départ.
 	m.duel.start_with(0)
-	m._show_pass(0, "Tu commences : choisis une carte à poser.", m._begin_choose)
+	m._show_pass(0, "Tu commences : choisis la carte à poser.", m._begin_choose)
 	await _shot("04_passe")
-	m._clear_overlay()
 	m._begin_choose()
 	await _shot("05_main")
-	var card = m._table.card_for(m.duel.hands[0][1])
-	m._on_card_tapped(card)
-	await _shot("06_detail")
+	m._select_card(1)
+	await _shot("06_carte_choisie")
 	m._play_selected()
-	await create_timer(1.8).timeout
-	m._clear_overlay()
+	await create_timer(1.2).timeout
 	m._begin_answer()
-	await _shot("07_reponse")
-	var wrong := ""
-	for o in m.duel.presented:
-		if o != m.duel.played.data.answer:
-			wrong = o
-	m._show_result(m.duel.answer(wrong), wrong, false)
+	await _shot("07_repondre")
+	m._on_answer(_wrong(m))
+	await create_timer(1.0).timeout
 	await _shot("08_rate")
 	m._begin_choose()
-	m.duel.play(0)
-	m._show_result(m.duel.answer(m.duel.played.data.answer), "", false)
-	await _shot("09_bonne")
+	m._select_card(0)
+	m._play_selected()
+	await create_timer(1.2).timeout
+	m._begin_answer()
+	await create_timer(0.5).timeout
+	m._on_answer(m.duel.played.data.answer)
+	await create_timer(1.0).timeout
+	await _shot("09_bonne_reponse")
+
 	# Temps écoulés : carte au hasard, puis réponse non donnée.
 	m._begin_choose()
 	m._on_choose_timeout()
-	await create_timer(2.6).timeout
-	await _shot("09b_hasard")
-	m._clear_overlay()
+	await create_timer(2.5).timeout
+	await _shot("10_hasard")
 	m._begin_answer()
 	m._time_left = 0.01
-	await _shot("09c_temps_ecoule")
-	# Fin de partie forcée.
+	await _shot("11_temps_ecoule")
+
 	while m.duel.phase != Duel.Phase.FINISHED:
 		m.duel.play(0)
 		m.duel.answer(m.duel.played.data.answer)
 	m._show_end()
-	await _shot("10_fin")
+	await _shot("12_fin")
+	m._show_destroyed()
+	await _shot("13_cartes_detruites")
+	m._ask_quit()
+	await _shot("14_quitter")
 	quit()

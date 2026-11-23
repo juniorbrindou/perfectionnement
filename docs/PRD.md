@@ -229,8 +229,15 @@ Le jeu sort en **français uniquement**. Les textes de l'interface et les questi
 
 ## 9. Direction artistique et audio
 
-- **Plateau en 3D légère** : une table, des cartes en volume qui se retournent, glissent et se détruisent, avec de la lumière et des particules.
-- **Illustrations en 2D** dans un style peinture ou enluminure (aquarelle, parchemin et or).
+Direction validée le 2026-11-23 sur maquettes (artifact « Perfectionnement — cartes illustrées ») :
+
+- **La carte porte son contenu** : la question est dans une bulle de dialogue sur la carte, et les réponses (A, B, C, D) se lisent et se touchent directement sur la carte.
+- **Cadre de carte de jeu** : liseré jaune à coins coupés ; médaillon de difficulté en haut à gauche, pastille de catégorie en haut à droite, jauge des réponses restantes (4, 3 ou 2) sur le bord gauche.
+- **Couleurs vives** : violet profond (fond), jaune tournesol (boutons, cadres), framboise (bande des réponses). Une couleur de carte par difficulté : Lait en sarcelle, Manne en doré, Nourriture solide en framboise.
+- **Polices** : Lilita One (titres, réponses), Nunito (texte).
+- **Écrans en 2D animés** : les cartes se retournent, la main s'ouvre en éventail, un tampon marque la carte détruite. La table 3D est abandonnée.
+- **Style d'illustration** : personnages bibliques en dessin animé coloré, scènes chaleureuses (arche de pierre éclairée sur l'accueil).
+- **Plus tard** : mode aventure solo sur une carte à niveaux et étoiles, découpée en chapitres bibliques ; classement clair avec le badge Rang S.
 - **Une illustration par récit biblique**, partagée par les cartes de ce récit : environ 60 à 80 pour le premier lot.
 - Les illustrations sont **produites par l'équipe**, à partir d'images libres de droits ou dessinées à la main. Claude fournit la liste des récits, les formats attendus et des images provisoires.
 - **Règles de représentation** :
@@ -271,7 +278,7 @@ Correspondance avec les fonctions de Nakama :
 
 | Version | Contenu | Terminée quand |
 |---|---|---|
-| **0.1** | Le cœur du jeu **en local** : mode 2 joueurs sur un téléphone avec toutes les règles de la section 2, plateau 3D de base, images provisoires, premier lot de cartes validées | une partie complète se joue de bout en bout sur un téléphone Android |
+| **0.1** | Le cœur du jeu **en local** : mode 2 joueurs sur un téléphone avec toutes les règles de la section 2, écrans de carte animés, images provisoires, premier lot de cartes validées | une partie complète se joue de bout en bout sur un téléphone Android |
 | **0.2** | **Nakama** sur le VPS : invité, compte Google et e-mail, talents, pain quotidien, **arcade contre l'IA**, XP et niveaux | un joueur crée son compte, gagne et perd des talents en arcade |
 | **0.3** | **Duels en ligne** : duel rapide et partie entre amis, mises, abandon et déconnexion | deux téléphones jouent une partie en ligne, et la mise est versée au gagnant |
 | **0.4** | **Salons** (toute la section 6) et **modération** | un salon se crée, se rejoint, classe ses membres et se supprime automatiquement |

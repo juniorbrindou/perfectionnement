@@ -18,50 +18,49 @@ var _start: Button
 
 func _ready() -> void:
 	theme = UiTheme.get_theme()
-	UiTheme.background(self)
+	UiTheme.night_background(self, 0.15)
 	_restore_from_session()
 
 	var scroll := ScrollContainer.new()
 	scroll.set_anchors_preset(Control.PRESET_FULL_RECT)
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	add_child(scroll)
-	var margin := MarginContainer.new()
+	var margin := UiTheme.margins(20, 44, 20, 30)
 	margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	for side in ["left", "right"]:
-		margin.add_theme_constant_override("margin_" + side, 40)
-	for side in ["top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + side, 48)
 	scroll.add_child(margin)
-	var v := UiTheme.vbox(18)
+	var v := UiTheme.vbox(12)
 	margin.add_child(v)
 
-	var title := UiTheme.scripture("Partie à deux", 52, false, true)
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	v.add_child(title)
-	var sub := UiTheme.label("Un seul téléphone, que vous vous passez à chaque question.", 24, "", HORIZONTAL_ALIGNMENT_LEFT)
-	sub.modulate = Color(1, 1, 1, 0.7)
-	v.add_child(sub)
-	v.add_child(UiTheme.weave_band(14))
+	v.add_child(UiTheme.title("Partie à deux", 34, UiTheme.YELLOW, HORIZONTAL_ALIGNMENT_LEFT))
+	v.add_child(UiTheme.label("Un seul téléphone, que vous vous passez à chaque question.", 15, UiTheme.LILAC, 800, HORIZONTAL_ALIGNMENT_LEFT))
 
 	v.add_child(_section("Joueurs"))
+	var colors := [UiTheme.TEAL, UiTheme.FRAMBOISE]
 	for i in 2:
+		var row := UiTheme.hbox(10)
+		var av := UiTheme.avatar(Session.player_names[i], colors[i], 44)
+		av.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		row.add_child(av)
 		var e := LineEdit.new()
 		e.text = Session.player_names[i]
 		e.placeholder_text = "Joueur %d" % (i + 1)
 		e.max_length = 16
-		e.custom_minimum_size = Vector2(0, 72)
-		v.add_child(e)
+		e.add_theme_font_size_override("font_size", UiTheme.px(17))
+		e.custom_minimum_size = Vector2(0, UiTheme.px(50))
+		e.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(e)
+		v.add_child(row)
 		_names.append(e)
 
 	v.add_child(_section("Difficulté"))
 	var diffs := {"lait": "Lait\nfacile", "manne": "Manne\nmoyen", "solide": "Nourriture\nsolide"}
-	var dh := UiTheme.hbox(10)
+	var dh := UiTheme.hbox(8)
 	for d in CardData.DIFFICULTIES:
-		var b := UiTheme.button(diffs[d], _on_difficulty.bind(d), 24, "ToggleButton")
+		var b := UiTheme.button(diffs[d], _on_difficulty.bind(d), 16, "ChipToggle")
 		b.toggle_mode = true
 		_dye(b, UiTheme.difficulty_color(d))
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		b.custom_minimum_size = Vector2(0, 110)
+		b.custom_minimum_size = Vector2(0, UiTheme.px(68))
 		dh.add_child(b)
 		_diff_buttons[d] = b
 	v.add_child(dh)
@@ -75,28 +74,31 @@ func _ready() -> void:
 	}
 	var grid := GridContainer.new()
 	grid.columns = 2
-	grid.add_theme_constant_override("h_separation", 10)
-	grid.add_theme_constant_override("v_separation", 10)
+	grid.add_theme_constant_override("h_separation", UiTheme.px(8))
+	grid.add_theme_constant_override("v_separation", UiTheme.px(8))
 	for c in labels:
-		var b := UiTheme.button(labels[c], _on_content.bind(c), 24, "ToggleButton")
+		var b := UiTheme.button(labels[c], _on_content.bind(c), 15, "ChipToggle")
 		b.toggle_mode = true
+		b.custom_minimum_size = Vector2(0, UiTheme.px(50))
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		grid.add_child(b)
 		_content_buttons[c] = b
 	v.add_child(grid)
 
-	_books_wrap = UiTheme.vbox(8)
-	_books_wrap.add_child(UiTheme.label("Coche un ou plusieurs livres.", 24, "", HORIZONTAL_ALIGNMENT_LEFT))
+	_books_wrap = UiTheme.vbox(6)
+	_books_wrap.add_child(UiTheme.label("Coche un ou plusieurs livres.", 14, UiTheme.LILAC, 800, HORIZONTAL_ALIGNMENT_LEFT))
 	_books_box = GridContainer.new()
 	_books_box.columns = 2
 	_books_wrap.add_child(_books_box)
 	v.add_child(_books_wrap)
 
-	_info = UiTheme.label("", 24)
+	v.add_child(UiTheme.spacer(6))
+	_info = UiTheme.label("", 14, UiTheme.LILAC)
 	v.add_child(_info)
-	_start = UiTheme.button("Commencer la partie", _on_start, 32)
+	_start = UiTheme.button("Commencer la partie", _on_start, 23)
+	_start.custom_minimum_size = Vector2(0, UiTheme.px(64))
 	v.add_child(_start)
-	v.add_child(UiTheme.button("Retour", _back, 26, "GhostButton"))
+	v.add_child(UiTheme.button("Retour", _back, 18, "GhostButton"))
 
 	_refresh()
 
@@ -113,27 +115,26 @@ func _restore_from_session() -> void:
 
 
 func _section(text: String) -> Label:
-	var l := UiTheme.scripture(text, 30, false, false, true)
-	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	l.add_theme_color_override("font_color", UiTheme.OR)
+	var l := UiTheme.title(text, 19, UiTheme.CREAM, HORIZONTAL_ALIGNMENT_LEFT)
+	l.custom_minimum_size = Vector2(0, UiTheme.px(30))
+	l.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
 	return l
 
 
-## Bouton de difficulté : contour puis plein dans la couleur de sa teinture.
+## Bouton de difficulté : contour puis plein dans la couleur de la carte.
 func _dye(b: Button, color: Color) -> void:
-	var off := UiTheme.box(Color(color, 0.18), 12, 12, 14)
-	off.border_color = color.lightened(0.25)
-	off.set_border_width_all(2)
-	var on := UiTheme.box(color, 12, 12, 14)
-	on.border_color = UiTheme.LIN
-	on.set_border_width_all(3)
+	var off := UiTheme.box(Color(color, 0.18), UiTheme.px(14), UiTheme.px(8), UiTheme.px(8))
+	off.border_color = color.lightened(0.2)
+	off.set_border_width_all(UiTheme.px(3))
+	var on := UiTheme.box(color, UiTheme.px(14), UiTheme.px(8), UiTheme.px(8))
+	on.border_color = UiTheme.YELLOW
+	on.set_border_width_all(UiTheme.px(3))
 	for state in ["normal", "hover"]:
 		b.add_theme_stylebox_override(state, off)
 	for state in ["pressed", "hover_pressed"]:
 		b.add_theme_stylebox_override(state, on)
 	for state in ["font_pressed_color", "font_hover_pressed_color"]:
-		b.add_theme_color_override(state, UiTheme.LIN)
-
+		b.add_theme_color_override(state, UiTheme.CREAM)
 
 func _on_difficulty(d: String) -> void:
 	_difficulty = d
@@ -176,7 +177,7 @@ func _refresh() -> void:
 	for book in Session.bank.books_for(_difficulty):
 		var cb := CheckBox.new()
 		cb.text = book
-		cb.add_theme_font_size_override("font_size", 26)
+		cb.add_theme_font_size_override("font_size", UiTheme.px(15))
 		cb.button_pressed = book in _chosen_books
 		cb.toggled.connect(_on_book_toggled.bind(book))
 		_books_box.add_child(cb)
@@ -188,17 +189,17 @@ func _refresh_count() -> void:
 	var needed := DeckBuilder.min_pool_size()
 	if n >= needed:
 		_info.text = "%d questions disponibles" % n
-		_info.modulate = Color.WHITE
+		_info.add_theme_color_override("font_color", UiTheme.LILAC)
 	else:
 		_info.text = "Pas encore assez de questions (%d sur %d)" % [n, needed]
-		_info.modulate = Color(1, 0.65, 0.6)
+		_info.add_theme_color_override("font_color", Color("ff8fa3"))
 	_start.disabled = n < needed
 
 
 func _on_start() -> void:
 	for i in 2:
-		var name := _names[i].text.strip_edges()
-		Session.player_names[i] = name if not name.is_empty() else "Joueur %d" % (i + 1)
+		var typed := _names[i].text.strip_edges()
+		Session.player_names[i] = typed if not typed.is_empty() else "Joueur %d" % (i + 1)
 	if Session.player_names[0] == Session.player_names[1]:
 		Session.player_names[1] += " (2)"
 	Session.filter = _current_filter()

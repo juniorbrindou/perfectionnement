@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://c6ugo0cawl1l6"
-path="res://.godot/imported/GentiumBookPlus-Regular.ttf-e12032637050ae3e8f4608c2cf04a67e.fontdata"
+uid="uid://dsgx55k5247oe"
+path="res://.godot/imported/LilitaOne-Regular.ttf-3fc5417b202255ea31131e19ae8ead4f.fontdata"
 
 [deps]
 
-source_file="res://assets/fonts/GentiumBookPlus-Regular.ttf"
-dest_files=["res://.godot/imported/GentiumBookPlus-Regular.ttf-e12032637050ae3e8f4608c2cf04a67e.fontdata"]
+source_file="res://assets/fonts/LilitaOne-Regular.ttf"
+dest_files=["res://.godot/imported/LilitaOne-Regular.ttf-3fc5417b202255ea31131e19ae8ead4f.fontdata"]
 
 [params]
 
