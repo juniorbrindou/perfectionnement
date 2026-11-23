@@ -130,13 +130,25 @@ de marge réseau. Une partie laissée en cours est perdue quand le joueur en com
 Un niveau est ouvert si c'est le premier ou si le précédent a une étoile. Ses cartes viennent des livres du
 chapitre, ou de toute la Bible tant que le chapitre n'en a pas assez (aujourd'hui : toujours toute la Bible).
 
-**À faire par la session du serveur** :
-1. `git pull`, puis dans `server/` : `npm install` si besoin, `npm test` (15 tests) ;
-2. copier `build/index.js` dans `/opt/nakama/data/modules`, redémarrer, vérifier la ligne
-   `Module Perfectionnement chargé (talents, pain quotidien, arcade).` ;
-3. vérifier depuis l'adresse publique : `arcade` refusé à un invité ; avec un compte e-mail de test,
-   `commencer` niveau 1 en Lait prélève 2 talents, puis une partie jusqu'au bout donne `fin` ; supprimer
-   ensuite le compte de test.
+**Déployé le 2026-11-23** (commit `1245525`, 15 tests serveur verts, ligne de chargement présente au
+démarrage). Vérifié depuis l'adresse publique avec un compte e-mail de test, supprimé depuis :
+
+- `commencer` refusé à un invité (403) et sur le niveau 2 encore fermé ;
+- défaite complète en 31 appels : 100 → 98 talents, pas d'étoile ;
+- victoire : mise de 2 puis gain de 4, étoile `lait` au niveau 1, le niveau 2 s'ouvre ;
+- `abandonner` : défaite et mise perdue ; tout appel après la fin est refusé (« Cette partie est terminée. ») ;
+- journal du portefeuille cohérent (`capital_depart`, `mise_arcade`, `gain_arcade`) avec le solde final.
+
+**Triche possible, à régler avant les duels en ligne (0.3)** : la vue envoie l'`id` de la carte à deviner, et
+l'APK embarque `data/cartes.json` avec les bonnes réponses. Un client modifié lit donc la réponse : un script de
+test a gagné trois parties sur trois en répondant ainsi. Retirer l'`id` ne suffit pas, puisque la question et ses
+propositions suffisent à retrouver la carte dans le fichier. Contre le Scribe, l'enjeu se limite à quelques
+talents. Entre deux joueurs, il faudra que le serveur envoie le texte de la question et ses propositions, et que
+l'APK n'embarque plus les réponses des cartes de jeu (PRD §11 : le téléphone de celui qui répond ne reçoit
+jamais la bonne réponse).
+
+Détail mineur : les refus renvoient au client une `stackTrace` (`index.js:502…`). C'est sans danger, mais le
+client ne doit afficher que `message`.
 
 ## Ce qui est sur le serveur (pour mémoire)
 
