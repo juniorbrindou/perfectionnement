@@ -63,8 +63,9 @@ redémarrage) : à demander à la session Claude du serveur une fois `server/bui
 
 ## Module serveur (0.2.3) : talents et pain quotidien
 
-Sources dans `server/src/`, compilées par `npm test` (dans `server/`) en **`server/build/index.js`**, qui est
-versionné. Tests des règles pures : `server/test/run.js`.
+Sources dans `server/src/`, compilées par `npm test` (dans `server/`) en `server/build/index.js`. Ce fichier
+**n'est pas versionné** (le `.gitignore` racine exclut `build/`) : la session du serveur compile elle-même les
+sources de `master`. Tests des règles pures : `server/test/run.js`.
 
 | Élément | Comportement |
 |---|---|
@@ -76,11 +77,20 @@ versionné. Tests des règles pures : `server/test/run.js`.
 Le pain quotidien écrit la date et crédite les talents dans une même transaction (`multiUpdate`), avec une
 écriture conditionnelle sur la version : deux appels simultanés ne donnent qu'un seul pain.
 
-**À faire par la session du serveur** :
-1. copier `server/build/index.js` dans le dossier des modules de Nakama, puis redémarrer le service ;
-2. vérifier dans les journaux la ligne `Module Perfectionnement chargé (talents, pain quotidien).` ;
-3. les comptes créés **avant** ce module (dont `OutilTest` et le compte invité du téléphone de test) n'ont pas reçu
-   leur capital : leur créditer 100 talents s'ils ont un portefeuille vide, ou supprimer les comptes de test.
+**Déployé le 2026-11-23** (commit `634af11` plus le correctif ci-dessous). Vérifié depuis l'adresse publique :
+nouveau compte à 100 talents, pain à 110 puis refusé le même jour, aucun second capital à la reconnexion,
+six appels simultanés pour un seul pain, RPC refusé sans jeton (401). Les comptes `OutilTest` et
+`juniorbrindou`, créés avant le module, ont reçu leurs 100 talents (écriture au journal avec
+`raison: capital_depart`).
+
+**Piège du runtime JavaScript** : Nakama retrouve chaque hook et chaque RPC **par son nom dans la portée
+globale**. Une fonction anonyme écrite dans l'appel (`registerAfterAuthenticateDevice(function (…) {…})`) fait
+refuser le module entier au démarrage (`function key could not be extracted: not found`), et le serveur ne
+démarre plus. Toujours passer une variable globale nommée, comme dans `server/src/main.ts`. Les tests Node ne
+voient pas cette erreur : seul un démarrage réel de Nakama la révèle.
+
+**Pour un nouveau module** : pousser les sources sur `master`, puis demander le déploiement à la session du serveur.
+Elle compile, copie `index.js` dans `/opt/nakama/data/modules`, redémarre et vérifie le journal.
 
 ## Ce qui est sur le serveur (pour mémoire)
 

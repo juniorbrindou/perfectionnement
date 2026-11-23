@@ -1,4 +1,8 @@
 // Point d'entrée du module Nakama de Perfectionnement (compilé dans build/index.js).
+//
+// Nakama retrouve chaque fonction enregistrée par son nom dans la portée globale : un hook ou un RPC se passe
+// donc toujours par une variable globale nommée, jamais par une fonction anonyme écrite dans l'appel
+// (sinon : « function key could not be extracted: not found » et le module entier refuse de charger).
 
 const apresCreationCompte = function (ctx: nkruntime.Context, logger: nkruntime.Logger, nk: nkruntime.Nakama, session: nkruntime.Session): void {
   if (session.created && ctx.userId) {
@@ -6,10 +10,22 @@ const apresCreationCompte = function (ctx: nkruntime.Context, logger: nkruntime.
   }
 };
 
+const apresAuthAppareil: nkruntime.AfterHookFunction<nkruntime.Session, nkruntime.AuthenticateDeviceRequest> = function (ctx, logger, nk, data, _req) {
+  apresCreationCompte(ctx, logger, nk, data);
+};
+
+const apresAuthEmail: nkruntime.AfterHookFunction<nkruntime.Session, nkruntime.AuthenticateEmailRequest> = function (ctx, logger, nk, data, _req) {
+  apresCreationCompte(ctx, logger, nk, data);
+};
+
+const apresAuthGoogle: nkruntime.AfterHookFunction<nkruntime.Session, nkruntime.AuthenticateGoogleRequest> = function (ctx, logger, nk, data, _req) {
+  apresCreationCompte(ctx, logger, nk, data);
+};
+
 function InitModule(ctx: nkruntime.Context, logger: nkruntime.Logger, nk: nkruntime.Nakama, initializer: nkruntime.Initializer): void {
-  initializer.registerAfterAuthenticateDevice(function (c, l, n, data, _req) { apresCreationCompte(c, l, n, data); });
-  initializer.registerAfterAuthenticateEmail(function (c, l, n, data, _req) { apresCreationCompte(c, l, n, data); });
-  initializer.registerAfterAuthenticateGoogle(function (c, l, n, data, _req) { apresCreationCompte(c, l, n, data); });
+  initializer.registerAfterAuthenticateDevice(apresAuthAppareil);
+  initializer.registerAfterAuthenticateEmail(apresAuthEmail);
+  initializer.registerAfterAuthenticateGoogle(apresAuthGoogle);
   initializer.registerRpc("pain_quotidien", rpcPainQuotidien);
   logger.info("Module Perfectionnement chargé (talents, pain quotidien).");
 }
