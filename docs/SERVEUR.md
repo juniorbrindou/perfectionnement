@@ -92,6 +92,52 @@ voient pas cette erreur : seul un démarrage réel de Nakama la révèle.
 **Pour un nouveau module** : pousser les sources sur `master`, puis demander le déploiement à la session du serveur.
 Elle compile, copie `index.js` dans `/opt/nakama/data/modules`, redémarre et vérifie le journal.
 
+## Module serveur (0.2.4) : arcade contre le Scribe
+
+L'arcade se joue **sur le serveur** : le client envoie ses choix, le serveur distribue, fait jouer l'IA, tient
+les délais et règle la mise. Sources : `server/src/duel.ts` (règles, miroir de `scripts/core/duel.gd`),
+`ia.ts` (le Scribe, PRD §3.1), `arcade.ts` (RPC). Les cartes, les questions de départ et la carte d'aventure
+(`data/aventure.json`) sont **embarquées dans `index.js`** : `npm run build` et `npm test` lancent d'abord
+`outils/donnees.js`, qui génère `src/donnees.gen.ts` (non versionné). Il n'y a donc aucun fichier à copier à
+côté du module, mais **il faut recompiler et redéployer après chaque changement de `data/`**.
+
+Les scénarios communs `tests/scenarios/*.json` sont rejoués par `server/test/run.js` et par
+`tests/test_scenarios.gd` : les deux versions du duel doivent donner le même état final.
+
+RPC **`arcade`**, charge utile `{action, ...}` :
+
+| Action | Effet |
+|---|---|
+| `etat` | `{talents, etoiles, enCours}` ; `etoiles` : niveau → difficultés gagnées |
+| `commencer {niveau, difficulte}` | compte e-mail ou Google exigé, niveau ouvert, talents suffisants ; **prélève la mise** (2, 5 ou 10), distribue, pose la question de départ |
+| `depart {choix}` | règle la question de départ (`""` = temps écoulé) ; le Scribe répond en 3 à 9 s, juste 7 fois sur 10 |
+| `suite` | coup suivant : le Scribe pose sa carte, ou le joueur a 10 s pour choisir |
+| `jouer {index}` | le joueur pose (`-1` ou hors délai : au hasard), le Scribe répond aussitôt |
+| `repondre {choix}` | réponse à la carte du Scribe (`""` ou hors délai : temps écoulé) |
+| `abandonner` | défaite, la mise reste perdue |
+
+Chaque réponse contient `vue` (ce que le joueur voit : ses cartes, le nombre de cartes du Scribe, la carte à
+deviner) et, en fin de partie, `fin {gagne, gain, nouvelleEtoile, talents, etoiles}`. Victoire : le joueur
+reçoit **deux fois la mise** (`raison: gain_arcade`). Délais : 10 s pour poser, 15 s pour répondre, plus 3 s
+de marge réseau. Une partie laissée en cours est perdue quand le joueur en commence une autre.
+
+| Stockage | Contenu | Lecture |
+|---|---|---|
+| `arcade` / `partie` | la partie en cours, cartes du Scribe comprises | serveur seulement |
+| `arcade` / `recentes` | cartes des 5 dernières parties (évitées au tirage) | serveur seulement |
+| `joueur` / `aventure` | `{etoiles: {"1": ["lait", "manne"]}}` | le joueur |
+
+Un niveau est ouvert si c'est le premier ou si le précédent a une étoile. Ses cartes viennent des livres du
+chapitre, ou de toute la Bible tant que le chapitre n'en a pas assez (aujourd'hui : toujours toute la Bible).
+
+**À faire par la session du serveur** :
+1. `git pull`, puis dans `server/` : `npm install` si besoin, `npm test` (15 tests) ;
+2. copier `build/index.js` dans `/opt/nakama/data/modules`, redémarrer, vérifier la ligne
+   `Module Perfectionnement chargé (talents, pain quotidien, arcade).` ;
+3. vérifier depuis l'adresse publique : `arcade` refusé à un invité ; avec un compte e-mail de test,
+   `commencer` niveau 1 en Lait prélève 2 talents, puis une partie jusqu'au bout donne `fin` ; supprimer
+   ensuite le compte de test.
+
 ## Ce qui est sur le serveur (pour mémoire)
 
 - Service systemd `nakama`, binaire et configuration dans `/opt/nakama`, sans Docker. L'API, la console

@@ -27,7 +27,8 @@ function InitModule(ctx: nkruntime.Context, logger: nkruntime.Logger, nk: nkrunt
   initializer.registerAfterAuthenticateEmail(apresAuthEmail);
   initializer.registerAfterAuthenticateGoogle(apresAuthGoogle);
   initializer.registerRpc("pain_quotidien", rpcPainQuotidien);
-  logger.info("Module Perfectionnement chargé (talents, pain quotidien).");
+  initializer.registerRpc("arcade", rpcArcade);
+  logger.info("Module Perfectionnement chargé (talents, pain quotidien, arcade).");
 }
 
 // Nakama appelle InitModule par son nom : on le garde référencé pour qu'il ne soit pas éliminé.

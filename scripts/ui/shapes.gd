@@ -193,6 +193,26 @@ class Icon extends Control:
 				draw_line(base, o + Vector2(s * 0.5, s * 0.35), color, w, true)
 				draw_arc(o + Vector2(s * 0.32, s * 0.4), s * 0.17, -PI * 0.1, PI * 0.9, 16, color, w, true)
 				draw_arc(o + Vector2(s * 0.68, s * 0.3), s * 0.17, PI * 0.1, PI * 1.1, 16, color, w, true)
+			"cadenas":
+				var body := Rect2(o + Vector2(s * 0.14, s * 0.44), Vector2(s * 0.72, s * 0.5))
+				var bs := UiTheme.box(Color.TRANSPARENT, int(s * 0.1))
+				bs.draw_center = false
+				bs.border_color = color
+				bs.set_border_width_all(int(maxf(w, 1)))
+				bs.draw(get_canvas_item(), body)
+				draw_arc(o + Vector2(s * 0.5, s * 0.36), s * 0.2, PI, TAU, 24, color, w, true)
+				draw_line(o + Vector2(s * 0.3, s * 0.36), o + Vector2(s * 0.3, s * 0.44), color, w, true)
+				draw_line(o + Vector2(s * 0.7, s * 0.36), o + Vector2(s * 0.7, s * 0.44), color, w, true)
+				draw_circle(o + Vector2(s * 0.5, s * 0.68), s * 0.07, color)
+			"scribe":
+				# Rouleau : deux enroulements et des lignes d'écriture.
+				draw_arc(o + Vector2(s * 0.3, s * 0.28), s * 0.12, PI * 0.5, PI * 2.0, 24, color, w, true)
+				draw_line(o + Vector2(s * 0.3, s * 0.16), o + Vector2(s * 0.75, s * 0.16), color, w, true)
+				draw_line(o + Vector2(s * 0.75, s * 0.16), o + Vector2(s * 0.75, s * 0.4), color, w, true)
+				draw_line(o + Vector2(s * 0.18, s * 0.28), o + Vector2(s * 0.18, s * 0.8), color, w, true)
+				draw_line(o + Vector2(s * 0.18, s * 0.8), o + Vector2(s * 0.85, s * 0.8), color, w, true)
+				draw_line(o + Vector2(s * 0.38, s * 0.5), o + Vector2(s * 0.65, s * 0.5), color, w, true)
+				draw_line(o + Vector2(s * 0.38, s * 0.64), o + Vector2(s * 0.58, s * 0.64), color, w, true)
 			"lieux_evenements":
 				draw_polyline(PackedVector2Array([o + Vector2(s * 0.05, s * 0.85), o + Vector2(s * 0.4, s * 0.3), o + Vector2(s * 0.6, s * 0.6), o + Vector2(s * 0.75, s * 0.45), o + Vector2(s * 0.95, s * 0.85), o + Vector2(s * 0.05, s * 0.85)]), color, w, true)
 				draw_circle(o + Vector2(s * 0.78, s * 0.2), s * 0.1, color)
@@ -304,3 +324,34 @@ class Arch extends Control:
 		if size.x < Shapes._px(40) or size.y < Shapes._px(20):
 			return
 		draw_colored_polygon(_points(0), Color("e39445"))
+
+
+## Rangée d'étoiles : les « lit » premières sont allumées.
+class Stars extends Control:
+	var lit := 0
+	var total := 3
+	var on_color := UiTheme.YELLOW
+	var off_color := Color(1, 1, 1, 0.3)
+	var side := 16.0
+
+	func _init(l: int = 0, t: int = 3, s: float = 16) -> void:
+		lit = l
+		total = t
+		side = s
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		custom_minimum_size = Vector2(Shapes._px(s) * t + Shapes._px(2) * (t - 1), Shapes._px(s))
+
+	static func star_points(center: Vector2, r: float) -> PackedVector2Array:
+		var pts := PackedVector2Array()
+		for i in 10:
+			var a := -PI / 2 + i * TAU / 10
+			pts.append(center + Vector2(cos(a), sin(a)) * (r if i % 2 == 0 else r * 0.45))
+		return pts
+
+	func _draw() -> void:
+		var s := Shapes._px(side)
+		if s < 4:
+			return
+		for i in total:
+			var c := Vector2(s / 2 + i * (s + Shapes._px(2)), size.y / 2)
+			draw_colored_polygon(star_points(c, s / 2), on_color if i < lit else off_color)

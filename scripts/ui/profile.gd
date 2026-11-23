@@ -20,7 +20,8 @@ func _ready() -> void:
 	add_child(_body)
 	Online.account_changed.connect(_rebuild)
 	Online.state_changed.connect(_on_online_state)
-	_show(View.PROFILE)
+	_show(Session.profile_view as View)
+	Session.profile_view = 0
 
 
 func _on_online_state(_s) -> void:

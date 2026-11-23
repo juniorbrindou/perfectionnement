@@ -1,0 +1,19 @@
+{
+  "chapitres": [
+    {
+      "nom": "Chapitre 1 : la Genèse",
+      "resume": "8 niveaux, de la création à Joseph",
+      "livres": ["Genèse"],
+      "niveaux": [
+        {"id": 1, "nom": "La création"},
+        {"id": 2, "nom": "Le jardin d'Éden"},
+        {"id": 3, "nom": "L'arche de Noé"},
+        {"id": 4, "nom": "La tour de Babel"},
+        {"id": 5, "nom": "Abraham"},
+        {"id": 6, "nom": "Isaac et Rébecca"},
+        {"id": 7, "nom": "Jacob"},
+        {"id": 8, "nom": "Joseph"}
+      ]
+    }
+  ]
+}

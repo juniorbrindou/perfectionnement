@@ -1,0 +1,29 @@
+{
+  "nom": "Une carte ratée revient à sa place dans la main, et le tour alterne dans tous les cas",
+  "mains": [
+    [
+      {"id": "A1", "reponse": "R1", "montrees": ["x1", "x2", "x3"], "reserve": ["x4", "x5"]},
+      {"id": "A2", "reponse": "R2", "montrees": ["y1", "y2", "y3"], "reserve": ["y4", "y5"]},
+      {"id": "A3", "reponse": "R3", "montrees": ["z1", "z2", "z3"], "reserve": ["z4", "z5"]}
+    ],
+    [{"id": "B1", "reponse": "S1", "montrees": ["w1", "w2", "w3"], "reserve": ["w4", "w5"]}]
+  ],
+  "commence": 1,
+  "coups": [
+    {"jouer": 0, "repondre": "w1"},
+    {"jouer": 1, "repondre": "y2"},
+    {"jouer": 0, "repondre": "S1"}
+  ],
+  "attendu": {
+    "gagnant": 0,
+    "mains": [
+      [
+        {"id": "A1", "montrees": ["x1", "x2", "x3"], "reserve": ["x4", "x5"]},
+        {"id": "A2", "montrees": ["y1", "y3"], "reserve": ["y4", "y5"]},
+        {"id": "A3", "montrees": ["z1", "z2", "z3"], "reserve": ["z4", "z5"]}
+      ],
+      []
+    ],
+    "detruites": [[], ["B1"]]
+  }
+}

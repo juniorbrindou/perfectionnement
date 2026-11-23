@@ -281,7 +281,11 @@ func _bottom_actions() -> void:
 	var grid := GridContainer.new()
 	grid.columns = 3
 	grid.add_theme_constant_override("h_separation", P.px(8))
-	for mode_name in ["Aventure", "En ligne", "Salons"]:
+	var adventure := P.button("Aventure", func(): get_tree().change_scene_to_file("res://scenes/adventure.tscn"), 17, "GhostButton")
+	adventure.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	adventure.custom_minimum_size = Vector2(0, P.px(56))
+	grid.add_child(adventure)
+	for mode_name in ["En ligne", "Salons"]:
 		var b := P.button("%s\nbientôt" % mode_name, func(): pass, 15, "GhostButton")
 		b.disabled = true
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL

@@ -1,0 +1,17 @@
+{
+  "nom": "À 2 propositions et réserve vide, la fausse réponse ne change plus",
+  "mains": [
+    [{"id": "A", "reponse": "R", "montrees": ["a"], "reserve": []}],
+    [{"id": "B", "reponse": "S", "montrees": ["s1"], "reserve": []}]
+  ],
+  "commence": 0,
+  "coups": [
+    {"jouer": 0, "repondre": "a"},
+    {"jouer": 0, "repondre": "S"}
+  ],
+  "attendu": {
+    "gagnant": 0,
+    "mains": [[{"id": "A", "montrees": ["a"], "reserve": []}], []],
+    "detruites": [[], ["B"]]
+  }
+}

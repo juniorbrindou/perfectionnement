@@ -97,6 +97,7 @@ On accepte qu'un joueur qui a bonne mémoire repère la bonne réponse : c'est l
 - **Pour répondre**, l'IA a une chance de trouver la bonne réponse avec 4 propositions de **65 % en Lait, 55 % en Manne et 45 % en Nourriture solide**. Cette chance augmente quand il reste moins de propositions, et l'IA n'oublie jamais une proposition déjà éliminée.
 - **Pour poser**, l'IA joue en priorité les cartes qui ont le plus de propositions restantes.
 - Victoire : + la mise. Défaite : − la mise. Pas de gratuité ni de plafond.
+- **L'arcade se joue sur la carte d'aventure** (validé le 2026-11-23) : chapitres bibliques découpés en niveaux. Chaque niveau se joue dans la difficulté choisie, et **chaque difficulté gagnée donne une étoile** (3 étoiles par niveau). La première victoire ouvre le niveau suivant. L'IA s'appelle **le Scribe**.
 
 ### 3.2 2 joueurs sur un téléphone
 
@@ -237,7 +238,7 @@ Direction validée le 2026-11-23 sur maquettes (artifact « Perfectionnement —
 - **Polices** : Lilita One (titres, réponses), Nunito (texte).
 - **Écrans en 2D animés** : les cartes se retournent, la main s'ouvre en éventail, un tampon marque la carte détruite. La table 3D est abandonnée.
 - **Style d'illustration** : personnages bibliques en dessin animé coloré, scènes chaleureuses (arche de pierre éclairée sur l'accueil).
-- **Plus tard** : mode aventure solo sur une carte à niveaux et étoiles, découpée en chapitres bibliques ; classement clair avec le badge Rang S.
+- **Carte d'aventure** : elle arrive avec l'arcade (0.2.4), avec un premier chapitre (la Genèse, 8 niveaux). **Plus tard** : les autres chapitres, et un classement clair avec le badge Rang S.
 - **Une illustration par récit biblique**, partagée par les cartes de ce récit : environ 60 à 80 pour le premier lot.
 - Les illustrations sont **produites par l'équipe**, à partir d'images libres de droits ou dessinées à la main. Claude fournit la liste des récits, les formats attendus et des images provisoires.
 - **Règles de représentation** :

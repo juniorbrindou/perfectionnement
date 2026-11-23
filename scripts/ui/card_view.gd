@@ -24,6 +24,7 @@ var _back_art: Control
 var _content: MarginContainer
 var _overlay: Control
 var _answer_buttons := {}  ## texte de la réponse → Button
+var _owner_rows := {}  ## texte de la réponse → PanelContainer (vue du propriétaire)
 
 
 func _init() -> void:
@@ -84,8 +85,41 @@ func show_owner(card: CardInPlay, owner_name: String) -> void:
 	_chrome(data, options.size(), "Ta carte" if owner_name.is_empty() else "La carte de %s" % owner_name)
 
 
+## Vue du propriétaire pendant que l'adversaire répond : les propositions dans l'ordre
+## qu'il voit, la bonne réponse marquée. highlight_owner_row() montre son hésitation.
+func show_owner_answering(data: CardData, presented: Array[String], footer: String) -> void:
+	_reset(Mode.OWNER, UiTheme.difficulty_color(data.difficulty))
+	var col := _question_layout(data)
+	var band := _answers_band(data, col)
+	for i in presented.size():
+		var row := _owner_row(LETTERS[i], presented[i], presented[i] == data.answer)
+		band.add_child(row)
+		_owner_rows[presented[i]] = row
+	_chrome(data, presented.size(), footer)
+
+
+enum Highlight { NONE, HESITATE, RIGHT, WRONG }
+
+func highlight_owner_row(text: String, state: Highlight) -> void:
+	for t in _owner_rows:
+		var row: PanelContainer = _owner_rows[t]
+		var correct := (row.get_meta("correct", false) as bool)
+		var s := UiTheme.box(UiTheme.GREEN if correct else Color.TRANSPARENT, UiTheme.px(10), UiTheme.px(12), UiTheme.px(8))
+		if t == text and state != Highlight.NONE:
+			match state:
+				Highlight.HESITATE:
+					s.bg_color = UiTheme.GREEN if correct else Color(1, 1, 1, 0.18)
+				Highlight.RIGHT:
+					s.bg_color = UiTheme.GREEN
+				Highlight.WRONG:
+					s.bg_color = Color("ff4f6d")
+			s.border_color = UiTheme.CREAM
+			s.set_border_width_all(UiTheme.px(3))
+		row.add_theme_stylebox_override("panel", s)
+
+
 ## Vue de celui qui répond : les propositions se touchent sur la carte.
-func show_question(data: CardData, presented: Array[String], owner_name: String) -> void:
+func show_question(data: CardData, presented: Array[String], owner_name: String, footer: String = "") -> void:
 	_reset(Mode.ANSWER, UiTheme.difficulty_color(data.difficulty))
 	var col := _question_layout(data)
 	var band := _answers_band(data, col)
@@ -93,7 +127,7 @@ func show_question(data: CardData, presented: Array[String], owner_name: String)
 		var b := _answer_button(LETTERS[i], presented[i])
 		band.add_child(b)
 		_answer_buttons[presented[i]] = b
-	_chrome(data, presented.size(), "La carte de %s" % owner_name)
+	_chrome(data, presented.size(), footer if not footer.is_empty() else "La carte de %s" % owner_name)
 
 
 ## Après une bonne réponse : la carte montre son récit.
@@ -157,6 +191,7 @@ func set_answers_enabled(on: bool) -> void:
 func _reset(m: Mode, body_color: Color) -> void:
 	mode = m
 	_answer_buttons.clear()
+	_owner_rows.clear()
 	for child in _content.get_children():
 		child.queue_free()
 	for child in _overlay.get_children():
@@ -243,6 +278,7 @@ func _owner_row(letter: String, text: String, correct: bool) -> Control:
 	p.add_theme_stylebox_override("panel", UiTheme.box(UiTheme.GREEN if correct else Color.TRANSPARENT, UiTheme.px(10), UiTheme.px(12), UiTheme.px(8)))
 	p.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	p.set_meta("correct", correct)
 	var row := row_content(letter, text, UiTheme.CREAM if correct else UiTheme.YELLOW)
 	if correct:
 		var tag := PanelContainer.new()

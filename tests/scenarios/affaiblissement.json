@@ -1,0 +1,21 @@
+{
+  "nom": "La carte s'affaiblit de 4 à 2 propositions, puis sa fausse réponse est remplacée par la réserve",
+  "mains": [
+    [{"id": "A", "reponse": "Noé", "montrees": ["a", "b", "c"], "reserve": ["d", "e"]}],
+    [{"id": "B", "reponse": "X", "montrees": ["p", "q", "r"], "reserve": []}, {"id": "B2", "reponse": "Y", "montrees": ["s", "t", "u"], "reserve": []}]
+  ],
+  "commence": 0,
+  "coups": [
+    {"jouer": 0, "repondre": "a"},
+    {"jouer": 0, "repondre": "p"},
+    {"jouer": 0, "repondre": "b"},
+    {"jouer": 0, "repondre": "X"},
+    {"jouer": 0, "repondre": "c"},
+    {"jouer": 0, "repondre": "Y"}
+  ],
+  "attendu": {
+    "gagnant": 0,
+    "mains": [[{"id": "A", "montrees": ["d"], "reserve": ["e"]}], []],
+    "detruites": [[], ["B", "B2"]]
+  }
+}

@@ -10,6 +10,10 @@ const STORIES_PATH := "res://data/recits.json"
 var cards: Array[CardData] = []
 var starters: Array[StarterQuestion] = []
 var stories: Dictionary = {}  ## id du récit → titre
+## Toutes les cartes et questions de départ par identifiant, brouillons compris :
+## le serveur (arcade) peut distribuer des cartes que la banque locale écarte.
+var cards_by_id: Dictionary = {}
+var starters_by_id: Dictionary = {}
 
 
 static func load_default(include_drafts: bool) -> QuestionBank:
@@ -21,10 +25,12 @@ static func load_from(cards_path: String, starters_path: String, stories_path: S
 	var bank := QuestionBank.new()
 	for d in _read_json(cards_path):
 		var c := CardData.from_dict(d)
+		bank.cards_by_id[c.id] = c
 		if include_drafts or c.is_validated():
 			bank.cards.append(c)
 	for d in _read_json(starters_path):
 		var q := StarterQuestion.from_dict(d)
+		bank.starters_by_id[q.id] = q
 		if include_drafts or q.is_validated():
 			bank.starters.append(q)
 	var s = _read_json(stories_path)

@@ -91,4 +91,72 @@ func _run() -> void:
 	await _shot("13_cartes_detruites")
 	m._ask_quit()
 	await _shot("14_quitter")
+	await _arcade()
 	quit()
+
+
+## Arcade : sans serveur (headless), on remplit les écrans avec des réponses fabriquées.
+func _arcade() -> void:
+	change_scene_to_file("res://scenes/adventure.tscn")
+	await _shot("20_aventure_hors_ligne")
+	var a = current_scene
+	a._show_guest()
+	await _shot("21_aventure_invite")
+	a._clear_overlay()
+	a._stars = {"1": ["lait", "manne"], "2": ["lait"], "3": ["lait"]}
+	a._loaded = true
+	a._refresh()
+	await _shot("22_aventure_carte")
+	a._show_level(4)
+	await _shot("23_aventure_niveau")
+
+	var session = root.get_node("Session")
+	var cards: Array = session.bank.cards.filter(func(c): return c.difficulty == "manne")
+	var main := []
+	for c in cards.slice(0, 4):
+		main.append({"id": c.id, "fausses": c.wrongs.slice(0, 3), "reserve": 2})
+	var foe: CardData = cards[5]
+	var starter: StarterQuestion = session.bank.starters[0]
+	var vue := {
+		"etape": "depart", "niveau": 4, "difficulte": "manne", "mise": 5, "poseur": -1, "gagnant": -1,
+		"main": main, "mainIA": 3, "carte": null, "detruites": [[], [cards[6].id, cards[7].id]], "temps": 10,
+		"depart": {"id": starter.id, "propositions": [starter.answer] + Array(starter.wrongs)},
+	}
+	session.arcade_start = {"vue": vue, "talents": 105}
+	change_scene_to_file("res://scenes/arcade_match.tscn")
+	await _shot("24_arcade_depart")
+	var m = current_scene
+	m._stop_timer()
+	m._begin_choose()
+	m._select_card(0)
+	await _shot("25_arcade_choisir")
+	m._stop_timer()
+	var mine: CardData = cards[0]
+	var presented: Array[String] = [mine.wrongs[0], mine.answer, mine.wrongs[1]]
+	m._show_ai_answering({"carte": mine.id, "presentees": presented, "choix": mine.wrongs[0], "juste": false}, {})
+	await create_timer(1.0).timeout
+	await _shot("26_arcade_scribe_hesite")
+	await create_timer(2.5).timeout
+	await _shot("27_arcade_scribe_rate")
+	vue["etape"] = "repondre"
+	vue["carte"] = {"id": foe.id, "propositions": [foe.wrongs[0], foe.answer, foe.wrongs[1], foe.wrongs[2]]}
+	m._apply({"vue": vue})
+	m._begin_answer()
+	await _shot("28_arcade_repondre")
+	m._stop_timer()
+	m._show_result({"correct": true, "card": foe, "owner": 1, "choice": foe.answer, "timed_out": false, "options_before": 4})
+	await _shot("29_arcade_bonne_reponse")
+	vue["etape"] = "finie"
+	vue["gagnant"] = 0
+	vue["mainIA"] = 0
+	m._apply({"vue": vue, "fin": {"gagne": true, "gain": 5, "nouvelleEtoile": true, "talents": 115, "etoiles": ["lait", "manne"]}})
+	m._show_end()
+	await _shot("30_arcade_victoire")
+	vue["gagnant"] = 1
+	vue["main"] = []
+	vue["mainIA"] = 2
+	m._apply({"vue": vue, "fin": {"gagne": false, "gain": -5, "nouvelleEtoile": false, "talents": 105, "etoiles": []}})
+	m._show_end()
+	await _shot("31_arcade_defaite")
+	m._show_destroyed()
+	await _shot("32_arcade_cartes_detruites")

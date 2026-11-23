@@ -3,8 +3,8 @@
   "private": true,
   "description": "Module Nakama (TypeScript) de Perfectionnement",
   "scripts": {
-    "build": "tsc",
-    "test": "tsc && node test/run.js"
+    "build": "node outils/donnees.js && tsc",
+    "test": "node outils/donnees.js && tsc && node test/run.js"
   },
   "devDependencies": {
     "nakama-runtime": "git+https://github.com/heroiclabs/nakama-common.git",

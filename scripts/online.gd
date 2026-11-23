@@ -102,6 +102,25 @@ func claim_bread() -> void:
 		bread_received.emit(int(data.get("gain", 0)))
 
 
+## Arcade jouée sur le serveur (RPC « arcade », voir server/src/arcade.ts). Renvoie la
+## réponse du serveur, ou {"erreur": message}. Met à jour les talents affichés.
+func arcade(request: Dictionary) -> Dictionary:
+	if not await _ensure_session():
+		return {"erreur": "Pas de connexion au serveur."}
+	var r = await client.rpc_async(session, "arcade", JSON.stringify(request))
+	if r.is_exception():
+		var e: NakamaException = r.get_exception()
+		return {"erreur": e.message if e.status_code > 0 and not e.message.is_empty() else _message(e)}
+	var data = JSON.parse_string(r.payload)
+	if not data is Dictionary:
+		return {"erreur": "Réponse illisible du serveur."}
+	var t = data.get("talents", data.get("fin", {}).get("talents", null))
+	if t != null:
+		wallet["talents"] = int(t)
+		account_changed.emit()
+	return data
+
+
 ## Change le pseudo. Renvoie un message d'erreur, ou "" si c'est fait.
 func change_username(new_name: String) -> String:
 	var problem := Pseudo.problem(new_name)

@@ -11,7 +11,11 @@
   },
   "files": [
     "./src/regles.ts",
+    "./src/duel.ts",
+    "./src/donnees.gen.ts",
+    "./src/ia.ts",
     "./src/talents.ts",
+    "./src/arcade.ts",
     "./src/main.ts"
   ]
 }
