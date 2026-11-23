@@ -33,8 +33,10 @@ function Connect-Phone {
 
 switch ($action) {
     "deploy" {
-        Write-Host "1/3 Export de l'APK (environ 1 minute)..."
-        & $godot --headless --path . --export-debug "Android" $apk 2>&1 | Select-String "ERROR"
+        Write-Host "1/3 Export de l'APK (1 à 3 minutes)..."
+        # Build Gradle (greffon Google) : le modèle Android est installé au premier export.
+        $template = if (Test-Path "android/build") { @() } else { @("--install-android-build-template") }
+        & $godot --headless --path . @template --export-debug "Android" $apk 2>&1 | Select-String "ERROR"
         # L'export redémarre adb : on se connecte ensuite.
         Write-Host "2/3 Installation sur le téléphone..."
         Connect-Phone

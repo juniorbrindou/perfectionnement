@@ -9,6 +9,7 @@ enum View { PROFILE, CREATE, LOGIN }
 var _view := View.PROFILE
 var _body: Control
 var _renaming := false
+var _google_error: Label
 
 
 func _ready() -> void:
@@ -77,7 +78,7 @@ func _build_profile(col: VBoxContainer) -> void:
 
 	var chips := P.hbox(10)
 	chips.alignment = BoxContainer.ALIGNMENT_CENTER
-	chips.add_child(_chip("Compte e-mail" if Online.has_email() else "Invité"))
+	chips.add_child(_chip("Compte Google" if Online.has_google() else ("Compte e-mail" if Online.has_email() else "Invité")))
 	chips.add_child(_status())
 	col.add_child(chips)
 	if Online.is_online():
@@ -104,22 +105,25 @@ func _build_profile(col: VBoxContainer) -> void:
 	var card := _cream_card()
 	var cv := P.vbox(12)
 	card.add_child(cv)
-	if Online.has_email():
+	if Online.has_account():
 		cv.add_child(P.title("Ton compte est protégé", 22, P.FRAMBOISE, HORIZONTAL_ALIGNMENT_LEFT))
-		cv.add_child(P.label("Tu peux retrouver ta progression sur un autre téléphone avec %s." % Online.email, 15, P.NIGHT, 800, HORIZONTAL_ALIGNMENT_LEFT))
+		var how := "ton compte Google" if Online.has_google() else Online.email
+		cv.add_child(P.label("Tu peux retrouver ta progression sur un autre téléphone avec %s." % how, 15, P.NIGHT, 800, HORIZONTAL_ALIGNMENT_LEFT))
 	else:
 		cv.add_child(P.title("Garde ta progression", 22, P.FRAMBOISE, HORIZONTAL_ALIGNMENT_LEFT))
 		cv.add_child(P.label("Ton compte invité est lié à ce téléphone. Crée un compte pour retrouver ton pseudo, tes talents et ton niveau sur un autre téléphone.", 15, P.NIGHT, 800, HORIZONTAL_ALIGNMENT_LEFT))
-		var create := P.button("Créer mon compte avec un e-mail", func(): _show(View.CREATE), 20)
+		cv.add_child(_google_button())
+		var create := P.button("Créer mon compte avec un e-mail", func(): _show(View.CREATE), 18, "GhostButton")
 		create.disabled = not Online.is_online()
+		create.add_theme_color_override("font_color", P.VIOLET)
+		create.custom_minimum_size = Vector2(0, P.px(50))
 		cv.add_child(create)
-		var google := P.button("Avec Google : bientôt", func(): pass, 16, "GhostButton")
-		google.disabled = true
-		google.custom_minimum_size = Vector2(0, P.px(50))
-		cv.add_child(google)
+		_google_error = P.label("", 13, P.FRAMBOISE, 800)
+		_google_error.visible = false
+		cv.add_child(_google_error)
 	col.add_child(card)
 
-	if not Online.has_email():
+	if not Online.has_account():
 		var link := LinkButton.new()
 		link.text = "J'ai déjà un compte sur un autre téléphone"
 		link.add_theme_font_override("font", P.body_font(900))
@@ -129,6 +133,49 @@ func _build_profile(col: VBoxContainer) -> void:
 		link.pressed.connect(func(): _show(View.LOGIN))
 		col.add_child(P.spacer(4))
 		col.add_child(link)
+
+
+## Bouton « Continuer avec Google » (blanc, logo G, selon les règles de marque de Google).
+func _google_button() -> Button:
+	var b := Button.new()
+	b.focus_mode = Control.FOCUS_NONE
+	b.custom_minimum_size = Vector2(0, P.px(54))
+	var s := P.box(Color.WHITE, P.px(14))
+	s.border_color = Color("dadce0")
+	s.set_border_width_all(P.px(1))
+	var sp := P.box(Color("f1f3f4"), P.px(14))
+	sp.border_color = Color("dadce0")
+	sp.set_border_width_all(P.px(1))
+	for state in ["normal", "hover", "focus"]:
+		b.add_theme_stylebox_override(state, s)
+	b.add_theme_stylebox_override("pressed", sp)
+	b.add_theme_stylebox_override("hover_pressed", sp)
+	b.add_theme_stylebox_override("disabled", sp)
+	var row := P.hbox(10)
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.set_anchors_preset(Control.PRESET_FULL_RECT)
+	b.add_child(row)
+	var g := P.title("G", 22, Color("4285f4"))
+	g.autowrap_mode = TextServer.AUTOWRAP_OFF
+	g.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(g)
+	var l := P.label("Continuer avec Google", 17, Color("1f1f1f"), 800)
+	l.autowrap_mode = TextServer.AUTOWRAP_OFF
+	l.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(l)
+	b.disabled = not Online.is_online() or not Online.google_available()
+	b.pressed.connect(func():
+		b.disabled = true
+		var err: String = await Online.sign_in_google()
+		if not is_inside_tree():
+			return
+		if err.is_empty():
+			_rebuild()
+		else:
+			b.disabled = false
+			_google_error.text = err
+			_google_error.visible = true)
+	return b
 
 
 ## Niveau, rang et barre d'XP (PRD §7).

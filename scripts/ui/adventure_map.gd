@@ -74,7 +74,7 @@ func _ready() -> void:
 
 	if not Online.is_online():
 		_show_notice("L'arcade se joue en ligne", "Vérifie ta connexion à Internet, puis réessaie.", "Réessayer", _retry)
-	elif not Online.has_email():
+	elif not Online.has_account():
 		_show_guest()
 	else:
 		_load_progress()
@@ -422,7 +422,7 @@ func _show_guest() -> void:
 	acc.add_child(ah)
 	v.add_child(acc)
 	v.add_child(P.spacer(6))
-	v.add_child(P.button("Créer mon compte", _open_profile.bind(1), 22))
+	v.add_child(P.button("Créer mon compte", _open_profile.bind(0), 22))
 	v.add_child(P.button("J'ai déjà un compte", _open_profile.bind(2), 19, "GhostButton"))
 	_add_home_link()
 
@@ -570,7 +570,7 @@ func _to_menu() -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_GO_BACK_REQUEST:
-		if _sheet_level > 0 and _overlay.get_child_count() > 0 and Online.has_email():
+		if _sheet_level > 0 and _overlay.get_child_count() > 0 and Online.has_account():
 			_sheet_level = 0
 			_clear_overlay()
 		else:

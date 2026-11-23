@@ -18,12 +18,16 @@ const PORT := 443
 const SCHEME := "https"
 const SESSION_PATH := "user://session.cfg"
 const CONFLICT := 409
+## Identifiant OAuth « Application Web » du projet Google Cloud (public : il est dans
+## chaque APK). C'est l'audience des jetons Google que le serveur accepte.
+const GOOGLE_WEB_CLIENT_ID := "492954893860-3abik9silaiiea1toaf5nt473dj9bc1d.apps.googleusercontent.com"
 
 var client: NakamaClient
 var session: NakamaSession
 var state := State.OFFLINE
 var username := ""
 var email := ""
+var google_linked := false
 var wallet := {}
 var last_error := ""
 var bread_today := false  ## Pain quotidien reçu aujourd'hui (maintenant ou plus tôt).
@@ -46,6 +50,15 @@ func is_online() -> bool:
 
 func has_email() -> bool:
 	return not email.is_empty()
+
+
+func has_google() -> bool:
+	return google_linked
+
+
+## Compte protégé (e-mail ou Google) : exigé par l'arcade et les salons.
+func has_account() -> bool:
+	return has_email() or has_google()
 
 
 func talents() -> int:
@@ -88,6 +101,7 @@ func refresh_account() -> bool:
 		return _fail(acc.get_exception())
 	username = acc.user.username
 	email = acc.email if acc.email != null else ""
+	google_linked = not acc.user.google_id.is_empty()
 	var parsed = JSON.parse_string(acc.wallet) if acc.wallet else null
 	wallet = parsed if parsed is Dictionary else {}
 	account_changed.emit()
@@ -162,6 +176,53 @@ func link_email(address: String, password: String) -> String:
 	if r.is_exception():
 		return "Cette adresse est déjà utilisée par un autre compte." if r.get_exception().status_code == CONFLICT else _message(r.get_exception())
 	await refresh_account()
+	return ""
+
+
+## Connexion Google (greffon Android « GoogleSignIn », dossier android_plugin/).
+## Le compte invité du téléphone est rattaché à Google : pseudo, talents et XP sont gardés.
+## Si ce compte Google appartient déjà à un autre joueur, on bascule sur ce compte-là
+## (cas d'un nouveau téléphone). Renvoie un message d'erreur, ou "" si c'est fait.
+func google_available() -> bool:
+	return Engine.has_singleton("GoogleSignIn") and not GOOGLE_WEB_CLIENT_ID.is_empty()
+
+
+func sign_in_google() -> String:
+	if not google_available():
+		return "La connexion Google n'est pas disponible sur cet appareil."
+	var plugin := Engine.get_singleton("GoogleSignIn")
+	var result: Array = []
+	var on_ok := func(token: String, _mail: String, _display: String): result.assign([true, token])
+	var on_fail := func(code: String, message: String): result.assign([false, code, message])
+	plugin.sign_in_succeeded.connect(on_ok)
+	plugin.sign_in_failed.connect(on_fail)
+	plugin.signIn(GOOGLE_WEB_CLIENT_ID)
+	while result.is_empty():
+		await get_tree().process_frame
+	plugin.sign_in_succeeded.disconnect(on_ok)
+	plugin.sign_in_failed.disconnect(on_fail)
+	if not result[0]:
+		if result[1] == "annule":
+			return "Connexion Google annulée."
+		push_warning("Google : %s" % result[2])
+		return "Connexion Google impossible : %s" % result[2]
+	var token: String = result[1]
+	if await _ensure_session():
+		var link = await client.link_google_async(session, token)
+		if not link.is_exception():
+			await refresh_account()
+			return ""
+		if link.get_exception().status_code != CONFLICT:
+			return _message(link.get_exception())
+	# Ce compte Google a déjà son propre compte de jeu : on s'y connecte (sans en créer).
+	var s: NakamaSession = await client.authenticate_google_async(token, null, false)
+	if s.is_exception():
+		return _message(s.get_exception())
+	session = s
+	_save_session()
+	await refresh_account()
+	_set_state(State.ONLINE)
+	claim_bread()
 	return ""
 
 

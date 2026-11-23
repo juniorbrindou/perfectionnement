@@ -1,0 +1,16 @@
+// Greffon Android « GoogleSignIn » du jeu : connexion Google par le Credential Manager.
+// Compilation : gradle assembleRelease (voir README.md de ce dossier).
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+rootProject.name = "GoogleSignIn"

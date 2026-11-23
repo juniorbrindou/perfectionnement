@@ -453,7 +453,7 @@ func _refresh() -> void:
 
 
 func _load_progress() -> void:
-	if not Online.is_online() or not Online.has_email():
+	if not Online.is_online() or not Online.has_account():
 		return
 	var r := await Online.arcade({"action": "etat"})
 	if r.has("erreur") or not is_inside_tree():
