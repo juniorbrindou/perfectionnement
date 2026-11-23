@@ -22,6 +22,7 @@ const DELAI_REPONDRE_S = 15;
 /** Délai accordé en plus pour le réseau avant de jouer à la place du joueur. */
 const MARGE_S = 3;
 const PARTIES_RECENTES = 5;
+const CLASSEMENT_XP = "xp";
 const DIFFICULTES = ["lait", "manne", "solide"];
 
 interface DepartArcade { id: string; propositions: string[]; reponse: string; debut: number; iaTemps: number; iaJuste: boolean; }
@@ -248,6 +249,21 @@ function talentsDe(nk: nkruntime.Nakama, userId: string): number {
   return (compte.wallet && compte.wallet["talents"]) || 0;
 }
 
+function xpDe(nk: nkruntime.Nakama, userId: string): number {
+  const compte = nk.accountGetId(userId);
+  return (compte.wallet && compte.wallet["xp"]) || 0;
+}
+
+/** Classement général par XP (PRD §7) : le score est l'XP totale du joueur. */
+function inscrireClassement(nk: nkruntime.Nakama, logger: nkruntime.Logger, userId: string, xp: number): void {
+  try {
+    const compte = nk.accountGetId(userId);
+    nk.leaderboardRecordWrite(CLASSEMENT_XP, userId, compte.user.username, xp, 0, undefined, nkruntime.OverrideOperator.SET);
+  } catch (e) {
+    logger.warn("Classement XP : écriture refusée pour %s : %s", userId, String(e));
+  }
+}
+
 function progressionDe(nk: nkruntime.Nakama, userId: string): { valeur: ProgressionAventure; version: string } {
   const lu = lireStockage(nk, userId, "joueur", CLE_AVENTURE);
   return { valeur: lu.valeur || { etoiles: {} }, version: lu.version };
@@ -308,16 +324,22 @@ const rpcArcade: nkruntime.RpcFunction = function (ctx, logger, nk, payload) {
   const ecritures = [ecriture(userId, COLLECTION_ARCADE, CLE_PARTIE, partie, lue.version, 0)];
   const portefeuille: nkruntime.WalletUpdate[] = [];
   if (dejaFinie) return JSON.stringify({ vue: vueArcade(partie, maintenant) });
+  let xpAvant = 0;
   if (partie.etape === "finie") {
     const gagne = partie.duel.gagnant === 0;
+    const xp = xpDePartie(gagne, action === "abandonner");
+    xpAvant = xpDe(nk, userId);
     let nouvelleEtoile = false;
+    const meta = { niveau: partie.niveau, difficulte: partie.difficulte };
     if (gagne) {
       const prog = progressionDe(nk, userId);
       nouvelleEtoile = ajouterEtoile(prog.valeur, partie.niveau, partie.difficulte);
       ecritures.push(ecriture(userId, "joueur", CLE_AVENTURE, prog.valeur, prog.version, 1));
-      portefeuille.push({ userId: userId, changeset: { talents: partie.mise * 2 }, metadata: { raison: "gain_arcade", niveau: partie.niveau, difficulte: partie.difficulte } });
+      portefeuille.push({ userId: userId, changeset: { talents: partie.mise * 2, xp: xp }, metadata: { raison: "gain_arcade", niveau: meta.niveau, difficulte: meta.difficulte } });
+    } else if (xp > 0) {
+      portefeuille.push({ userId: userId, changeset: { xp: xp }, metadata: { raison: "xp_arcade", niveau: meta.niveau, difficulte: meta.difficulte } });
     }
-    reponse.fin = { gagne: gagne, gain: gagne ? partie.mise : -partie.mise, nouvelleEtoile: nouvelleEtoile };
+    reponse.fin = { gagne: gagne, gain: gagne ? partie.mise : -partie.mise, nouvelleEtoile: nouvelleEtoile, xp: xp };
   }
   try {
     nk.multiUpdate(null, ecritures, null, portefeuille, true);
@@ -330,6 +352,11 @@ const rpcArcade: nkruntime.RpcFunction = function (ctx, logger, nk, payload) {
   if (reponse.fin) {
     reponse.fin.talents = talentsDe(nk, userId);
     reponse.fin.etoiles = progressionDe(nk, userId).valeur.etoiles[String(partie.niveau)] || [];
+    const xpTotal = xpDe(nk, userId);
+    reponse.fin.xpTotal = xpTotal;
+    reponse.fin.niveauAvant = niveauDepuisXp(xpAvant).niveau;
+    reponse.fin.niveau = niveauDepuisXp(xpTotal).niveau;
+    if (reponse.fin.xp > 0) inscrireClassement(nk, logger, userId, xpTotal);
   }
   return JSON.stringify(reponse);
 };

@@ -193,7 +193,8 @@ Un salon est supprimé quand il **n'a plus aucun membre**, ou après **7 jours s
 
 ## 7. Progression
 
-- **XP** : +30 par victoire et +10 par défaite, dans tous les modes sauf le mode 2 joueurs sur un téléphone.
+- **XP** : +30 par victoire et +10 par défaite, dans tous les modes sauf le mode 2 joueurs sur un téléphone. Une partie abandonnée ne rapporte pas d'XP.
+- **Niveaux** : 100 XP pour passer au niveau 2, puis 50 XP de plus à chaque niveau (niveau 5 à 700 XP, niveau 36 à 33 250 XP).
 - **Rangs** :
 
 | Rang | Condition |

@@ -52,6 +52,11 @@ func talents() -> int:
 	return int(wallet.get("talents", 0))
 
 
+## XP totale, attribuée par le serveur (PRD §7).
+func xp() -> int:
+	return int(wallet.get("xp", 0))
+
+
 ## Connexion en invité : session gardée si possible, sinon authentification par appareil.
 func connect_guest() -> bool:
 	_set_state(State.CONNECTING)
@@ -123,8 +128,12 @@ func arcade(request: Dictionary) -> Dictionary:
 	if not data is Dictionary:
 		return {"erreur": "Réponse illisible du serveur."}
 	var t = data.get("talents", data.get("fin", {}).get("talents", null))
+	var x = data.get("fin", {}).get("xpTotal", null)
+	if x != null:
+		wallet["xp"] = int(x)
 	if t != null:
 		wallet["talents"] = int(t)
+	if t != null or x != null:
 		account_changed.emit()
 	return data
 

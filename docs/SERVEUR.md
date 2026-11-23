@@ -150,6 +150,23 @@ jamais la bonne réponse).
 Détail mineur : les refus renvoient au client une `stackTrace` (`index.js:502…`). C'est sans danger, mais le
 client ne doit afficher que `message`.
 
+## Module serveur (0.2.5) : XP, niveaux et classement
+
+- **XP** dans le portefeuille, clé `xp` (le client la lit, ne l'écrit jamais). Fin d'une partie d'arcade :
+  +30 en victoire (`raison: gain_arcade`, avec les talents), +10 en défaite (`raison: xp_arcade`), rien pour un
+  abandon.
+- **Niveaux** calculés depuis l'XP totale, sans stockage : il faut 100 XP pour passer au niveau 2, puis 50 de plus
+  à chaque niveau (`niveauDepuisXp` dans `regles.ts`, même table que `scripts/core/progression.gd`).
+- **Rangs** (PRD §7) : Débutant (1 à 5), Explorateur (6 à 10), Connaisseur (11 à 20), Expert (21 à 35), Maître
+  biblique (36 et plus). Le Rang S viendra avec la 0.5.
+- **Classement général** : leaderboard `xp` créé au démarrage du module (autoritatif, décroissant, opérateur
+  `set`, rangs activés). Le score est l'XP totale, réécrit à chaque partie qui rapporte de l'XP.
+- La réponse `fin` de l'arcade contient en plus `xp`, `xpTotal`, `niveauAvant` et `niveau`.
+
+**À faire par la session du serveur** : `git pull`, `npm test` dans `server/` (18 tests), déployer
+`build/index.js`, redémarrer, vérifier la ligne `Module Perfectionnement chargé (talents, pain quotidien, arcade,
+XP).` et que le leaderboard `xp` existe dans la console.
+
 ## Ce qui est sur le serveur (pour mémoire)
 
 - Service systemd `nakama`, binaire et configuration dans `/opt/nakama`, sans Docker. L'API, la console

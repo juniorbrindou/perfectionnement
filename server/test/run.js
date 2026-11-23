@@ -46,6 +46,30 @@ test("mises du PRD", function () {
   assert.strictEqual(g.mise("arcade", "inconnue"), -1);
 });
 
+// Même table que tests/test_progression.gd.
+test("niveaux selon l'XP totale", function () {
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(g.niveauDepuisXp(0))), { niveau: 1, dansNiveau: 0, pourSuivant: 100 });
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(g.niveauDepuisXp(99))), { niveau: 1, dansNiveau: 99, pourSuivant: 100 });
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(g.niveauDepuisXp(100))), { niveau: 2, dansNiveau: 0, pourSuivant: 150 });
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(g.niveauDepuisXp(700))), { niveau: 5, dansNiveau: 0, pourSuivant: 300 });
+  assert.strictEqual(g.niveauDepuisXp(33250).niveau, 36);
+});
+
+test("rangs du PRD", function () {
+  assert.strictEqual(g.rang(1), "Débutant");
+  assert.strictEqual(g.rang(5), "Débutant");
+  assert.strictEqual(g.rang(6), "Explorateur");
+  assert.strictEqual(g.rang(11), "Connaisseur");
+  assert.strictEqual(g.rang(21), "Expert");
+  assert.strictEqual(g.rang(36), "Maître biblique");
+});
+
+test("XP d'une partie : 30 gagnée, 10 perdue, rien si abandonnée", function () {
+  assert.strictEqual(g.xpDePartie(true, false), 30);
+  assert.strictEqual(g.xpDePartie(false, false), 10);
+  assert.strictEqual(g.xpDePartie(false, true), 0);
+});
+
 test("InitModule est défini", function () {
   assert.strictEqual(typeof g.InitModule, "function");
 });
@@ -63,7 +87,7 @@ test("hooks et RPC passés par des variables globales nommées", function () {
     },
   });
   const logger = { info: function () {}, warn: function () {}, error: function () {}, debug: function () {} };
-  g.InitModule({}, logger, {}, initializer);
+  g.InitModule({}, logger, { leaderboardCreate: function () {} }, initializer);
   assert.ok(enregistres.length > 0, "aucun enregistrement");
   const globales = Object.keys(g).map(function (k) { return g[k]; });
   // Les const de premier niveau ne sont pas des propriétés du contexte : on les relit par leur nom.
@@ -146,6 +170,8 @@ function fauxNakama(talents, email) {
   const stock = {};
   const nk = {
     talents: talents,
+    xp: 0,
+    classement: {},
     stock: stock,
     storageRead: function (demandes) {
       const r = [];
@@ -161,7 +187,8 @@ function fauxNakama(talents, email) {
         if (w.version && w.version !== (o ? o.version : "*")) throw new Error("version");
       });
       let total = nk.talents;
-      (portefeuilles || []).forEach(function (p) { total += p.changeset.talents; });
+      let xp = nk.xp;
+      (portefeuilles || []).forEach(function (p) { total += p.changeset.talents || 0; xp += p.changeset.xp || 0; });
       if (total < 0) throw new Error("portefeuille négatif");
       (ecritures || []).forEach(function (w) {
         const k = w.collection + "/" + w.key;
@@ -169,9 +196,11 @@ function fauxNakama(talents, email) {
         stock[k] = { value: JSON.parse(JSON.stringify(w.value)), version: v, permissionRead: w.permissionRead };
       });
       nk.talents = total;
+      nk.xp = xp;
       return { walletUpdateAcks: [{ updated: { talents: total } }] };
     },
-    accountGetId: function () { return { email: email, user: {}, wallet: { talents: nk.talents } }; },
+    accountGetId: function () { return { email: email, user: { username: "testeur" }, wallet: { talents: nk.talents, xp: nk.xp } }; },
+    leaderboardRecordWrite: function (id, owner, nom, score) { nk.classement[owner] = score; },
   };
   return nk;
 }
@@ -218,6 +247,9 @@ test("partie d'arcade complète : mise, gain, étoile et niveau suivant", functi
     nk = fauxNakama(100, "a@b.c");
     r = partieComplete(nk, 1, "manne");
     assert.strictEqual(nk.talents, r.fin.gagne ? 105 : 95, "talents après la partie");
+    assert.strictEqual(nk.xp, r.fin.gagne ? 30 : 10, "XP de la partie");
+    assert.strictEqual(r.fin.xpTotal, nk.xp);
+    assert.strictEqual(nk.classement["u1"], nk.xp, "classement général à jour");
     assert.strictEqual(r.fin.talents, nk.talents);
     if (r.fin.gagne) break;
     assert.ok(!nk.stock["joueur/aventure"], "pas d'étoile sur une défaite");
@@ -253,6 +285,7 @@ test("arcade : réponse hors délai comptée comme temps écoulé, abandon perdu
     r = appel(nk, { action: "abandonner" });
     assert.strictEqual(r.fin.gagne, false);
     assert.strictEqual(nk.talents, 98);
+    assert.strictEqual(nk.xp, 0, "pas d'XP pour un abandon");
   }
 });
 

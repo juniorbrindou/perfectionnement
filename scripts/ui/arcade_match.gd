@@ -632,9 +632,25 @@ func _show_end() -> void:
 	var gain := int(fin.get("gain", _stake() if won else -_stake()))
 	rv.add_child(_recap_row("Mise remportée" if won else "Mise perdue", "+%d talents" % gain if won else "−%d talents" % absi(gain), P.GREEN if won else Color("ff8fb8")))
 	rv.add_child(_recap_row("Tes talents", str(int(fin.get("talents", Online.talents()))), P.YELLOW))
+	var xp := int(fin.get("xp", 0))
+	rv.add_child(_recap_row("Expérience", "+%d XP" % xp if xp > 0 else "0 XP (abandon)", P.TEAL.lightened(0.3)))
 	recap.add_child(rv)
 	col.add_child(P.spacer(10))
 	col.add_child(recap)
+	var level_now := int(fin.get("niveau", 0))
+	if level_now > int(fin.get("niveauAvant", level_now)):
+		var up := PanelContainer.new()
+		up.add_theme_stylebox_override("panel", P.box(P.YELLOW, P.px(999), P.px(16), P.px(6)))
+		up.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		up.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var ul := P.title("Niveau %d atteint : %s" % [level_now, Progression.rank(level_now)], 18, P.NIGHT)
+		ul.autowrap_mode = TextServer.AUTOWRAP_OFF
+		up.add_child(ul)
+		col.add_child(up)
+		up.pivot_offset = Vector2(P.px(120), P.px(16))
+		up.scale = Vector2(0.4, 0.4)
+		var t := up.create_tween()
+		t.tween_property(up, "scale", Vector2.ONE, 0.5).set_delay(0.4).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	col.add_child(_link("Voir les cartes détruites", _show_destroyed))
 	col.add_child(P.expander())
 

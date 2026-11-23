@@ -13,12 +13,12 @@ const ART := preload("res://assets/accueil/accueil.png")
 const ADVENTURE_PATH := "res://data/aventure.json"
 
 const ART_W := 941.0
-const ART_USED_H := 1515.0  ## Au-dessous, la barre d'onglets de l'image est écartée.
 
 const AVATAR := Rect2(46, 18, 124, 124)
 const NAME_PATCH := Rect2(186, 34, 292, 102)  ## Pseudo, niveau et barre d'XP de l'image.
 const PROFILE_TAP := Rect2(40, 18, 444, 124)
 const CROWN := Rect2(200, 76, 36, 32)
+const XP_BAR := Rect2(200, 115, 232, 13)
 const TALENT_PATCH := Rect2(604, 43, 96, 44)
 const TALENT_PILL := Rect2(500, 32, 214, 92)
 const BELL := Rect2(751, 35, 74, 74)
@@ -40,7 +40,6 @@ const CHECK := Rect2(794, 1394, 90, 90)
 const PANEL_BLUE := Color("1e3c6e")
 const PARCHMENT := Color("fcda9f")
 const INK := Color("3a2412")
-const GROUND := Color("352f2f")  ## Sol au bas de l'image.
 const SKY_HIGH := Color("1a4fae")
 const SKY_LOW := Color("296dd7")  ## Ciel en haut de l'image.
 const ART_H := 1672.0
@@ -59,6 +58,7 @@ var _top := 0.0  ## Décalage vertical de l'image.
 var _name: Label
 var _initial: Label
 var _level: Label
+var _xp_fill: Panel
 var _talents: Label
 var _level_text: Label
 var _stars: Array = []
@@ -75,22 +75,18 @@ func _ready() -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	var screen := get_viewport_rect().size
 	_s = screen.x / ART_W
-	var used := ART_USED_H * _s
-	var nav_h := (ART_H - NAV_TOP) * _s
-	# Écran plus allongé que l'image (19,5:9 contre 16:9) : le ciel continue au-dessus, la
-	# barre d'onglets de l'image se cale en bas de l'écran et le sol remplit l'entre-deux.
-	var free := screen.y - used - nav_h
-	var with_nav := free >= P.px(8)
-	_top = clampf(free * 0.45, 0.0, P.px(70)) if with_nav else clampf((screen.y - used) / 2.0, 0.0, P.px(40))
-	var bottom := _top + used
-	_add_gradient(Rect2(0, bottom - 2, screen.x, screen.y - bottom + 2), GROUND, Color("1b1a2c"))
+	# L'image entière (barre d'onglets comprise) est calée en bas de l'écran. Un écran plus
+	# allongé qu'elle (19,5:9 contre 16:9) gagne du ciel en haut, où passent des nuages.
+	var art_h := ART_H * _s
+	_top = maxf(screen.y - art_h, 0.0)
 	_add_gradient(Rect2(0, 0, screen.x, _top + 2), SKY_HIGH, SKY_LOW)
-	_add_crop(Rect2(0, 0, ART_W, ART_USED_H), Rect2(0, _top, screen.x, used))
-	# Raccords fondus : le haut de l'image dans le ciel, son bas dans le sol.
+	var clouds := Clouds.new()
+	clouds.position = Vector2.ZERO
+	clouds.size = Vector2(screen.x, _top + 30 * _s)
+	add_child(clouds)
+	_add_crop(Rect2(0, 0, ART_W, ART_H), Rect2(0, _top, screen.x, art_h))
 	_add_gradient(Rect2(0, _top, screen.x, 16 * _s), SKY_LOW, Color(SKY_LOW, 0))
-	_add_gradient(Rect2(0, bottom - 26 * _s, screen.x, 26 * _s), Color(GROUND, 0), GROUND)
-	if with_nav:
-		_build_nav(screen.y - nav_h)
+	_build_nav(_top + NAV_TOP * _s)
 
 	var glow := Shapes.Glow.new()
 	glow.color = Color(1.0, 0.92, 0.65, 0.5)
@@ -148,10 +144,8 @@ func _add_crop(region: Rect2, screen_rect: Rect2) -> TextureRect:
 	return tr
 
 
-## Barre d'onglets de l'image, calée en bas de l'écran.
+## Onglets de la barre du bas de l'image.
 func _build_nav(y: float) -> void:
-	var w := get_viewport_rect().size.x
-	_add_crop(Rect2(0, NAV_TOP, ART_W, ART_H - NAV_TOP), Rect2(0, y, w, (ART_H - NAV_TOP) * _s))
 	for tab in NAV_TABS:
 		var message: String = tab[2]
 		if message.is_empty():
@@ -225,8 +219,12 @@ func _build_top_bar() -> void:
 	_place(_level, Rect2(242, 76, 220, 32))
 	add_child(_level)
 	var bar := _patch(Color("2c3b52"), 6)
-	_place(bar, Rect2(200, 115, 232, 13))
+	_place(bar, XP_BAR)
 	add_child(bar)
+	_xp_fill = _patch(Color("f6b93b"), 6)
+	_xp_fill.position = Vector2.ZERO
+	_xp_fill.size = Vector2(0, bar.size.y)
+	bar.add_child(_xp_fill)
 
 	var avatar := Control.new()
 	_place(avatar, AVATAR)
@@ -436,6 +434,13 @@ func _refresh() -> void:
 	_name.text = Online.username if online else ("Connexion…" if Online.state == Online.State.CONNECTING else "Hors ligne")
 	_initial.text = (Online.username.substr(0, 1) if online else "?").to_upper()
 	_talents.text = str(Online.talents()) if online else "–"
+	var p := Progression.from_xp(Online.xp() if online else 0)
+	_level.text = "Niveau %d" % p["level"]
+	var ratio := float(p["in_level"]) / float(p["to_next"])
+	var fill_w := XP_BAR.size.x * _s * ratio
+	_xp_fill.visible = ratio > 0.0
+	# Un minimum visible, pour que la barre ne paraisse pas cassée à 1 XP.
+	_xp_fill.size.x = maxf(fill_w, XP_BAR.size.y * _s)
 	if Online.bread_gain > 0:
 		_bread_text.text = "Tu as reçu %d talents !" % Online.bread_gain
 	elif Online.bread_today:
@@ -491,3 +496,35 @@ func _toast(text: String) -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_GO_BACK_REQUEST:
 		get_tree().quit()
+
+
+## Nuages qui dérivent lentement dans le ciel ajouté au-dessus de l'image.
+class Clouds extends Control:
+	const PUFFS := [Vector2(0, 0), Vector2(0.9, -0.35), Vector2(1.8, -0.1), Vector2(2.5, 0.15), Vector2(1.2, 0.25)]
+	const RADII := [0.8, 1.0, 0.9, 0.6, 0.85]
+	var _t := 0.0
+	## Position de départ (fraction de largeur, fraction de hauteur), taille, vitesse (px/s).
+	var _clouds := [[0.15, 0.35, 22.0, 6.0], [0.62, 0.6, 30.0, 9.0], [0.9, 0.22, 16.0, 4.5]]
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _process(delta: float) -> void:
+		_t += delta
+		queue_redraw()
+
+	func _draw() -> void:
+		if size.y < 20:
+			return
+		var w := size.x
+		for c in _clouds:
+			var r: float = c[2] * size.x / 390.0
+			var span := w + r * 6
+			var x := fposmod(c[0] * w + _t * c[3], span) - r * 3
+			var y: float = c[1] * size.y
+			for i in PUFFS.size():
+				var p: Vector2 = PUFFS[i]
+				draw_circle(Vector2(x + p.x * r, y + p.y * r + r * 0.12), RADII[i] * r, Color(0.78, 0.86, 1.0, 0.45))
+			for i in PUFFS.size():
+				var p: Vector2 = PUFFS[i]
+				draw_circle(Vector2(x + p.x * r, y + p.y * r), RADII[i] * r, Color(1, 1, 1, 0.85))

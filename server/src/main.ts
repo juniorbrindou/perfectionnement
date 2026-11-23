@@ -28,7 +28,9 @@ function InitModule(ctx: nkruntime.Context, logger: nkruntime.Logger, nk: nkrunt
   initializer.registerAfterAuthenticateGoogle(apresAuthGoogle);
   initializer.registerRpc("pain_quotidien", rpcPainQuotidien);
   initializer.registerRpc("arcade", rpcArcade);
-  logger.info("Module Perfectionnement chargé (talents, pain quotidien, arcade).");
+  // Classement général par XP (créé s'il n'existe pas ; le serveur seul y écrit).
+  nk.leaderboardCreate(CLASSEMENT_XP, true, nkruntime.SortOrder.DESCENDING, nkruntime.Operator.SET, null, null, true);
+  logger.info("Module Perfectionnement chargé (talents, pain quotidien, arcade, XP).");
 }
 
 // Nakama appelle InitModule par son nom : on le garde référencé pour qu'il ne soit pas éliminé.

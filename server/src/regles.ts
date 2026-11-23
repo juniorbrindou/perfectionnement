@@ -24,6 +24,48 @@ function prochainPain(maintenantMs: number): number {
   return Math.floor(maintenantMs / JOUR_MS) * JOUR_MS + JOUR_MS;
 }
 
+// ---------------------------------------------------------------- XP, niveaux et rangs (PRD §7)
+// Même table que scripts/core/progression.gd : les tests des deux côtés vérifient les mêmes seuils.
+
+const XP_VICTOIRE = 30;
+const XP_DEFAITE = 10;
+const RANGS: { niveau: number; nom: string }[] = [
+  { niveau: 1, nom: "Débutant" },
+  { niveau: 6, nom: "Explorateur" },
+  { niveau: 11, nom: "Connaisseur" },
+  { niveau: 21, nom: "Expert" },
+  { niveau: 36, nom: "Maître biblique" },
+];
+
+/** XP à gagner pour passer du niveau n au niveau n + 1 : 100, puis 50 de plus à chaque niveau. */
+function xpPourMonter(n: number): number {
+  return 100 + 50 * (n - 1);
+}
+
+/** Niveau atteint avec une XP totale, XP gagnée dans ce niveau et XP qu'il faut pour le suivant. */
+function niveauDepuisXp(xp: number): { niveau: number; dansNiveau: number; pourSuivant: number } {
+  let niveau = 1;
+  let reste = Math.max(0, Math.floor(xp));
+  while (reste >= xpPourMonter(niveau)) {
+    reste -= xpPourMonter(niveau);
+    niveau++;
+  }
+  return { niveau: niveau, dansNiveau: reste, pourSuivant: xpPourMonter(niveau) };
+}
+
+/** Rang d'un niveau (le Rang S, réservé aux 10 premiers du classement, viendra avec la 0.5). */
+function rang(niveau: number): string {
+  let nom = RANGS[0].nom;
+  RANGS.forEach(function (r) { if (niveau >= r.niveau) nom = r.nom; });
+  return nom;
+}
+
+/** XP d'une partie terminée : une partie abandonnée ne rapporte rien. */
+function xpDePartie(gagne: boolean, abandon: boolean): number {
+  if (gagne) return XP_VICTOIRE;
+  return abandon ? 0 : XP_DEFAITE;
+}
+
 /** Mise d'une partie, ou -1 si la difficulté est inconnue. */
 function mise(mode: string, difficulte: string): number {
   const table = mode === "arcade" ? MISES_ARCADE : MISES_DUEL;

@@ -80,6 +80,8 @@ func _build_profile(col: VBoxContainer) -> void:
 	chips.add_child(_chip("Compte e-mail" if Online.has_email() else "Invité"))
 	chips.add_child(_status())
 	col.add_child(chips)
+	if Online.is_online():
+		col.add_child(_progress())
 
 	if Online.is_online():
 		if _renaming:
@@ -127,6 +129,36 @@ func _build_profile(col: VBoxContainer) -> void:
 		link.pressed.connect(func(): _show(View.LOGIN))
 		col.add_child(P.spacer(4))
 		col.add_child(link)
+
+
+## Niveau, rang et barre d'XP (PRD §7).
+func _progress() -> Control:
+	var p := Progression.from_xp(Online.xp())
+	var box := PanelContainer.new()
+	box.add_theme_stylebox_override("panel", P.box(Color(1, 1, 1, 0.08), P.px(16), P.px(14), P.px(10)))
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var v := P.vbox(6)
+	box.add_child(v)
+	var row := P.hbox(8)
+	var l := P.title("Niveau %d" % p["level"], 22, P.YELLOW, HORIZONTAL_ALIGNMENT_LEFT)
+	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	l.autowrap_mode = TextServer.AUTOWRAP_OFF
+	row.add_child(l)
+	var r := P.label(Progression.rank(p["level"]), 15, P.CREAM, 900, HORIZONTAL_ALIGNMENT_RIGHT)
+	r.autowrap_mode = TextServer.AUTOWRAP_OFF
+	row.add_child(r)
+	v.add_child(row)
+	var bar := ProgressBar.new()
+	bar.show_percentage = false
+	bar.max_value = p["to_next"]
+	bar.value = p["in_level"]
+	bar.custom_minimum_size = Vector2(0, P.px(12))
+	bar.add_theme_stylebox_override("background", P.box(Color(1, 1, 1, 0.12), P.px(6)))
+	bar.add_theme_stylebox_override("fill", P.box(P.YELLOW, P.px(6)))
+	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	v.add_child(bar)
+	v.add_child(P.label("%d / %d XP pour le niveau %d" % [p["in_level"], p["to_next"], p["level"] + 1], 13, P.LILAC, 800, HORIZONTAL_ALIGNMENT_LEFT))
+	return box
 
 
 func _chip(text: String) -> Control:
