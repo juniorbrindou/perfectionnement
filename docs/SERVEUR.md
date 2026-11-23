@@ -61,6 +61,27 @@ Convention proposée :
 Le déploiement du module se fait sur le serveur (copie de `index.js` dans le dossier des modules et
 redémarrage) : à demander à la session Claude du serveur une fois `server/build/index.js` poussé.
 
+## Module serveur (0.2.3) : talents et pain quotidien
+
+Sources dans `server/src/`, compilées par `npm test` (dans `server/`) en **`server/build/index.js`**, qui est
+versionné. Tests des règles pures : `server/test/run.js`.
+
+| Élément | Comportement |
+|---|---|
+| Après authentification (appareil, e-mail, Google) | si le compte vient d'être **créé**, crédite **100 talents** (`raison: capital_depart`) |
+| RPC `pain_quotidien` | +10 talents une fois par jour UTC ; réponse `{accorde, gain, talents, prochain}` (`prochain` en ms) |
+| Stockage | collection `joueur`, clé `pain`, valeur `{jour: "AAAA-MM-JJ"}` ; lecture par le joueur, écriture serveur seulement |
+| Portefeuille | clé `talents` ; écritures avec ledger (`updateLedger`) pour garder l'historique |
+
+Le pain quotidien écrit la date et crédite les talents dans une même transaction (`multiUpdate`), avec une
+écriture conditionnelle sur la version : deux appels simultanés ne donnent qu'un seul pain.
+
+**À faire par la session du serveur** :
+1. copier `server/build/index.js` dans le dossier des modules de Nakama, puis redémarrer le service ;
+2. vérifier dans les journaux la ligne `Module Perfectionnement chargé (talents, pain quotidien).` ;
+3. les comptes créés **avant** ce module (dont `OutilTest` et le compte invité du téléphone de test) n'ont pas reçu
+   leur capital : leur créditer 100 talents s'ils ont un portefeuille vide, ou supprimer les comptes de test.
+
 ## Ce qui est sur le serveur (pour mémoire)
 
 - Service systemd `nakama`, binaire et configuration dans `/opt/nakama`, sans Docker. L'API, la console

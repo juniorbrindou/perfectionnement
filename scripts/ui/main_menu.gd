@@ -62,6 +62,8 @@ func _ready() -> void:
 ## Pastille du joueur en haut à gauche : pseudo et état de connexion ; ouvre le profil.
 var _pill: Button
 var _pill_row: HBoxContainer
+var _talents: Control
+var _talents_label: Label
 
 
 func _player_pill() -> void:
@@ -79,9 +81,32 @@ func _player_pill() -> void:
 	_pill_row.offset_left = P.px(5)
 	_pill_row.offset_right = -P.px(12)
 	_pill.add_child(_pill_row)
+	_talents = PanelContainer.new()
+	_talents.add_theme_stylebox_override("panel", P.box(Color(P.NIGHT, 0.75), P.px(999), P.px(6), P.px(5)))
+	_talents.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_talents.anchor_left = 1.0
+	_talents.anchor_right = 1.0
+	_talents.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	_talents.offset_right = -P.px(16)
+	_talents.offset_top = P.px(40)
+	var trow := P.hbox(6)
+	var coin := P.circle(P.YELLOW, 26)
+	var t := P.title("T", 15, P.NIGHT)
+	t.set_anchors_preset(Control.PRESET_FULL_RECT)
+	t.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	coin.add_child(t)
+	trow.add_child(coin)
+	_talents_label = P.label("", 14, P.CREAM, 900)
+	_talents_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	_talents_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	trow.add_child(_talents_label)
+	trow.add_child(P.spacer(0))
+	_talents.add_child(trow)
+	add_child(_talents)
 	_refresh_pill()
 	Online.account_changed.connect(_refresh_pill)
 	Online.state_changed.connect(_on_online_state)
+	Online.bread_received.connect(_on_bread)
 
 
 func _on_online_state(_s) -> void:
@@ -101,6 +126,35 @@ func _refresh_pill() -> void:
 	l.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_pill_row.add_child(l)
 	_pill.reset_size()
+	_talents.visible = online
+	_talents_label.text = "%d talents" % Online.talents()
+
+
+## Pain quotidien reçu : bandeau doré au milieu de l'écran.
+func _on_bread(gain: int) -> void:
+	var box := PanelContainer.new()
+	var s := P.box(P.NIGHT, P.px(18), P.px(18), P.px(14))
+	s.border_color = P.YELLOW
+	s.set_border_width_all(P.px(3))
+	box.add_theme_stylebox_override("panel", s)
+	box.anchor_left = 0.1
+	box.anchor_right = 0.9
+	box.anchor_top = 0.42
+	box.anchor_bottom = 0.42
+	box.grow_vertical = Control.GROW_DIRECTION_BOTH
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var v := P.vbox(2)
+	v.add_child(P.title("Pain quotidien", 22, P.YELLOW))
+	v.add_child(P.title("+%d talents" % gain, 30, P.CREAM))
+	box.add_child(v)
+	add_child(box)
+	box.scale = Vector2(0.6, 0.6)
+	box.resized.connect(func(): box.pivot_offset = box.size / 2)
+	var t := box.create_tween()
+	t.tween_property(box, "scale", Vector2.ONE, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	t.tween_interval(2.2)
+	t.tween_property(box, "modulate:a", 0.0, 0.4)
+	t.tween_callback(box.queue_free)
 
 func _place_center_x(c: Control, w: float, h: float, top: float) -> void:
 	c.anchor_left = 0.5

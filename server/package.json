@@ -1,0 +1,13 @@
+{
+  "name": "perfectionnement-serveur",
+  "private": true,
+  "description": "Module Nakama (TypeScript) de Perfectionnement",
+  "scripts": {
+    "build": "tsc",
+    "test": "tsc && node test/run.js"
+  },
+  "devDependencies": {
+    "nakama-runtime": "git+https://github.com/heroiclabs/nakama-common.git",
+    "typescript": "^5.6.0"
+  }
+}

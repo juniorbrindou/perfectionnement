@@ -8,6 +8,7 @@ extends Node
 
 signal state_changed(state: State)
 signal account_changed
+signal bread_received(gain: int)  ## Pain quotidien accordé à la connexion.
 
 enum State { OFFLINE, CONNECTING, ONLINE }
 
@@ -45,6 +46,10 @@ func has_email() -> bool:
 	return not email.is_empty()
 
 
+func talents() -> int:
+	return int(wallet.get("talents", 0))
+
+
 ## Connexion en invité : session gardée si possible, sinon authentification par appareil.
 func connect_guest() -> bool:
 	_set_state(State.CONNECTING)
@@ -63,6 +68,7 @@ func connect_guest() -> bool:
 	if not await refresh_account():
 		return false
 	_set_state(State.ONLINE)
+	claim_bread()
 	return true
 
 
@@ -79,6 +85,21 @@ func refresh_account() -> bool:
 	wallet = parsed if parsed is Dictionary else {}
 	account_changed.emit()
 	return true
+
+
+## Demande le pain quotidien (+10 talents une fois par jour, décidé par le serveur).
+func claim_bread() -> void:
+	if not await _ensure_session():
+		return
+	var r = await client.rpc_async(session, "pain_quotidien")
+	if r.is_exception():
+		push_warning("Pain quotidien : %s" % _message(r.get_exception()))
+		return
+	var data = JSON.parse_string(r.payload)
+	if data is Dictionary and data.get("accorde", false):
+		wallet["talents"] = int(data.get("talents", talents()))
+		account_changed.emit()
+		bread_received.emit(int(data.get("gain", 0)))
 
 
 ## Change le pseudo. Renvoie un message d'erreur, ou "" si c'est fait.
@@ -117,6 +138,7 @@ func login_email(address: String, password: String) -> String:
 	_save_session()
 	await refresh_account()
 	_set_state(State.ONLINE)
+	claim_bread()
 	return ""
 
 

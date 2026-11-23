@@ -35,6 +35,8 @@ func _wrong(m) -> String:
 func _run() -> void:
 	change_scene_to_file("res://scenes/main_menu.tscn")
 	await _shot("01_accueil")
+	current_scene._on_bread(10)
+	await _shot("01a_pain_quotidien")
 	change_scene_to_file("res://scenes/profile.tscn")
 	await _shot("01b_profil")
 	current_scene._show(1)
