@@ -35,10 +35,13 @@ func _ready() -> void:
 	var v := UiTheme.vbox(18)
 	margin.add_child(v)
 
-	var title := UiTheme.label("Partie à deux", 48)
-	title.add_theme_color_override("font_color", UiTheme.GOLD)
+	var title := UiTheme.scripture("Partie à deux", 52, false, true)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	v.add_child(title)
-	v.add_child(UiTheme.label("Sur le même téléphone, en se le passant", 24))
+	var sub := UiTheme.label("Un seul téléphone, que vous vous passez à chaque question.", 24, "", HORIZONTAL_ALIGNMENT_LEFT)
+	sub.modulate = Color(1, 1, 1, 0.7)
+	v.add_child(sub)
+	v.add_child(UiTheme.weave_band(14))
 
 	v.add_child(_section("Joueurs"))
 	for i in 2:
@@ -51,11 +54,12 @@ func _ready() -> void:
 		_names.append(e)
 
 	v.add_child(_section("Difficulté"))
-	var diffs := {"lait": "Lait\nfacile", "manne": "Manne\nmoyen", "solide": "Nourriture solide\ndifficile"}
+	var diffs := {"lait": "Lait\nfacile", "manne": "Manne\nmoyen", "solide": "Nourriture\nsolide"}
 	var dh := UiTheme.hbox(10)
 	for d in CardData.DIFFICULTIES:
-		var b := UiTheme.button(diffs[d], _on_difficulty.bind(d), 24)
+		var b := UiTheme.button(diffs[d], _on_difficulty.bind(d), 24, "ToggleButton")
 		b.toggle_mode = true
+		_dye(b, UiTheme.difficulty_color(d))
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		b.custom_minimum_size = Vector2(0, 110)
 		dh.add_child(b)
@@ -74,7 +78,7 @@ func _ready() -> void:
 	grid.add_theme_constant_override("h_separation", 10)
 	grid.add_theme_constant_override("v_separation", 10)
 	for c in labels:
-		var b := UiTheme.button(labels[c], _on_content.bind(c), 24)
+		var b := UiTheme.button(labels[c], _on_content.bind(c), 24, "ToggleButton")
 		b.toggle_mode = true
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		grid.add_child(b)
@@ -82,7 +86,7 @@ func _ready() -> void:
 	v.add_child(grid)
 
 	_books_wrap = UiTheme.vbox(8)
-	_books_wrap.add_child(UiTheme.label("Coche un ou plusieurs livres :", 24))
+	_books_wrap.add_child(UiTheme.label("Coche un ou plusieurs livres.", 24, "", HORIZONTAL_ALIGNMENT_LEFT))
 	_books_box = GridContainer.new()
 	_books_box.columns = 2
 	_books_wrap.add_child(_books_box)
@@ -90,9 +94,9 @@ func _ready() -> void:
 
 	_info = UiTheme.label("", 24)
 	v.add_child(_info)
-	_start = UiTheme.button("Commencer", _on_start, 36)
+	_start = UiTheme.button("Commencer la partie", _on_start, 32)
 	v.add_child(_start)
-	v.add_child(UiTheme.button("Retour", _back, 26))
+	v.add_child(UiTheme.button("Retour", _back, 26, "GhostButton"))
 
 	_refresh()
 
@@ -109,9 +113,26 @@ func _restore_from_session() -> void:
 
 
 func _section(text: String) -> Label:
-	var l := UiTheme.label(text, 30, false, HORIZONTAL_ALIGNMENT_LEFT)
-	l.add_theme_color_override("font_color", UiTheme.GOLD)
+	var l := UiTheme.scripture(text, 30, false, false, true)
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	l.add_theme_color_override("font_color", UiTheme.OR)
 	return l
+
+
+## Bouton de difficulté : contour puis plein dans la couleur de sa teinture.
+func _dye(b: Button, color: Color) -> void:
+	var off := UiTheme.box(Color(color, 0.18), 12, 12, 14)
+	off.border_color = color.lightened(0.25)
+	off.set_border_width_all(2)
+	var on := UiTheme.box(color, 12, 12, 14)
+	on.border_color = UiTheme.LIN
+	on.set_border_width_all(3)
+	for state in ["normal", "hover"]:
+		b.add_theme_stylebox_override(state, off)
+	for state in ["pressed", "hover_pressed"]:
+		b.add_theme_stylebox_override(state, on)
+	for state in ["font_pressed_color", "font_hover_pressed_color"]:
+		b.add_theme_color_override(state, UiTheme.LIN)
 
 
 func _on_difficulty(d: String) -> void:
@@ -170,7 +191,7 @@ func _refresh_count() -> void:
 		_info.modulate = Color.WHITE
 	else:
 		_info.text = "Pas encore assez de questions (%d sur %d)" % [n, needed]
-		_info.modulate = Color(1, 0.6, 0.5)
+		_info.modulate = Color(1, 0.65, 0.6)
 	_start.disabled = n < needed
 
 

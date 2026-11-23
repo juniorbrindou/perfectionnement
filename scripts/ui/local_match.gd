@@ -31,11 +31,11 @@ var _paused := false
 # Interface
 var _hud: Control
 var _overlay: Control
+var _status_box: Control
 var _status: Label
 var _timer_bar: ProgressBar
 var _timer_label: Label
 var _count_labels: Array[Label] = []
-var _name_labels: Array[Label] = []
 var _quit_box: Control
 
 
@@ -69,7 +69,9 @@ func _process(delta: float) -> void:
 	_time_left = max(_time_left - delta, 0.0)
 	_timer_bar.value = _time_left / _time_total * 100.0
 	_timer_label.text = "%d s" % ceil(_time_left)
-	_timer_bar.modulate = Color(1, 0.45, 0.4) if _time_left <= 4.0 else Color.WHITE
+	var urgent := _time_left <= 4.0
+	_timer_bar.modulate = Color(1.6, 0.35, 0.4) if urgent else Color.WHITE
+	_timer_label.modulate = Color(1, 0.55, 0.55) if urgent else Color.WHITE
 	if _time_left <= 0.0:
 		var cb := _on_timeout
 		_stop_timer()
@@ -102,7 +104,7 @@ func _show_starter() -> void:
 	var resolved := [false]
 	var buttons: Array = [[], []]
 
-	var root := _modal(0.92)
+	var root := _modal(0.94)
 	var v := UiTheme.vbox(0)
 	v.set_anchors_preset(Control.PRESET_FULL_RECT)
 	root.add_child(v)
@@ -114,36 +116,33 @@ func _show_starter() -> void:
 		var margin := MarginContainer.new()
 		margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 		for side in ["left", "right", "top", "bottom"]:
-			margin.add_theme_constant_override("margin_" + side, 22)
+			margin.add_theme_constant_override("margin_" + side, 24)
 		half.add_child(margin)
 		var col := UiTheme.vbox(8)
 		col.alignment = BoxContainer.ALIGNMENT_CENTER
 		margin.add_child(col)
-		var who := UiTheme.label(names[p], 30)
-		who.add_theme_color_override("font_color", UiTheme.GOLD)
+		var who := UiTheme.scripture(names[p], 30, false, true)
+		who.add_theme_color_override("font_color", UiTheme.OR)
 		col.add_child(who)
-		col.add_child(UiTheme.label(starter.question.question, 26))
+		col.add_child(UiTheme.scripture(starter.question.question, 28, false))
 		for option in starter.options:
 			var b := UiTheme.choice_button(option, func(): _on_starter_answer(starter, p, option, resolved, buttons), 24)
-			b.custom_minimum_size = Vector2(0, 62)
+			b.custom_minimum_size = Vector2(0, 60)
 			col.add_child(b)
 			buttons[p].append(b)
 		v.add_child(half)
 		if p == 1:
-			half.resized.connect(func(): half.pivot_offset = half.size / 2)
-			half.rotation = PI
-			var line := ColorRect.new()
-			line.color = UiTheme.GOLD
-			line.custom_minimum_size = Vector2(0, 4)
-			line.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			v.add_child(line)
+			# Les conteneurs annulent la rotation de leurs enfants : on tourne le contenu.
+			margin.resized.connect(func(): margin.pivot_offset = margin.size / 2)
+			margin.rotation = PI
+			var middle := UiTheme.weave_band(18)
+			v.add_child(middle)
 
-	_set_status("")
 	_start_timer(STARTER_TIME, func():
 		if resolved[0]:
 			return
 		resolved[0] = true
-		_flash("Personne n'a répondu : nouvelle question")
+		_flash("Personne n'a répondu. Nouvelle question.")
 		get_tree().create_timer(1.4).timeout.connect(_show_starter))
 
 
@@ -156,36 +155,67 @@ func _on_starter_answer(starter: StarterRound, player: int, choice: String, reso
 		for b: Button in buttons[p]:
 			b.disabled = true
 			if b.text == starter.question.answer:
-				UiTheme.tint_choice(b, UiTheme.GREEN)
+				UiTheme.tint_choice(b, UiTheme.OLIVE)
 			elif b.text == choice and p == player:
-				UiTheme.tint_choice(b, UiTheme.RED)
+				UiTheme.tint_choice(b, UiTheme.CRAMOISI)
 	var first := starter.resolve(player, choice)
-	var msg := "%s a trouvé !" % names[player] if first == player else "%s s'est trompé." % names[player]
-	_flash("%s %s commence." % [msg, names[first]])
+	var msg := "%s a trouvé." % names[player] if first == player else "Mauvaise réponse de %s." % names[player]
+	_flash("%s\n%s commence." % [msg, names[first]])
 	get_tree().create_timer(2.2).timeout.connect(func():
 		duel.start_with(first)
-		_show_pass(first, "Tu commences : choisis une carte à poser.", _begin_choose))
+		_show_pass(first, "Tu commences. Choisis la carte à poser.", _begin_choose))
 
 
 # ---------------------------------------------------------------- Passage du téléphone
 
+## Le voile : une étoffe tissée couvre la table, puis se lève sur la partie.
 func _show_pass(player: int, subtitle: String, next: Callable) -> void:
 	step = Step.PASS
 	_stop_timer()
 	_table.layout(duel.hands, player)
 	_set_status("")
-	var root := _modal(1.0)
-	var v := _centered_column(root, 26)
-	v.add_child(UiTheme.label("Passe le téléphone à", 34))
-	var who := UiTheme.label(names[player], 60)
-	who.add_theme_color_override("font_color", UiTheme.GOLD)
+	_clear_overlay()
+
+	var veil := ColorRect.new()
+	veil.color = UiTheme.NIGHT
+	veil.set_anchors_preset(Control.PRESET_FULL_RECT)
+	veil.mouse_filter = Control.MOUSE_FILTER_STOP
+	_overlay.add_child(veil)
+	var cloth := TextureRect.new()
+	cloth.texture = UiTheme.weave_texture("voile", 104, 16, true, 0, 2)
+	cloth.stretch_mode = TextureRect.STRETCH_TILE
+	cloth.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	cloth.set_anchors_preset(Control.PRESET_FULL_RECT)
+	cloth.modulate = Color(1, 1, 1, 0.16)
+	cloth.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	veil.add_child(cloth)
+	var hem := UiTheme.weave_band(22)
+	hem.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	hem.offset_top = -22
+	veil.add_child(hem)
+
+	var margin := MarginContainer.new()
+	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	for side in ["left", "right"]:
+		margin.add_theme_constant_override("margin_" + side, 48)
+	veil.add_child(margin)
+	var v := UiTheme.vbox(14)
+	v.alignment = BoxContainer.ALIGNMENT_CENTER
+	margin.add_child(v)
+	v.add_child(UiTheme.label("Passe le téléphone à", 30, "", HORIZONTAL_ALIGNMENT_LEFT))
+	var who := UiTheme.scripture(names[player], 76, false, true)
+	who.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	v.add_child(who)
-	v.add_child(UiTheme.label(subtitle, 26))
-	var spacer := Control.new()
-	spacer.custom_minimum_size = Vector2(0, 40)
-	v.add_child(spacer)
-	v.add_child(UiTheme.button("Je suis %s, continuer" % names[player], func():
-		_clear_overlay()
+	var sub := UiTheme.label(subtitle, 26, "", HORIZONTAL_ALIGNMENT_LEFT)
+	sub.modulate = Color(1, 1, 1, 0.75)
+	v.add_child(sub)
+	v.add_child(UiTheme.spacer(48))
+	v.add_child(UiTheme.button("Je suis %s" % names[player], func():
+		veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		veil.reparent(_hud)  # Hors de l'overlay, pour survivre à l'écran suivant.
+		var t := veil.create_tween()
+		t.tween_property(veil, "position:y", -veil.size.y, 0.45).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+		t.tween_callback(veil.queue_free)
 		next.call(), 30))
 
 
@@ -196,7 +226,7 @@ func _begin_choose() -> void:
 	_selected = null
 	_clear_overlay()
 	_table.layout(duel.hands, duel.poser)
-	_set_status("%s, touche une carte pour la retourner, puis pose-la." % names[duel.poser])
+	_set_status("Touche une carte pour la retourner, puis pose-la.")
 	_start_timer(CHOOSE_TIME, _on_choose_timeout)
 
 
@@ -217,33 +247,52 @@ func _on_card_tapped(card: Card3D) -> void:
 
 func _show_detail(card: Card3D) -> void:
 	_clear_overlay()
-	var panel := PanelContainer.new()
-	panel.anchor_left = 0.0
-	panel.anchor_right = 1.0
-	panel.offset_left = 24
-	panel.offset_right = -24
+	_set_status("")
+	var panel := _linen_panel()
 	panel.offset_top = 150
 	_overlay.add_child(panel)
 	var v := UiTheme.vbox(12)
 	panel.add_child(v)
 	var c := card.in_play
-	v.add_child(UiTheme.label("%s · %s · %d propositions" % [c.data.difficulty_label(), c.data.category_label(), c.option_count()], 22, true))
-	v.add_child(UiTheme.label(c.data.question, 30, true))
-	var options: Array[String] = [c.data.answer]
-	options.append_array(c.shown_wrongs)
-	for o in options:
-		var l := UiTheme.label(("Bonne réponse : " + o) if o == c.data.answer else o, 26, true)
-		if o == c.data.answer:
-			l.add_theme_color_override("font_color", UiTheme.GREEN)
-		v.add_child(l)
+	v.add_child(UiTheme.card_header(c.data, c.option_count()))
+	var q := UiTheme.scripture(c.data.question, 32, true, true)
+	q.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	v.add_child(q)
+	v.add_child(_answer_row(c.data.answer, true))
+	for w in c.shown_wrongs:
+		v.add_child(_answer_row(w, false))
+	var hint := UiTheme.label("Ton adversaire verra ces %d choix, sans savoir lequel est le bon." % c.option_count(), 20, "InkLabel", HORIZONTAL_ALIGNMENT_LEFT)
+	hint.modulate = Color(1, 1, 1, 0.65)
+	v.add_child(hint)
 	var h := UiTheme.hbox(12)
-	var close := UiTheme.button("Fermer", _close_detail, 26)
+	var close := UiTheme.button("Garder", _close_detail, 26, "InkGhostButton")
 	close.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var play := UiTheme.button("Poser cette carte", _play_selected, 26)
 	play.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	play.size_flags_stretch_ratio = 1.6
 	h.add_child(close)
 	h.add_child(play)
 	v.add_child(h)
+
+
+## Une proposition dans le détail de sa propre carte ; la bonne est sur fond olive.
+func _answer_row(text: String, correct: bool) -> Control:
+	var box := PanelContainer.new()
+	var style := UiTheme.box(UiTheme.OLIVE if correct else Color(UiTheme.INK, 0.06), 10, 16, 10)
+	box.add_theme_stylebox_override("panel", style)
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var h := UiTheme.hbox(10)
+	box.add_child(h)
+	var l := UiTheme.scripture(text, 26, not correct, correct)
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	h.add_child(l)
+	if correct:
+		var tag := UiTheme.label("bonne réponse", 18)
+		tag.autowrap_mode = TextServer.AUTOWRAP_OFF
+		tag.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		h.add_child(tag)
+	return box
 
 
 func _close_detail() -> void:
@@ -251,6 +300,7 @@ func _close_detail() -> void:
 		_selected.set_face_up(false)
 	_selected = null
 	_clear_overlay()
+	_set_status("Touche une carte pour la retourner, puis pose-la.")
 
 
 func _play_selected() -> void:
@@ -267,7 +317,7 @@ func _on_choose_timeout() -> void:
 		_selected.set_face_up(false)
 		_selected = null
 	duel.play_random()
-	_after_play(_table.card_for(duel.played), "Temps écoulé : une carte a été posée au hasard.")
+	_after_play(_table.card_for(duel.played), "Temps écoulé. Une carte a été posée au hasard.")
 
 
 func _after_play(card: Card3D, message: String) -> void:
@@ -291,22 +341,22 @@ func _begin_answer() -> void:
 	_options_before = duel.played.option_count()
 	_reserve_before = duel.played.reserve.size()
 	_set_status("")
-	var panel := PanelContainer.new()
-	panel.anchor_left = 0.0
-	panel.anchor_right = 1.0
+	var panel := _linen_panel()
 	panel.anchor_top = 1.0
 	panel.anchor_bottom = 1.0
-	panel.offset_left = 20
-	panel.offset_right = -20
-	panel.offset_bottom = -24
+	panel.offset_bottom = -20
 	panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	_overlay.add_child(panel)
 	var v := UiTheme.vbox(12)
 	panel.add_child(v)
 	var c := duel.played.data
-	v.add_child(UiTheme.label("%s te pose une question" % names[duel.poser], 22, true))
-	v.add_child(UiTheme.label("%s · %s · %d propositions" % [c.difficulty_label(), c.category_label(), duel.presented.size()], 22, true))
-	v.add_child(UiTheme.label(c.question, 32, true))
+	var from := UiTheme.label("La question de %s" % names[duel.poser], 22, "InkLabel", HORIZONTAL_ALIGNMENT_LEFT)
+	from.modulate = Color(1, 1, 1, 0.65)
+	v.add_child(from)
+	v.add_child(UiTheme.card_header(c, duel.presented.size()))
+	var q := UiTheme.scripture(c.question, 34, true, true)
+	q.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	v.add_child(q)
 	var buttons: Array[Button] = []
 	for o in duel.presented:
 		var b := UiTheme.choice_button(o, func(): _on_answer(o, buttons))
@@ -336,52 +386,52 @@ func _show_result(result: Dictionary, choice: String, timed_out: bool) -> void:
 	var card3d := _table.card_for(in_play)
 
 	var root := _modal(0.55)
-	var panel := PanelContainer.new()
-	panel.set_anchors_preset(Control.PRESET_CENTER)
-	panel.anchor_left = 0.0
-	panel.anchor_right = 1.0
-	panel.offset_left = 24
-	panel.offset_right = -24
+	var panel := _linen_panel()
+	panel.anchor_top = 0.5
+	panel.anchor_bottom = 0.5
 	panel.grow_vertical = Control.GROW_DIRECTION_BOTH
 	root.add_child(panel)
-	var v := UiTheme.vbox(14)
+	var v := UiTheme.vbox(12)
 	panel.add_child(v)
 
 	if result["correct"]:
 		card3d.destroy()
 		_table.forget(in_play)
-		var title := UiTheme.label("Bonne réponse !", 44, true)
-		title.add_theme_color_override("font_color", UiTheme.GREEN)
+		var title := UiTheme.scripture("Bonne réponse", 44, true, true)
+		title.add_theme_color_override("font_color", UiTheme.OLIVE)
 		v.add_child(title)
 		v.add_child(UiTheme.illustration_placeholder(data.story, Session.bank.story_title(data.story)))
-		v.add_child(UiTheme.label(data.question, 24, true))
-		v.add_child(UiTheme.label(data.answer, 36, true))
-		v.add_child(UiTheme.label(data.reference, 24, true))
+		v.add_child(UiTheme.scripture(data.question, 24))
+		v.add_child(UiTheme.scripture(data.answer, 38, true, true))
+		v.add_child(UiTheme.scripture(data.reference, 24, true, false, true))
 		if not data.explanation.is_empty():
-			v.add_child(UiTheme.label(data.explanation, 24, true))
-		v.add_child(UiTheme.label("%s perd cette carte." % names[owner_idx], 26, true))
+			v.add_child(UiTheme.scripture(data.explanation, 24))
+		v.add_child(UiTheme.label("La carte de %s est détruite." % names[owner_idx], 24, "InkLabel"))
 	else:
-		var title := UiTheme.label("Temps écoulé !" if timed_out else "Raté !", 44, true)
-		title.add_theme_color_override("font_color", UiTheme.RED)
+		var title := UiTheme.scripture("Temps écoulé" if timed_out else "Raté", 44, true, true)
+		title.add_theme_color_override("font_color", UiTheme.CRAMOISI)
 		v.add_child(title)
 		if not timed_out:
-			v.add_child(UiTheme.label("« %s » n'était pas la bonne réponse." % choice, 26, true))
-		v.add_child(UiTheme.label("La carte retourne chez %s." % names[owner_idx], 28, true))
+			v.add_child(UiTheme.scripture("« %s » n'est pas la bonne réponse." % choice, 26))
+		v.add_child(UiTheme.label("La carte retourne chez %s." % names[owner_idx], 26, "InkLabel"))
 		var now := in_play.option_count()
-		var weakened := "Elle n'a plus que %d propositions." % now
+		var weakened := "Elle n'a plus que %d choix." % now
 		if now == _options_before:
-			weakened = "Elle garde 2 propositions, mais l'une d'elles change." if in_play.reserve.size() < _reserve_before \
-				else "Elle garde ses 2 propositions."
-		v.add_child(UiTheme.label(weakened, 24, true))
+			weakened = "Elle garde 2 choix, mais l'un d'eux change." if in_play.reserve.size() < _reserve_before \
+				else "Elle garde ses 2 choix."
+		var w := UiTheme.label(weakened, 22, "InkLabel")
+		w.modulate = Color(1, 1, 1, 0.7)
+		v.add_child(w)
 		card3d.refresh()
 
 	_table.layout(duel.hands, duel.poser if duel.phase != Duel.Phase.FINISHED else owner_idx)
 	_refresh_counts()
+	v.add_child(UiTheme.spacer(4))
 	v.add_child(UiTheme.button("Continuer", func():
 		if duel.phase == Duel.Phase.FINISHED:
 			_show_end()
 		else:
-			_begin_choose(), 30))
+			_begin_choose(), 28))
 
 
 # ---------------------------------------------------------------- Fin
@@ -389,33 +439,45 @@ func _show_result(result: Dictionary, choice: String, timed_out: bool) -> void:
 func _show_end() -> void:
 	step = Step.END
 	_stop_timer()
-	var root := _modal(0.95)
-	var v := _centered_column(root, 22)
-	var title := UiTheme.label("%s gagne !" % names[duel.winner], 54)
-	title.add_theme_color_override("font_color", UiTheme.GOLD)
-	v.add_child(title)
-	v.add_child(UiTheme.label("%s n'a plus de cartes." % names[duel.loser()], 28))
-	v.add_child(UiTheme.label("Cartes restantes : %s — %d · %s — %d" % [
-		names[0], duel.hands[0].size(), names[1], duel.hands[1].size()], 24))
-	var spacer := Control.new()
-	spacer.custom_minimum_size = Vector2(0, 30)
-	v.add_child(spacer)
-	v.add_child(UiTheme.button("Voir les cartes détruites", _show_destroyed, 28))
+	var root := _modal(0.96)
+	var margin := MarginContainer.new()
+	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	for side in ["left", "right"]:
+		margin.add_theme_constant_override("margin_" + side, 48)
+	root.add_child(margin)
+	var v := UiTheme.vbox(14)
+	v.alignment = BoxContainer.ALIGNMENT_CENTER
+	margin.add_child(v)
+	var winner := UiTheme.scripture(names[duel.winner], 76, false, true)
+	winner.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	winner.add_theme_color_override("font_color", UiTheme.OR)
+	v.add_child(winner)
+	v.add_child(UiTheme.label("remporte la partie.", 32, "", HORIZONTAL_ALIGNMENT_LEFT))
+	v.add_child(UiTheme.weave_band(14))
+	var left: int = duel.hands[duel.winner].size()
+	var recap := UiTheme.label("%s n'a plus de cartes. Il en reste %d à %s." % [
+		names[duel.loser()], left, names[duel.winner]], 24, "", HORIZONTAL_ALIGNMENT_LEFT)
+	recap.modulate = Color(1, 1, 1, 0.75)
+	v.add_child(recap)
+	v.add_child(UiTheme.spacer(36))
 	v.add_child(UiTheme.button("Rejouer", func(): get_tree().reload_current_scene(), 30))
-	v.add_child(UiTheme.button("Menu", _to_menu, 28))
+	v.add_child(UiTheme.button("Revoir les cartes détruites", _show_destroyed, 26, "GhostButton"))
+	v.add_child(UiTheme.button("Retour au menu", _to_menu, 26, "GhostButton"))
 
 
 func _show_destroyed() -> void:
 	var root := _modal(1.0)
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	for side in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + side, 28)
+	for side in ["left", "right"]:
+		margin.add_theme_constant_override("margin_" + side, 24)
+	for side in ["top", "bottom"]:
+		margin.add_theme_constant_override("margin_" + side, 32)
 	root.add_child(margin)
 	var outer := UiTheme.vbox(16)
 	margin.add_child(outer)
-	var title := UiTheme.label("Cartes détruites", 40)
-	title.add_theme_color_override("font_color", UiTheme.GOLD)
+	var title := UiTheme.scripture("Cartes détruites", 44, false, true)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	outer.add_child(title)
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -427,13 +489,26 @@ func _show_destroyed() -> void:
 	for p in 2:
 		for data: CardData in duel.destroyed[p]:
 			var card := PanelContainer.new()
+			card.add_theme_stylebox_override("panel", UiTheme.box(UiTheme.LIN, 14, 22, 16))
 			var v := UiTheme.vbox(6)
 			card.add_child(v)
-			v.add_child(UiTheme.label("Carte de %s · %s" % [names[p], data.category_label()], 20, true))
-			v.add_child(UiTheme.label(data.question, 24, true))
-			v.add_child(UiTheme.label(data.answer + " — " + data.reference, 24, true))
+			var head := UiTheme.hbox(10)
+			head.add_child(UiTheme.difficulty_chip(data.difficulty))
+			var owner_l := UiTheme.label("Carte de %s" % names[p], 20, "InkLabel", HORIZONTAL_ALIGNMENT_LEFT)
+			owner_l.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			head.add_child(owner_l)
+			v.add_child(head)
+			var q := UiTheme.scripture(data.question, 24)
+			q.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+			v.add_child(q)
+			var a := UiTheme.scripture(data.answer, 28, true, true)
+			a.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+			v.add_child(a)
+			var r := UiTheme.scripture(data.reference, 22, true, false, true)
+			r.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+			v.add_child(r)
 			list.add_child(card)
-	outer.add_child(UiTheme.button("Retour", _show_end, 28))
+	outer.add_child(UiTheme.button("Retour", _show_end, 26, "GhostButton"))
 
 
 # ---------------------------------------------------------------- Interface commune
@@ -448,61 +523,75 @@ func _build_hud() -> void:
 	layer.add_child(_hud)
 
 	var bar := PanelContainer.new()
-	bar.theme_type_variation = "DarkPanel"
+	bar.theme_type_variation = "NightPanel"
 	bar.anchor_right = 1.0
 	bar.offset_left = 12
 	bar.offset_right = -12
 	bar.offset_top = 12
 	_hud.add_child(bar)
-	var col := UiTheme.vbox(6)
+	var col := UiTheme.vbox(8)
 	bar.add_child(col)
 	var row := UiTheme.hbox(10)
 	col.add_child(row)
 	for p in 2:
+		var align := HORIZONTAL_ALIGNMENT_LEFT if p == 0 else HORIZONTAL_ALIGNMENT_RIGHT
 		var box := UiTheme.vbox(0)
 		box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		var n := UiTheme.label(names[p], 24, false, HORIZONTAL_ALIGNMENT_LEFT if p == 0 else HORIZONTAL_ALIGNMENT_RIGHT)
-		n.add_theme_color_override("font_color", UiTheme.GOLD)
-		var cnt := UiTheme.label("", 22, false, n.horizontal_alignment)
+		var n := UiTheme.scripture(names[p], 28, false, true)
+		n.horizontal_alignment = align
+		var cnt := UiTheme.label("", 20, "", align)
+		cnt.modulate = Color(1, 1, 1, 0.65)
 		box.add_child(n)
 		box.add_child(cnt)
-		_name_labels.append(n)
 		_count_labels.append(cnt)
 		row.add_child(box)
 		if p == 0:
-			var quit := UiTheme.button("Quitter", _ask_quit, 20)
-			quit.custom_minimum_size = Vector2(130, 56)
+			var quit := UiTheme.button("Quitter", _ask_quit, 20, "GhostButton")
+			quit.custom_minimum_size = Vector2(120, 52)
 			quit.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 			row.add_child(quit)
 	var trow := UiTheme.hbox(10)
 	_timer_bar = ProgressBar.new()
 	_timer_bar.show_percentage = false
-	_timer_bar.custom_minimum_size = Vector2(0, 16)
+	_timer_bar.custom_minimum_size = Vector2(0, 8)
 	_timer_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_timer_bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_timer_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_timer_label = UiTheme.label("", 22)
-	_timer_label.custom_minimum_size = Vector2(70, 0)
+	_timer_label = UiTheme.label("", 20)
+	_timer_label.custom_minimum_size = Vector2(56, 0)
+	_timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	trow.add_child(_timer_bar)
 	trow.add_child(_timer_label)
 	col.add_child(trow)
 	_stop_timer()
 
+	var status := PanelContainer.new()
+	status.theme_type_variation = "NightPanel"
+	status.anchor_right = 1.0
+	status.anchor_top = 1.0
+	status.anchor_bottom = 1.0
+	status.offset_left = 24
+	status.offset_right = -24
+	status.offset_bottom = -28
+	status.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	status.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_status = UiTheme.label("", 24)
-	_status.anchor_left = 0.0
-	_status.anchor_right = 1.0
-	_status.anchor_top = 1.0
-	_status.anchor_bottom = 1.0
-	_status.offset_top = -330
-	_status.offset_bottom = -280
-	_status.offset_left = 24
-	_status.offset_right = -24
-	_hud.add_child(_status)
+	status.add_child(_status)
+	_hud.add_child(status)
+	_status_box = status
 
 	_overlay = Control.new()
 	_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_hud.add_child(_overlay)
+
+
+func _linen_panel() -> PanelContainer:
+	var panel := PanelContainer.new()
+	panel.anchor_right = 1.0
+	panel.offset_left = 18
+	panel.offset_right = -18
+	return panel
 
 
 func _refresh_counts() -> void:
@@ -513,6 +602,7 @@ func _refresh_counts() -> void:
 
 func _set_status(text: String) -> void:
 	_status.text = text
+	_status_box.visible = not text.is_empty()
 
 
 func _clear_overlay() -> void:
@@ -531,22 +621,10 @@ func _modal(alpha: float) -> Control:
 	return dim
 
 
-func _centered_column(parent: Control, separation: int) -> VBoxContainer:
-	var margin := MarginContainer.new()
-	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	for side in ["left", "right"]:
-		margin.add_theme_constant_override("margin_" + side, 40)
-	parent.add_child(margin)
-	var v := UiTheme.vbox(separation)
-	v.alignment = BoxContainer.ALIGNMENT_CENTER
-	margin.add_child(v)
-	return v
-
-
 ## Message bref au centre de l'écran.
 func _flash(text: String) -> void:
 	var box := PanelContainer.new()
-	box.theme_type_variation = "DarkPanel"
+	box.theme_type_variation = "NightPanel"
 	box.anchor_left = 0.0
 	box.anchor_right = 1.0
 	box.anchor_top = 0.5
@@ -567,18 +645,29 @@ func _ask_quit() -> void:
 	if _quit_box:
 		return
 	_paused = true
-	_quit_box = ColorRect.new()
-	(_quit_box as ColorRect).color = Color(UiTheme.NIGHT, 0.85)
-	_quit_box.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_hud.add_child(_quit_box)
-	var v := _centered_column(_quit_box, 20)
-	v.add_child(UiTheme.label("Quitter la partie ?", 40))
-	v.add_child(UiTheme.label("La partie en cours sera perdue.", 26))
-	v.add_child(UiTheme.button("Oui, quitter", _to_menu, 28))
+	var dim := ColorRect.new()
+	dim.color = Color(UiTheme.NIGHT, 0.9)
+	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_hud.add_child(dim)
+	_quit_box = dim
+	var margin := MarginContainer.new()
+	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	for side in ["left", "right"]:
+		margin.add_theme_constant_override("margin_" + side, 48)
+	dim.add_child(margin)
+	var v := UiTheme.vbox(16)
+	v.alignment = BoxContainer.ALIGNMENT_CENTER
+	margin.add_child(v)
+	var q := UiTheme.scripture("Quitter la partie ?", 44, false, true)
+	q.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	v.add_child(q)
+	v.add_child(UiTheme.label("La partie en cours sera perdue.", 26, "", HORIZONTAL_ALIGNMENT_LEFT))
+	v.add_child(UiTheme.spacer(24))
 	v.add_child(UiTheme.button("Continuer la partie", func():
 		_quit_box.queue_free()
 		_quit_box = null
 		_paused = false, 28))
+	v.add_child(UiTheme.button("Quitter", _to_menu, 26, "GhostButton"))
 
 
 func _to_menu() -> void:
