@@ -311,22 +311,15 @@ func _show_search() -> void:
 		await Online.duel_cancel_search()
 		_show_create(), P.px(56), P.px(18)))
 	if Online.has_account():
-		var scribe := Painted.navy_button("", func():
+		# Le portrait du Scribe sert d'icône au bouton (un conteneur dans un bouton n'a pas de largeur).
+		var scribe := Painted.navy_button("Jouer contre le Scribe", func():
 			await Online.duel_cancel_search()
 			screen = Screen.CHOICE
-			get_tree().change_scene_to_file("res://scenes/adventure.tscn"), P.px(62), P.px(16))
-		var sr := P.hbox(12)
-		sr.set_anchors_preset(Control.PRESET_FULL_RECT)
-		sr.offset_left = P.px(14)
-		scribe.add_child(sr)
-		var portrait := G.scribe_portrait(40)
-		portrait.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		sr.add_child(portrait)
-		var st := P.vbox(0)
-		st.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		st.add_child(P.title("Jouer contre le Scribe", 17, Color.WHITE, HORIZONTAL_ALIGNMENT_LEFT))
-		st.add_child(P.label("Ouvre la carte d'aventure", 12, Color("c9d6f5"), 800, HORIZONTAL_ALIGNMENT_LEFT))
-		sr.add_child(st)
+			get_tree().change_scene_to_file("res://scenes/adventure.tscn"), P.px(58), P.px(17))
+		scribe.icon = G.SCRIBE
+		scribe.expand_icon = true
+		scribe.add_theme_constant_override("icon_max_width", P.px(40))
+		scribe.add_theme_constant_override("h_separation", P.px(12))
 		v.add_child(scribe)
 
 
