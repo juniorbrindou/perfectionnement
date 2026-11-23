@@ -163,9 +163,15 @@ client ne doit afficher que `message`.
   `set`, rangs activés). Le score est l'XP totale, réécrit à chaque partie qui rapporte de l'XP.
 - La réponse `fin` de l'arcade contient en plus `xp`, `xpTotal`, `niveauAvant` et `niveau`.
 
-**À faire par la session du serveur** : `git pull`, `npm test` dans `server/` (18 tests), déployer
-`build/index.js`, redémarrer, vérifier la ligne `Module Perfectionnement chargé (talents, pain quotidien, arcade,
-XP).` et que le leaderboard `xp` existe dans la console.
+**Déployé le 2026-11-23** (commit `9f44c8c`, 18 tests serveur verts). Nakama a été redémarré deux fois pour
+vérifier que `leaderboardCreate` ne casse rien quand le classement existe déjà. Le leaderboard `xp` est
+autoritatif, décroissant, en opérateur `set`, avec les rangs activés. Vérifié depuis l'adresse publique avec un
+compte de test, supprimé depuis (sa ligne du classement part avec lui) :
+
+- défaite : +10 XP ; victoire : +30 XP (total 40) ; abandon : 0 XP ;
+- le portefeuille contient `{"xp": 40, "talents": 98}` ;
+- classement `GET /v2/leaderboard/xp` : le joueur y figure au rang 1 avec 40 ; une écriture du client est refusée (403) ;
+- de 90 à 120 XP par une victoire : `niveauAvant: 1`, `niveau: 2`.
 
 ## Ce qui est sur le serveur (pour mémoire)
 
