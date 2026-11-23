@@ -9,6 +9,9 @@ extends Node
 signal state_changed(state: State)
 signal account_changed
 signal bread_received(gain: int)  ## Pain quotidien accordé à la connexion.
+signal duel_view_received(view: Dictionary)  ## Vue d'un duel en ligne envoyée par le serveur.
+signal duel_matched  ## Duel rapide : adversaire trouvé et partie rejointe.
+signal duel_link_changed(lost: bool)  ## Connexion temps réel perdue (ou retrouvée) pendant un duel.
 
 enum State { OFFLINE, CONNECTING, ONLINE }
 
@@ -32,6 +35,22 @@ var wallet := {}
 var last_error := ""
 var bread_today := false  ## Pain quotidien reçu aujourd'hui (maintenant ou plus tôt).
 var bread_gain := 0  ## Talents reçus par le pain pendant cette session.
+
+# Duels en ligne (server/src/duel_en_ligne.ts) : socket temps réel.
+const OP_DEPART := 1
+const OP_JOUER := 2
+const OP_REPONDRE := 3
+const OP_CONTINUER := 4
+const OP_ABANDONNER := 5
+const OP_REVANCHE := 6
+const OP_VUE := 10
+const RECONNECT_TRIES := 14  ## Une tentative toutes les 2 s : le serveur attend 30 s.
+var socket: NakamaSocket
+var duel_match_id := ""
+var duel_view := {}  ## Dernière vue reçue.
+var duel_search_difficulty := ""  ## Difficulté de la recherche en cours.
+var _ticket := ""
+var _reconnecting := false
 
 var _rng := RandomNumberGenerator.new()
 
@@ -150,6 +169,134 @@ func arcade(request: Dictionary) -> Dictionary:
 	if t != null or x != null:
 		account_changed.emit()
 	return data
+
+
+## Partie entre amis (RPC « duel_ami ») : {action: "creer", difficulte} ou {action: "voir", code}.
+## Renvoie la réponse du serveur, ou {"erreur": message}.
+func duel_friend(request: Dictionary) -> Dictionary:
+	if not await _ensure_session():
+		return {"erreur": "Pas de connexion au serveur."}
+	var r = await client.rpc_async(session, "duel_ami", JSON.stringify(request))
+	if r.is_exception():
+		var e: NakamaException = r.get_exception()
+		return {"erreur": e.message if e.status_code > 0 and not e.message.is_empty() else _message(e)}
+	var data = JSON.parse_string(r.payload)
+	return data if data is Dictionary else {"erreur": "Réponse illisible du serveur."}
+
+
+## Duel rapide : entre dans la file du serveur. Renvoie un message d'erreur, ou "".
+func duel_search(difficulty: String) -> String:
+	if not await _socket_ready():
+		return "Pas de connexion au serveur."
+	var t = await socket.add_matchmaker_async("+properties.difficulte:%s" % difficulty, 2, 2, {"difficulte": difficulty})
+	if t.is_exception():
+		return _message(t.get_exception())
+	_ticket = t.ticket
+	duel_search_difficulty = difficulty
+	return ""
+
+
+func duel_cancel_search() -> void:
+	var ticket := _ticket
+	_ticket = ""
+	duel_search_difficulty = ""
+	if not ticket.is_empty() and socket and socket.is_connected_to_host():
+		await socket.remove_matchmaker_async(ticket)
+
+
+## Rejoint une partie (duel rapide trouvé, ou partie entre amis). Renvoie un message d'erreur, ou "".
+func duel_join(match_id: String) -> String:
+	if not await _socket_ready():
+		return "Pas de connexion au serveur."
+	duel_view = {}
+	duel_match_id = match_id  # Avant la réponse : les premières vues peuvent arriver avant elle.
+	var m = await socket.join_match_async(match_id)
+	if m.is_exception():
+		duel_match_id = ""
+		var e: NakamaException = m.get_exception()
+		return e.message if not e.message.is_empty() else "Impossible de rejoindre la partie."
+	return ""
+
+
+func duel_send(op: int, data: Dictionary = {}) -> void:
+	if socket and not duel_match_id.is_empty() and socket.is_connected_to_host():
+		socket.send_match_state_async(duel_match_id, op, JSON.stringify(data))
+
+
+## Quitte la partie en cours (le serveur annule une partie pas encore commencée).
+func duel_leave() -> void:
+	var id := duel_match_id
+	duel_match_id = ""
+	duel_view = {}
+	if not id.is_empty() and socket and socket.is_connected_to_host():
+		await socket.leave_match_async(id)
+
+
+## Fin d'un duel : talents et XP à jour sans relire le compte.
+func apply_duel_end(fin: Dictionary) -> void:
+	if fin.has("talents"):
+		wallet["talents"] = int(fin["talents"])
+	if fin.has("xpTotal"):
+		wallet["xp"] = int(fin["xpTotal"])
+	account_changed.emit()
+
+
+func _socket_ready() -> bool:
+	if socket and socket.is_connected_to_host():
+		return true
+	if not await _ensure_session():
+		return false
+	if socket == null:
+		socket = Nakama.create_socket_from(client)
+		socket.received_matchmaker_matched.connect(_on_matchmaker_matched)
+		socket.received_match_state.connect(_on_match_state)
+		socket.closed.connect(_on_socket_closed)
+	var r = await socket.connect_async(session)
+	if r.is_exception():
+		push_warning("Socket : %s" % _message(r.get_exception()))
+		return false
+	return true
+
+
+func _on_matchmaker_matched(matched) -> void:
+	_ticket = ""
+	duel_search_difficulty = ""
+	var error := await duel_join(matched.match_id)
+	if error.is_empty():
+		duel_matched.emit()
+	else:
+		push_warning("Duel rapide : %s" % error)
+
+
+func _on_match_state(data) -> void:
+	if data.match_id != duel_match_id or data.op_code != OP_VUE:
+		return
+	var v = JSON.parse_string(data.data)
+	if v is Dictionary:
+		duel_view = v
+		duel_view_received.emit(v)
+
+
+## Le téléphone a perdu le réseau en pleine partie : on se reconnecte et on rejoint la même
+## partie (le serveur la met en pause 30 s).
+func _on_socket_closed() -> void:
+	if duel_match_id.is_empty() or _reconnecting:
+		return
+	_reconnecting = true
+	duel_link_changed.emit(true)
+	for attempt in RECONNECT_TRIES:
+		await get_tree().create_timer(2.0).timeout
+		if duel_match_id.is_empty():
+			break
+		if await _socket_ready():
+			var m = await socket.join_match_async(duel_match_id)
+			if not m.is_exception():
+				_reconnecting = false
+				duel_link_changed.emit(false)
+				return
+	_reconnecting = false
+	duel_match_id = ""
+	duel_link_changed.emit(true)
 
 
 ## Change le pseudo. Renvoie un message d'erreur, ou "" si c'est fait.

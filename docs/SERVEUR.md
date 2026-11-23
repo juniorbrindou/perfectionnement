@@ -139,7 +139,7 @@ démarrage). Vérifié depuis l'adresse publique avec un compte e-mail de test, 
 - `abandonner` : défaite et mise perdue ; tout appel après la fin est refusé (« Cette partie est terminée. ») ;
 - journal du portefeuille cohérent (`capital_depart`, `mise_arcade`, `gain_arcade`) avec le solde final.
 
-**Triche possible, à régler avant les duels en ligne (0.3)** : la vue envoie l'`id` de la carte à deviner, et
+**Triche possible, réglée en 0.3.1 (voir plus bas)** : la vue envoie l'`id` de la carte à deviner, et
 l'APK embarque `data/cartes.json` avec les bonnes réponses. Un client modifié lit donc la réponse : un script de
 test a gagné trois parties sur trois en répondant ainsi. Retirer l'`id` ne suffit pas, puisque la question et ses
 propositions suffisent à retrouver la carte dans le fichier. Contre le Scribe, l'enjeu se limite à quelques
@@ -172,6 +172,74 @@ compte de test, supprimé depuis (sa ligne du classement part avec lui) :
 - le portefeuille contient `{"xp": 40, "talents": 98}` ;
 - classement `GET /v2/leaderboard/xp` : le joueur y figure au rang 1 avec 40 ; une écriture du client est refusée (403) ;
 - de 90 à 120 XP par une victoire : `niveauAvant: 1`, `niveau: 2`.
+
+## Module serveur (0.3.1) : deux réserves de cartes
+
+Correction de la triche relevée en 0.2.4. Les cartes sont séparées en deux réserves sans carte commune
+(vérifié par `tests/test_data.gd`) :
+
+- **réserve « téléphone »** : `data/cartes.json` et `data/questions_depart.json`, dans l'APK, pour le mode
+  2 joueurs hors ligne ; jamais tirée en ligne ;
+- **réserve « en ligne »** : `data/en_ligne/`, exclue de l'APK (`exclude_filter` et `.gdignore`), embarquée
+  dans `index.js` par `outils/donnees.js`. Elle sert à l'arcade, puis aux duels et aux salons.
+
+Le client n'a donc plus les cartes de l'arcade : le serveur envoie leur texte.
+
+| Champ | Contenu |
+|---|---|
+| `vue.main[]` | `{carte, fausses, reserve}` : `carte` entière (format de `cartes.json`), puisque ce sont les cartes du joueur |
+| `vue.carte` | carte à deviner : `{difficulty, category, question, story, propositions}`, **sans identifiant ni réponse** |
+| `vue.depart` | `{question, propositions}`, sans identifiant |
+| `vue.detruites` | cartes entières (toutes ont été trouvées) |
+| `coup.carte` (`jouer`) | la carte du joueur, entière |
+| `coup.carte` (`repondre`) | la carte du Scribe entière si elle est trouvée, `null` sinon (la réponse reste secrète) |
+| `etat.duChapitre` | niveau → difficulté → vrai si les livres du chapitre suffisent (sinon toute la Bible) |
+
+Avec 60 cartes, chaque réserve en a 10 par difficulté (le minimum pour deux mains). Questions de départ : 5 sur le
+téléphone, 10 en ligne. **À redéployer** : le module et l'APK changent ensemble (un ancien APK ne sait plus lire
+les cartes de l'arcade).
+
+## Module serveur (0.3.2) : duels en ligne
+
+Partie en direct gérée par le serveur : *match* autoritatif Nakama `duel` (`server/src/duel_en_ligne.ts`),
+5 tics par seconde. Les règles sont des fonctions pures testées sans Nakama ; les fonctions `duel*` les
+appliquent (portefeuilles, stockage, messages). Le client passe par le **socket temps réel** (`/ws`).
+
+**Duel rapide** : le client entre dans le matchmaker avec `min_count = max_count = 2`, la requête
+`+properties.difficulte:lait` et la propriété texte `difficulte` (`lait`, `manne` ou `solide`). Le hook
+`apresAppariement` crée la partie pour les deux joueurs trouvés, qui la rejoignent avec l'identifiant reçu.
+S'ils ne sont pas là tous les deux en 20 s, la partie est annulée (aucune mise prélevée).
+
+**Entre amis** : RPC `duel_ami`.
+
+| Action | Effet |
+|---|---|
+| `creer {difficulte}` | crée la partie et renvoie `{matchId, code, difficulte, mise}` ; code de 6 caractères sans 0/O ni 1/I/L |
+| `voir {code}` | `{matchId, difficulte, mise, createur}` si une partie attend avec ce code, sinon 404 |
+
+Le créateur rejoint la partie en premier, puis l'ami avec le code. Une partie attend son invité 10 minutes au
+plus, et elle est annulée si le créateur part avant.
+
+**Messages** (op code, données JSON) du téléphone vers le serveur : `1` départ `{choix}`, `2` jouer `{index}`,
+`3` répondre `{choix}`, `4` continuer, `5` abandonner, `6` revanche `{accepte}`. Le serveur envoie à chaque
+joueur **sa** vue (op `10`) après chaque changement : étape, adversaire (pseudo, niveau, présent), qui pose, sa
+main en entier, le nombre de cartes adverses, la carte à deviner sans réponse, la question de départ, le dernier
+coup, les cartes détruites, le temps restant, la pause, la fin et la revanche.
+
+| Règle | Valeur |
+|---|---|
+| Mises | prélevées aux deux joueurs quand la partie commence ; le gagnant reçoit les deux (`mise_duel`, `gain_duel`) |
+| Question de départ | posée aux deux ; le premier qui répond décide (juste : il commence ; faux : l'autre). Personne en 10 s : nouvelle question |
+| Délais | 10 s pour poser, 15 s pour répondre, 1 s de marge réseau ; ensuite carte au hasard ou temps écoulé |
+| Résultat d'un coup | tour suivant quand les deux touchent « Continuer », ou au bout de 10 s |
+| Abandon | défaite, 0 XP ; l'adversaire gagne la mise et 30 XP |
+| Déconnexion | la partie se met en pause (délais gelés) ; 30 s pour revenir, sinon défaite sans XP |
+| Les deux déconnectés | après 30 s, partie annulée et mises rendues (`remboursement_duel`) |
+| Revanche | 15 s après la fin ; si les deux acceptent, nouvelle donne et nouvelles mises |
+| Arrêt du serveur en pleine partie | mises rendues |
+
+Les cartes des 5 dernières parties sont désormais rangées dans `parties` / `recentes`, communes à l'arcade et aux
+duels (l'ancienne clé `arcade` / `recentes` n'est plus lue).
 
 ## Ce qui est sur le serveur (pour mémoire)
 

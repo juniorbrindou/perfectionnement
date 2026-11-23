@@ -2,22 +2,28 @@ class_name QuestionBank
 extends RefCounted
 ## Banque de questions chargée depuis data/. Les brouillons ne sont inclus
 ## que si include_drafts est vrai (versions de développement).
+##
+## C'est la réserve « téléphone » (mode 2 joueurs, hors ligne). La réserve « en ligne »
+## (data/en_ligne/) reste sur le serveur : elle n'entre jamais dans l'APK.
 
 const CARDS_PATH := "res://data/cartes.json"
 const STARTERS_PATH := "res://data/questions_depart.json"
 const STORIES_PATH := "res://data/recits.json"
+const ONLINE_CARDS_PATH := "res://data/en_ligne/cartes.json"
+const ONLINE_STARTERS_PATH := "res://data/en_ligne/questions_depart.json"
 
 var cards: Array[CardData] = []
 var starters: Array[StarterQuestion] = []
 var stories: Dictionary = {}  ## id du récit → titre
-## Toutes les cartes et questions de départ par identifiant, brouillons compris :
-## le serveur (arcade) peut distribuer des cartes que la banque locale écarte.
-var cards_by_id: Dictionary = {}
-var starters_by_id: Dictionary = {}
 
 
 static func load_default(include_drafts: bool) -> QuestionBank:
 	return load_from(CARDS_PATH, STARTERS_PATH, STORIES_PATH, include_drafts)
+
+
+## Réserve en ligne, pour les tests seulement (absente de l'APK).
+static func load_online() -> QuestionBank:
+	return load_from(ONLINE_CARDS_PATH, ONLINE_STARTERS_PATH, STORIES_PATH, true)
 
 
 static func load_from(cards_path: String, starters_path: String, stories_path: String,
@@ -25,12 +31,10 @@ static func load_from(cards_path: String, starters_path: String, stories_path: S
 	var bank := QuestionBank.new()
 	for d in _read_json(cards_path):
 		var c := CardData.from_dict(d)
-		bank.cards_by_id[c.id] = c
 		if include_drafts or c.is_validated():
 			bank.cards.append(c)
 	for d in _read_json(starters_path):
 		var q := StarterQuestion.from_dict(d)
-		bank.starters_by_id[q.id] = q
 		if include_drafts or q.is_validated():
 			bank.starters.append(q)
 	var s = _read_json(stories_path)

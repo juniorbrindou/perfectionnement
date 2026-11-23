@@ -33,6 +33,8 @@ godot --headless --path . --export-debug "Android" build/perfectionnement-debug.
 
 - `data/cartes.json` : cartes de jeu (1 bonne réponse, 5 fausses, référence Louis Segond 1910).
 - `data/questions_depart.json` : questions de départ (5 propositions).
+- `data/en_ligne/` : mêmes fichiers pour la réserve **en ligne** (arcade, duels, salons). Elle reste sur le
+  serveur et n'entre jamais dans l'APK ; les deux réserves n'ont aucune carte en commun.
 - `data/recits.json` : récits bibliques, un par illustration.
 
 Une question n'apparaît dans une version publiée que si son champ `status` vaut `"valide"`.

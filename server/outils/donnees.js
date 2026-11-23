@@ -1,6 +1,6 @@
-// Copie les cartes, les questions de départ et la carte d'aventure de data/ dans
-// src/donnees.gen.ts, pour que le module Nakama les embarque (pas de fichier à déployer
-// à côté de index.js). Lancé par npm run build et npm test.
+// Copie la réserve « en ligne » (data/en_ligne/ : cartes et questions de départ, absentes de
+// l'APK) et la carte d'aventure dans src/donnees.gen.ts, pour que le module Nakama les embarque
+// (pas de fichier à déployer à côté de index.js). Lancé par npm run build et npm test.
 const fs = require("fs");
 const path = require("path");
 
@@ -9,11 +9,15 @@ const lire = function (nom) {
   return JSON.parse(fs.readFileSync(path.join(data, nom), "utf8"));
 };
 
-const cartes = lire("cartes.json").map(function (c) {
-  return { id: c.id, difficulty: c.difficulty, books: c.books, answer: c.answer, wrongs: c.wrongs };
+const cartes = lire("en_ligne/cartes.json").map(function (c) {
+  return {
+    id: c.id, difficulty: c.difficulty, testament: c.testament, books: c.books, category: c.category,
+    question: c.question, answer: c.answer, wrongs: c.wrongs, reference: c.reference,
+    explanation: c.explanation, story: c.story,
+  };
 });
-const depart = lire("questions_depart.json").map(function (q) {
-  return { id: q.id, answer: q.answer, wrongs: q.wrongs };
+const depart = lire("en_ligne/questions_depart.json").map(function (q) {
+  return { id: q.id, question: q.question, answer: q.answer, wrongs: q.wrongs };
 });
 const aventure = lire("aventure.json");
 

@@ -11,6 +11,8 @@ var profile_view := 0
 ## au lancement de la partie.
 var arcade_open_level := 0
 var arcade_start := {}
+## Duels en ligne : difficulté choisie, et écran de l'accueil des duels à rouvrir.
+var duel_difficulty := "lait"
 
 
 func _ready() -> void:

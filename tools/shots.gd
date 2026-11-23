@@ -92,6 +92,7 @@ func _run() -> void:
 	m._ask_quit()
 	await _shot("14_quitter")
 	await _arcade()
+	await _duels()
 	quit()
 
 
@@ -114,13 +115,13 @@ func _arcade() -> void:
 	var cards: Array = session.bank.cards.filter(func(c): return c.difficulty == "manne")
 	var main := []
 	for c in cards.slice(0, 4):
-		main.append({"id": c.id, "fausses": c.wrongs.slice(0, 3), "reserve": 2})
+		main.append({"carte": _card_dict(c), "fausses": c.wrongs.slice(0, 3), "reserve": 2})
 	var foe: CardData = cards[5]
 	var starter: StarterQuestion = session.bank.starters[0]
 	var vue := {
 		"etape": "depart", "niveau": 4, "difficulte": "manne", "mise": 5, "poseur": -1, "gagnant": -1,
-		"main": main, "mainIA": 3, "carte": null, "detruites": [[], [cards[6].id, cards[7].id]], "temps": 10,
-		"depart": {"id": starter.id, "propositions": [starter.answer] + Array(starter.wrongs)},
+		"main": main, "mainIA": 3, "carte": null, "detruites": [[], [_card_dict(cards[6]), _card_dict(cards[7])]], "temps": 10,
+		"depart": {"question": starter.question, "propositions": [starter.answer] + Array(starter.wrongs)},
 	}
 	session.arcade_start = {"vue": vue, "talents": 105}
 	change_scene_to_file("res://scenes/arcade_match.tscn")
@@ -133,13 +134,13 @@ func _arcade() -> void:
 	m._stop_timer()
 	var mine: CardData = cards[0]
 	var presented: Array[String] = [mine.wrongs[0], mine.answer, mine.wrongs[1]]
-	m._show_ai_answering({"carte": mine.id, "presentees": presented, "choix": mine.wrongs[0], "juste": false}, {})
+	m._show_ai_answering({"carte": _card_dict(mine), "presentees": presented, "choix": mine.wrongs[0], "juste": false}, {})
 	await create_timer(1.0).timeout
 	await _shot("26_arcade_scribe_hesite")
 	await create_timer(2.5).timeout
 	await _shot("27_arcade_scribe_rate")
 	vue["etape"] = "repondre"
-	vue["carte"] = {"id": foe.id, "propositions": [foe.wrongs[0], foe.answer, foe.wrongs[1], foe.wrongs[2]]}
+	vue["carte"] = {"question": foe.question, "category": foe.category, "difficulty": foe.difficulty, "story": foe.story, "propositions": [foe.wrongs[0], foe.answer, foe.wrongs[1], foe.wrongs[2]]}
 	m._apply({"vue": vue})
 	m._begin_answer()
 	await _shot("28_arcade_repondre")
@@ -160,3 +161,107 @@ func _arcade() -> void:
 	await _shot("31_arcade_defaite")
 	m._show_destroyed()
 	await _shot("32_arcade_cartes_detruites")
+
+
+## Une carte au format envoyé par le serveur (celui de data/cartes.json).
+func _card_dict(c: CardData) -> Dictionary:
+	return {"id": c.id, "difficulty": c.difficulty, "testament": c.testament, "books": c.books, "category": c.category,
+		"question": c.question, "answer": c.answer, "wrongs": c.wrongs, "reference": c.reference,
+		"explanation": c.explanation, "story": c.story}
+
+
+## Duels en ligne : sans serveur, on envoie à l'écran des vues fabriquées.
+func _duels() -> void:
+	change_scene_to_file("res://scenes/duel_lobby.tscn")
+	await _shot("40_duel_choix")
+	var lobby = current_scene
+	lobby._show_search()
+	lobby._elapsed = 31.0
+	await _shot("41_duel_recherche")
+	lobby._show_join()
+	await _shot("42_duel_code")
+	lobby.screen = lobby.Screen.CHOICE
+
+	var online = root.get_node("Online")
+	var session = root.get_node("Session")
+	var cards: Array = session.bank.cards.filter(func(c): return c.difficulty == "manne")
+	var main := []
+	for c in cards.slice(0, 4):
+		main.append({"carte": _card_dict(c), "fausses": c.wrongs.slice(0, 3), "reserve": 2})
+	var foe: CardData = cards[5]
+	var mine: CardData = cards[0]
+	var starter: StarterQuestion = session.bank.starters[0]
+	var vue := {
+		"etape": "depart", "mode": "rapide", "difficulte": "manne", "mise": 20,
+		"adversaire": {"pseudo": "Esdras42", "niveau": 7, "present": true}, "poseur": "",
+		"main": main, "mainAdverse": 5, "carte": null, "coup": null, "temps": 10, "pause": null,
+		"depart": {"question": starter.question, "propositions": [starter.answer] + Array(starter.wrongs)},
+		"detruites": [[], [_card_dict(cards[6])]], "fin": null, "revanche": null, "annulation": "",
+	}
+	online.duel_match_id = "essai"
+	online.duel_view = vue.duplicate(true)
+	change_scene_to_file("res://scenes/duel_match.tscn")
+	await _shot("43_duel_depart")
+	var m = current_scene
+	vue["etape"] = "annonce"
+	vue["depart"] = null
+	vue["coup"] = {"type": "depart", "parMoi": true, "choix": starter.answer, "juste": true, "bonne": starter.answer, "jeCommence": true}
+	m._on_view(vue.duplicate(true))
+	await _shot("44_duel_annonce")
+	vue["etape"] = "choisir"
+	vue["poseur"] = "moi"
+	vue["coup"] = null
+	m._on_view(vue.duplicate(true))
+	await _shot("45_duel_poser")
+	vue["poseur"] = "adversaire"
+	m._on_view(vue.duplicate(true))
+	await _shot("46_duel_adversaire_choisit")
+	vue["etape"] = "repondre"
+	vue["poseur"] = "moi"
+	var shown := _card_dict(mine)
+	shown["propositions"] = [mine.wrongs[0], mine.answer, mine.wrongs[1], mine.wrongs[2]]
+	vue["carte"] = shown
+	m._on_view(vue.duplicate(true))
+	await _shot("47_duel_adversaire_reflechit")
+	vue["pause"] = {"adversaireAbsent": true, "reconnexion": 24}
+	m._on_view(vue.duplicate(true))
+	await _shot("48_duel_pause")
+	vue["pause"] = null
+	vue["poseur"] = "adversaire"
+	vue["carte"] = {"difficulty": foe.difficulty, "category": foe.category, "question": foe.question, "story": foe.story,
+		"propositions": [foe.wrongs[0], foe.answer, foe.wrongs[1], foe.wrongs[2]]}
+	m._on_view(vue.duplicate(true))
+	await _shot("49_duel_repondre")
+	vue["etape"] = "resultat"
+	vue["carte"] = null
+	vue["coup"] = {"type": "coup", "mienne": false, "carte": _card_dict(foe), "presentees": [foe.answer, foe.wrongs[0]], "choix": foe.answer, "juste": true, "tempsEcoule": false}
+	vue["continuer"] = {"moi": false, "adversaire": true}
+	m._on_view(vue.duplicate(true))
+	await _shot("50_duel_bonne_reponse")
+	vue["coup"] = {"type": "coup", "mienne": true, "carte": _card_dict(mine), "presentees": [mine.answer, mine.wrongs[0], mine.wrongs[1]], "choix": mine.wrongs[0], "juste": false, "tempsEcoule": false}
+	m._on_view(vue.duplicate(true))
+	await _shot("51_duel_rate")
+	vue["etape"] = "finie"
+	vue["mainAdverse"] = 0
+	vue["temps"] = 11
+	vue["fin"] = {"gagne": true, "raison": "cartes", "gain": 20, "xp": 30, "talents": 125, "xpTotal": 160, "niveauAvant": 2, "niveau": 3}
+	vue["revanche"] = {"moi": false, "adversaire": true, "possible": true}
+	m._on_view(vue.duplicate(true))
+	await _shot("52_duel_victoire")
+	vue["revanche"] = {"moi": true, "adversaire": true, "possible": true}
+	m._on_view(vue.duplicate(true))
+	m._show_destroyed()
+	await _shot("53_duel_cartes_detruites")
+	vue["fin"] = {"gagne": false, "raison": "abandon", "gain": -20, "xp": 0}
+	vue["revanche"] = {"moi": false, "adversaire": false, "possible": false}
+	vue["adversaire"]["present"] = false
+	m._on_view(vue.duplicate(true))
+	await _shot("54_duel_defaite")
+	vue["etape"] = "annulee"
+	vue["annulation"] = "deux_deconnectes"
+	m._on_view(vue.duplicate(true))
+	await _shot("55_duel_annulee")
+	m._on_link(true)
+	await _shot("56_duel_connexion_perdue")
+	online.duel_match_id = ""
+	online.duel_view = {}

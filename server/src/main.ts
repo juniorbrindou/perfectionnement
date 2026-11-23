@@ -28,9 +28,21 @@ function InitModule(ctx: nkruntime.Context, logger: nkruntime.Logger, nk: nkrunt
   initializer.registerAfterAuthenticateGoogle(apresAuthGoogle);
   initializer.registerRpc("pain_quotidien", rpcPainQuotidien);
   initializer.registerRpc("arcade", rpcArcade);
+  initializer.registerRpc("duel_ami", rpcDuelAmi);
+  initializer.registerMatchmakerMatched(apresAppariement);
+  // Les fonctions de la partie sont, elles aussi, des variables globales nommées.
+  initializer.registerMatch<PartieDuel>(MODULE_DUEL, {
+    matchInit: duelInit,
+    matchJoinAttempt: duelEssaiArrivee,
+    matchJoin: duelArrivee,
+    matchLeave: duelDepartJoueur,
+    matchLoop: duelBoucle,
+    matchTerminate: duelFin,
+    matchSignal: duelSignal,
+  });
   // Classement général par XP (créé s'il n'existe pas ; le serveur seul y écrit).
   nk.leaderboardCreate(CLASSEMENT_XP, true, nkruntime.SortOrder.DESCENDING, nkruntime.Operator.SET, null, null, true);
-  logger.info("Module Perfectionnement chargé (talents, pain quotidien, arcade, XP).");
+  logger.info("Module Perfectionnement chargé (talents, pain quotidien, arcade, XP, duels en ligne).");
 }
 
 // Nakama appelle InitModule par son nom : on le garde référencé pour qu'il ne soit pas éliminé.

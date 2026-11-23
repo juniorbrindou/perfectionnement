@@ -107,7 +107,14 @@ On accepte qu'un joueur qui a bonne mémoire repère la bonne réponse : c'est l
 - La question de départ se joue sur un **écran partagé** : chaque joueur a ses 5 boutons de son côté de l'écran.
 - Aucun talent ni aucune XP (pour éviter de jouer contre soi-même).
 
-### 3.3 Abandon et déconnexion (modes en ligne)
+### 3.3 Duel rapide et entre amis (validé le 2026-11-23)
+
+- **Duel rapide** : le joueur choisit la difficulté (donc la mise) et cherche un adversaire de la même difficulté. Les questions portent sur toute la Bible. La recherche continue tant qu'il ne l'annule pas ; au bout de 30 secondes, on lui propose aussi d'**inviter un ami avec un code** et, s'il a un compte, de **jouer contre le Scribe** (la carte d'aventure).
+- **Entre amis** : le créateur choisit **la difficulté seulement** (toute la Bible) et reçoit un code. L'ami voit la difficulté et la mise avant de rejoindre, et peut refuser.
+- **Quand l'adversaire répond à ta carte**, tu vois « [Pseudo] réfléchit… » et son minuteur, puis sa réponse.
+- **Revanche** : à la fin, un bouton relance une partie contre le même adversaire, même difficulté et même mise, si **les deux** acceptent dans les 15 secondes.
+
+### 3.4 Abandon et déconnexion (modes en ligne)
 
 - **Abandon** : défaite immédiate, et l'adversaire remporte la mise.
 - **Déconnexion** : la partie est en pause, et le joueur a **30 secondes** pour revenir. Sinon, il perd et l'adversaire remporte la mise.
@@ -222,6 +229,7 @@ Un salon est supprimé quand il **n'a plus aucun membre**, ou après **7 jours s
 
 - **Premier lot** : 300 cartes (100 Lait, 100 Manne, 100 Nourriture solide), réparties sur toute la Bible.
 - **50 questions de départ** (faciles, 5 propositions).
+- **Deux réserves sans carte commune** (validé le 2026-11-23) : la réserve **téléphone**, dans l'APK, pour le mode 2 joueurs hors ligne ; la réserve **en ligne**, gardée sur le serveur, pour l'arcade, les duels et les salons. Une carte présente dans l'APK peut être lue par un tricheur, donc elle n'est jamais tirée en ligne. Cible : environ 1 carte sur 4 pour le téléphone, avec au moins 10 cartes par difficulté de chaque côté.
 - Ensuite, on enrichit **livre par livre** pour que les salons thématiques atteignent 40 questions.
 - La production du contenu avance **en parallèle** des versions.
 

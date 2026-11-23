@@ -107,10 +107,7 @@ func _apply(r: Dictionary) -> void:
 		fin = r["fin"]
 	_hand.clear()
 	for c: Dictionary in view.get("main", []):
-		var data := _card_data(str(c["id"]))
-		if data == null:
-			continue
-		var card := CardInPlay.new(data, _rng)
+		var card := CardInPlay.new(CardData.from_dict(c.get("carte", {})), _rng)
 		card.shown_wrongs.assign(c.get("fausses", []))
 		card.reserve.clear()
 		for i in int(c.get("reserve", 0)):
@@ -118,8 +115,10 @@ func _apply(r: Dictionary) -> void:
 		_hand.append(card)
 
 
-func _card_data(id: String) -> CardData:
-	return Session.bank.cards_by_id.get(id, null)
+## Les cartes de l'arcade ne sont pas dans l'APK (réserve en ligne) : le serveur envoie leur
+## texte, et la réponse seulement pour nos cartes ou pour une carte du Scribe trouvée.
+func _guess_card() -> CardData:
+	return CardData.from_dict(view.get("carte", {}) if view.get("carte") is Dictionary else {})
 
 
 func _level() -> int:
@@ -229,18 +228,14 @@ func _top_bar(with_timer: bool = true) -> HBoxContainer:
 
 func _show_starter() -> void:
 	step = Step.STARTER
-	var d: Dictionary = view.get("depart", {})
-	var q: StarterQuestion = Session.bank.starters_by_id.get(str(d.get("id", "")), null)
-	if q == null:
-		_show_error("Question de départ inconnue : mets l'application à jour.")
-		return
+	var d: Dictionary = view.get("depart", {}) if view.get("depart") is Dictionary else {}
 	var col := _new_screen(52, 16, 18)
 	col.add_child(_top_bar())
 	col.add_child(P.spacer(8))
 	col.add_child(P.title("Question de départ", 26, P.YELLOW))
 	col.add_child(P.label("Le premier qui répond juste commence. Le Scribe cherche aussi.", 14, P.LILAC))
 	var bubble := Shapes.SpeechBubble.new("Question")
-	bubble.add_child(P.label(q.question, 20, P.NIGHT, 900))
+	bubble.add_child(P.label(str(d.get("question", "")), 20, P.NIGHT, 900))
 	col.add_child(bubble)
 	var band := PanelContainer.new()
 	band.add_theme_stylebox_override("panel", P.box(P.FRAMBOISE, P.px(18), P.px(8), P.px(8)))
@@ -402,7 +397,7 @@ func _play(index: int) -> void:
 
 func _show_ai_answering(coup: Dictionary, before: Dictionary) -> void:
 	step = Step.AI_ANSWERS
-	var data := _card_data(str(coup["carte"]))
+	var data := CardData.from_dict(coup["carte"])
 	var presented: Array[String] = []
 	presented.assign(coup["presentees"])
 	var choice := str(coup["choix"])
@@ -452,11 +447,8 @@ func _show_ai_answering(coup: Dictionary, before: Dictionary) -> void:
 
 func _begin_answer() -> void:
 	step = Step.ANSWER
-	var c: Dictionary = view.get("carte", {})
-	var data := _card_data(str(c.get("id", "")))
-	if data == null:
-		_show_error("Carte inconnue : mets l'application à jour.")
-		return
+	var c: Dictionary = view.get("carte", {}) if view.get("carte") is Dictionary else {}
+	var data := _guess_card()
 	var presented: Array[String] = []
 	presented.assign(c.get("propositions", []))
 	var col := _new_screen(44, 16, 18)
@@ -476,12 +468,14 @@ func _on_answer(choice: String, options_before: int) -> void:
 	step = Step.WAIT
 	_stop_timer()
 	_card.set_answers_enabled(false)
-	var data := _card_data(str(view.get("carte", {}).get("id", "")))
+	var data := _guess_card()
 	var r := await _send({"action": "repondre", "choix": choice})
 	if r.is_empty():
 		return
 	var coup: Dictionary = r["coup"]
 	var correct: bool = coup["juste"]
+	if coup.get("carte") is Dictionary:  # Carte trouvée : le serveur la révèle.
+		data = CardData.from_dict(coup["carte"])
 	var timed_out: bool = coup.get("tempsEcoule", false)
 	if not timed_out:
 		_card.mark_answer(choice, correct)
@@ -706,10 +700,10 @@ func _show_destroyed() -> void:
 	scroll.add_child(list)
 	var destroyed: Array = view.get("detruites", [[], []])
 	for p in 2:
-		for id in destroyed[p]:
-			var data := _card_data(str(id))
-			if data == null:
+		for d in destroyed[p]:
+			if not d is Dictionary:
 				continue
+			var data := CardData.from_dict(d)
 			var card := PanelContainer.new()
 			var cs := P.box(P.CREAM, P.px(14), P.px(14), P.px(12))
 			cs.border_color = P.difficulty_color(data.difficulty)

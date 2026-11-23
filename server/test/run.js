@@ -81,8 +81,11 @@ test("hooks et RPC passés par des variables globales nommées", function () {
   const initializer = new Proxy({}, {
     get: function (_cible, methode) {
       return function () {
-        const fn = Array.prototype.find.call(arguments, function (a) { return typeof a === "function"; });
-        enregistres.push({ methode: String(methode), fn: fn });
+        Array.prototype.forEach.call(arguments, function (a) {
+          if (typeof a === "function") enregistres.push({ methode: String(methode), fn: a });
+          // registerMatch : chaque fonction de l'objet doit aussi être une globale nommée.
+          else if (a && typeof a === "object") Object.keys(a).forEach(function (k) { enregistres.push({ methode: methode + "." + k, fn: a[k] }); });
+        });
       };
     },
   });
@@ -289,10 +292,354 @@ test("arcade : réponse hors délai comptée comme temps écoulé, abandon perdu
   }
 });
 
+test("arcade : le client reçoit le texte des cartes, jamais la réponse d'une carte à deviner", function () {
+  const nk = fauxNakama(100, "a@b.c");
+  let r = appel(nk, { action: "commencer", niveau: 1, difficulte: "lait" });
+  assert.ok(r.vue.depart.question.length > 0, "texte de la question de départ");
+  assert.strictEqual(r.vue.depart.id, undefined);
+  assert.strictEqual(r.vue.main.length, 5);
+  r.vue.main.forEach(function (c) {
+    assert.ok(c.carte.question && c.carte.answer && c.carte.reference, "ses propres cartes, en entier");
+  });
+  assert.strictEqual(typeof appel(nk, { action: "etat" }).duChapitre["1"].lait, "boolean");
+  let vues = 0;
+  for (let i = 0; i < 100 && !r.fin; i++) {
+    const p = nk.stock["arcade/partie"].value;
+    const v = r.vue;
+    if (v.etape === "depart") r = appel(nk, { action: "depart", choix: p.depart.reponse });
+    else if (v.etape === "suite") r = appel(nk, { action: "suite" });
+    else if (v.etape === "choisir") {
+      r = appel(nk, { action: "jouer", index: 0 });
+      assert.ok(r.coup.carte.answer, "sa carte jouée revient en entier");
+    } else if (v.etape === "repondre") {
+      const texte = JSON.stringify(v.carte);
+      const bonne = p.duel.jouee.reponse;
+      assert.ok(v.carte.question.length > 0 && v.carte.propositions.indexOf(bonne) >= 0);
+      assert.strictEqual(v.carte.id, undefined, "pas d'identifiant");
+      assert.strictEqual(v.carte.answer, undefined, "pas de réponse");
+      p.duel.jouee.reserve.forEach(function (w) { assert.ok(texte.indexOf(JSON.stringify(w)) < 0, "pas de réserve"); });
+      vues++;
+      // Une fois sur deux, on se trompe : la carte ratée ne révèle rien.
+      const fausse = v.carte.propositions.filter(function (o) { return o !== bonne; })[0];
+      const choix = vues % 2 === 0 ? fausse : bonne;
+      r = appel(nk, { action: "repondre", choix: choix });
+      if (r.coup.juste) assert.strictEqual(r.coup.carte.answer, bonne, "carte trouvée : révélée");
+      else assert.strictEqual(r.coup.carte, null, "carte ratée : rien de révélé");
+    }
+  }
+  assert.ok(vues > 0, "au moins une carte du Scribe à deviner");
+  r.vue.detruites.forEach(function (liste) {
+    liste.forEach(function (c) { assert.ok(c.answer, "les cartes détruites sont révélées"); });
+  });
+});
+
 test("les données embarquées couvrent la carte d'aventure", function () {
   assert.ok(vm.runInContext("CARTES.length", g) >= 30);
   assert.ok(vm.runInContext("QUESTIONS_DEPART.length", g) > 0);
   assert.strictEqual(vm.runInContext("AVENTURE.chapitres[0].niveaux.length", g), 8);
+});
+
+// ---------------------------------------------------------------- Duels en ligne : règles pures
+
+const OP = { DEPART: 1, JOUER: 2, REPONDRE: 3, CONTINUER: 4, ABANDONNER: 5, REVANCHE: 6 };
+const T0 = 1000000;
+
+/** Partie rapide entre a et b, distribuée, à la question de départ. */
+function duelPret(alea) {
+  const p = g.nouvellePartieDuel("rapide", "lait", "", "", ["a", "b"], T0);
+  g.arriveeDuel(p, "a", "Alpha", 1, T0);
+  const effets = g.arriveeDuel(p, "b", "Bravo", 2, T0);
+  assert.deepStrictEqual(types(effets), ["demarrer"]);
+  g.demarrerDuel(p, {}, T0, alea);
+  return p;
+}
+
+function types(effets) { return Array.from(effets, function (e) { return e.type; }); }
+
+test("duel en ligne : arrivées acceptées ou refusées", function () {
+  const p = g.nouvellePartieDuel("rapide", "lait", "", "", ["a", "b"], T0);
+  assert.strictEqual(g.accepterArrivee(p, "a"), "");
+  assert.ok(g.accepterArrivee(p, "z").indexOf("attend") >= 0, "un inconnu n'entre pas en duel rapide");
+  const ami = g.nouvellePartieDuel("ami", "manne", "ABC234", "a", [], T0);
+  assert.strictEqual(ami.mise, 20);
+  assert.ok(g.accepterArrivee(ami, "z") !== "", "le créateur entre en premier");
+  g.arriveeDuel(ami, "a", "Alpha", 1, T0);
+  assert.strictEqual(g.accepterArrivee(ami, "z"), "", "puis n'importe quel ami avec le code");
+  g.arriveeDuel(ami, "z", "Zoé", 1, T0);
+  assert.ok(g.accepterArrivee(ami, "y") !== "", "partie complète");
+  // Le créateur part avant l'arrivée de l'ami : partie annulée, sans mise prélevée.
+  const seul = g.nouvellePartieDuel("ami", "lait", "XYZ234", "a", [], T0);
+  g.arriveeDuel(seul, "a", "Alpha", 1, T0);
+  assert.deepStrictEqual(types(g.departJoueurDuel(seul, "a", T0 + 5)), ["terminer"]);
+  // Duel rapide : l'adversaire n'arrive pas.
+  const rapide = g.nouvellePartieDuel("rapide", "lait", "", "", ["a", "b"], T0);
+  g.arriveeDuel(rapide, "a", "Alpha", 1, T0);
+  assert.deepStrictEqual(types(g.ticDuel(rapide, T0 + 21000, aleaFixe(1))), ["terminer"]);
+  assert.strictEqual(rapide.etape, "annulee");
+});
+
+test("duel en ligne : question de départ, pose, réponse, la réponse ratée reste secrète", function () {
+  const alea = aleaFixe(5);
+  const p = duelPret(alea);
+  const vueA = g.vueDuel(p, 0, T0);
+  assert.strictEqual(vueA.etape, "depart");
+  assert.ok(vueA.depart.question.length > 0);
+  assert.strictEqual(vueA.main.length, 5);
+  assert.ok(vueA.main[0].carte.answer, "le joueur voit ses cartes en entier");
+  assert.strictEqual(vueA.mainAdverse, 5);
+  const idsB = p.duel.mains[1].map(function (c) { return c.id; });
+  idsB.forEach(function (id) { assert.ok(JSON.stringify(vueA).indexOf(id) < 0, "rien des cartes de l'adversaire"); });
+  // b répond faux à la question de départ : a commence.
+  const fausse = p.depart.propositions.filter(function (o) { return o !== p.depart.reponse; })[0];
+  g.messageDuel(p, 1, OP.DEPART, { choix: fausse }, T0 + 2000, alea);
+  assert.strictEqual(p.etape, "annonce");
+  assert.strictEqual(g.vueDuel(p, 0, T0 + 2000).coup.jeCommence, true);
+  g.ticDuel(p, T0 + 2000 + 3000 + 1001, alea);
+  assert.strictEqual(p.etape, "choisir");
+  assert.strictEqual(g.vueDuel(p, 0, T0 + 6100).poseur, "moi");
+  // b ne peut pas poser à la place de a.
+  g.messageDuel(p, 1, OP.JOUER, { index: 0 }, T0 + 6200, alea);
+  assert.strictEqual(p.etape, "choisir");
+  g.messageDuel(p, 0, OP.JOUER, { index: 0 }, T0 + 6200, alea);
+  assert.strictEqual(p.etape, "repondre");
+  const jouee = p.duel.jouee;
+  const vueB = g.vueDuel(p, 1, T0 + 6300);
+  assert.strictEqual(vueB.carte.id, undefined, "pas d'identifiant");
+  assert.strictEqual(vueB.carte.answer, undefined, "pas de réponse");
+  assert.ok(vueB.carte.propositions.indexOf(jouee.reponse) >= 0);
+  assert.strictEqual(g.vueDuel(p, 0, T0 + 6300).carte.answer, jouee.reponse, "le poseur voit sa carte");
+  const rate = vueB.carte.propositions.filter(function (o) { return o !== jouee.reponse; })[0];
+  g.messageDuel(p, 1, OP.REPONDRE, { choix: rate }, T0 + 7000, alea);
+  assert.strictEqual(p.etape, "resultat");
+  assert.strictEqual(g.vueDuel(p, 1, T0 + 7000).coup.carte.answer, undefined, "carte ratée : réponse secrète");
+  assert.strictEqual(g.vueDuel(p, 0, T0 + 7000).coup.carte.answer, jouee.reponse);
+  // Les deux touchent « Continuer » : c'est à b de poser.
+  g.messageDuel(p, 0, OP.CONTINUER, {}, T0 + 8000, alea);
+  assert.strictEqual(p.etape, "resultat");
+  g.messageDuel(p, 1, OP.CONTINUER, {}, T0 + 8100, alea);
+  assert.strictEqual(p.etape, "choisir");
+  assert.strictEqual(g.vueDuel(p, 1, T0 + 8100).poseur, "moi");
+});
+
+test("duel en ligne : délais dépassés, carte au hasard puis temps écoulé", function () {
+  const alea = aleaFixe(9);
+  const p = duelPret(alea);
+  g.ticDuel(p, T0 + 11001, alea);
+  assert.strictEqual(p.coup.type, "nouvelle_question", "personne n'a répondu au départ");
+  g.messageDuel(p, 0, OP.DEPART, { choix: p.depart.reponse }, T0 + 12000, alea);
+  g.ticDuel(p, T0 + 16500, alea);
+  assert.strictEqual(p.etape, "choisir");
+  g.ticDuel(p, T0 + 27000, alea);
+  assert.strictEqual(p.etape, "choisir", "1 s de marge pour le réseau");
+  g.ticDuel(p, T0 + 28000, alea);
+  assert.strictEqual(p.etape, "repondre");
+  assert.strictEqual(p.coup.auHasard, true);
+  g.ticDuel(p, T0 + 44500, alea);
+  assert.strictEqual(p.etape, "resultat");
+  assert.strictEqual(p.coup.tempsEcoule, true);
+  assert.strictEqual(p.coup.juste, false);
+});
+
+/** Joue jusqu'à la fin en répondant toujours juste ; renvoie les effets de la fin. */
+function jouerJusquAuBout(p, alea, t) {
+  let effets = [];
+  for (let k = 0; k < 200 && p.fin === null; k++) {
+    t += 500;
+    if (p.etape === "depart") g.messageDuel(p, 0, OP.DEPART, { choix: p.depart.reponse }, t, alea);
+    else if (p.etape === "annonce") g.ticDuel(p, t + 4000, alea);
+    else if (p.etape === "choisir") g.messageDuel(p, p.duel.poseur, OP.JOUER, { index: 0 }, t, alea);
+    else if (p.etape === "repondre") effets = g.messageDuel(p, 1 - p.duel.poseur, OP.REPONDRE, { choix: p.duel.jouee.reponse }, t, alea);
+    else if (p.etape === "resultat") { g.messageDuel(p, 0, OP.CONTINUER, {}, t, alea); g.messageDuel(p, 1, OP.CONTINUER, {}, t, alea); }
+  }
+  return effets;
+}
+
+test("duel en ligne : fin de partie, XP, revanche acceptée par les deux", function () {
+  const alea = aleaFixe(11);
+  const p = duelPret(alea);
+  const effets = jouerJusquAuBout(p, alea, T0);
+  assert.deepStrictEqual(types(effets), ["regler"]);
+  assert.strictEqual(p.fin.raison, "cartes");
+  assert.strictEqual(p.fin.xp[p.fin.gagnant], 30);
+  assert.strictEqual(p.fin.xp[1 - p.fin.gagnant], 10);
+  assert.strictEqual(p.etape, "resultat", "le dernier coup s'affiche avant la fin");
+  g.messageDuel(p, 0, OP.CONTINUER, {}, T0 + 900000, alea);
+  g.messageDuel(p, 1, OP.CONTINUER, {}, T0 + 900000, alea);
+  assert.strictEqual(p.etape, "finie");
+  assert.strictEqual(g.vueDuel(p, p.fin.gagnant, T0 + 900000).fin.gagne, true);
+  assert.strictEqual(g.vueDuel(p, 0, T0 + 900000).revanche.possible, true);
+  assert.deepStrictEqual(types(g.messageDuel(p, 0, OP.REVANCHE, { accepte: true }, T0 + 901000, alea)), []);
+  assert.deepStrictEqual(types(g.messageDuel(p, 1, OP.REVANCHE, { accepte: true }, T0 + 902000, alea)), ["revanche"]);
+});
+
+test("duel en ligne : revanche sans réponse, la partie se ferme", function () {
+  const alea = aleaFixe(13);
+  const p = duelPret(alea);
+  g.messageDuel(p, 0, OP.ABANDONNER, {}, T0 + 1000, alea);
+  assert.strictEqual(p.etape, "finie");
+  assert.deepStrictEqual(types(g.ticDuel(p, T0 + 1000 + 16001, alea)), ["terminer"]);
+});
+
+test("duel en ligne : abandon, défaite sans XP et mise perdue", function () {
+  const alea = aleaFixe(17);
+  const p = duelPret(alea);
+  assert.deepStrictEqual(types(g.messageDuel(p, 1, OP.ABANDONNER, {}, T0 + 1000, alea)), ["regler"]);
+  assert.strictEqual(p.fin.gagnant, 0);
+  assert.strictEqual(p.fin.raison, "abandon");
+  assert.deepStrictEqual(Array.from(p.fin.xp), [30, 0]);
+  assert.strictEqual(g.vueDuel(p, 1, T0 + 1000).fin.gain, -5);
+});
+
+test("duel en ligne : déconnexion, pause de 30 s puis défaite de l'absent", function () {
+  const alea = aleaFixe(19);
+  const p = duelPret(alea);
+  g.messageDuel(p, 0, OP.DEPART, { choix: p.depart.reponse }, T0 + 1000, alea);
+  g.ticDuel(p, T0 + 5500, alea);
+  assert.strictEqual(p.etape, "choisir");
+  const echeance = p.echeance;
+  g.departJoueurDuel(p, "a", T0 + 6000);
+  // Le délai est gelé : rien ne se passe pendant l'absence.
+  g.ticDuel(p, T0 + 20000, alea);
+  assert.strictEqual(p.etape, "choisir");
+  assert.strictEqual(g.vueDuel(p, 1, T0 + 20000).pause.adversaireAbsent, true);
+  assert.strictEqual(g.vueDuel(p, 1, T0 + 20000).pause.reconnexion, 16);
+  g.messageDuel(p, 1, OP.ABANDONNER, {}, T0 + 20000, alea);
+  assert.strictEqual(p.fin.gagnant, 0, "b peut abandonner pendant la pause");
+  // Autre partie : a revient à temps, le délai reprend là où il était.
+  const q = duelPret(alea);
+  g.messageDuel(q, 0, OP.DEPART, { choix: q.depart.reponse }, T0 + 1000, alea);
+  g.ticDuel(q, T0 + 5500, alea);
+  const reste = q.echeance - (T0 + 6000);
+  g.departJoueurDuel(q, "a", T0 + 6000);
+  g.arriveeDuel(q, "a", "Alpha", 1, T0 + 20000);
+  assert.strictEqual(q.echeance, T0 + 20000 + reste);
+  // a repart et ne revient pas : il perd, sans XP.
+  g.departJoueurDuel(q, "a", T0 + 21000);
+  assert.deepStrictEqual(types(g.ticDuel(q, T0 + 21000 + 30001, alea)), ["regler"]);
+  assert.strictEqual(q.fin.raison, "deconnexion");
+  assert.strictEqual(q.fin.gagnant, 1);
+  assert.deepStrictEqual(Array.from(q.fin.xp), [0, 30]);
+  assert.strictEqual(g.vueDuel(q, 1, T0 + 51002).revanche.possible, false);
+  assert.ok(echeance > 0);
+});
+
+test("duel en ligne : les deux déconnectés, partie annulée et mises rendues", function () {
+  const alea = aleaFixe(23);
+  const p = duelPret(alea);
+  g.departJoueurDuel(p, "a", T0 + 1000);
+  g.departJoueurDuel(p, "b", T0 + 2000);
+  assert.deepStrictEqual(types(g.ticDuel(p, T0 + 31002, alea)), ["rembourser", "terminer"]);
+  assert.strictEqual(p.etape, "annulee");
+});
+
+// ---------------------------------------------------------------- Duels en ligne : dans Nakama
+
+/** Faux Nakama à plusieurs joueurs, pour les parties en direct. */
+function fauxNakamaDuel(talents) {
+  const comptes = {};
+  Object.keys(talents).forEach(function (id) { comptes[id] = { talents: talents[id], xp: 0 }; });
+  const nk = {
+    comptes: comptes,
+    stock: {},
+    classement: {},
+    crees: [],
+    accountGetId: function (id) { return { user: { username: "joueur-" + id }, wallet: { talents: comptes[id].talents, xp: comptes[id].xp } }; },
+    walletsUpdate: function (maj) {
+      maj.forEach(function (m) { if (comptes[m.userId].talents + (m.changeset.talents || 0) < 0) throw new Error("portefeuille négatif"); });
+      maj.forEach(function (m) {
+        comptes[m.userId].talents += m.changeset.talents || 0;
+        comptes[m.userId].xp += m.changeset.xp || 0;
+      });
+      return [];
+    },
+    storageRead: function (demandes) {
+      return demandes.filter(function (d) { return nk.stock[d.userId + "/" + d.collection + "/" + d.key]; }).map(function (d) {
+        return nk.stock[d.userId + "/" + d.collection + "/" + d.key];
+      });
+    },
+    storageWrite: function (ecritures) {
+      ecritures.forEach(function (w) { nk.stock[w.userId + "/" + w.collection + "/" + w.key] = { value: JSON.parse(JSON.stringify(w.value)), version: "1" }; });
+    },
+    leaderboardRecordWrite: function (id, owner, nom, score) { nk.classement[owner] = score; },
+    matchCreate: function (module, params) { nk.crees.push({ module: module, params: params }); return "match-" + nk.crees.length; },
+    matchList: function () { return []; },
+    binaryToString: function (b) { return b; },
+  };
+  return nk;
+}
+
+function fauxDispatcher() {
+  const d = {
+    recus: {},
+    broadcastMessage: function (op, data, presences) {
+      presences.forEach(function (pr) { d.recus[pr.userId] = JSON.parse(data); });
+    },
+    matchLabelUpdate: function () {},
+  };
+  return d;
+}
+
+test("duel en ligne dans Nakama : mises, partie complète, gain et XP", function () {
+  const nk = fauxNakamaDuel({ a: 100, b: 100, pauvre: 3 });
+  const d = fauxDispatcher();
+  const proposee = g.apresAppariement({}, logger, nk, [
+    { presence: { userId: "a" }, properties: { difficulte: "lait" } },
+    { presence: { userId: "b" }, properties: { difficulte: "lait" } },
+  ]);
+  assert.strictEqual(proposee, "match-1");
+  assert.strictEqual(nk.crees[0].params.attendus, "a,b");
+  let p = g.duelInit({}, logger, nk, nk.crees[0].params).state;
+  assert.strictEqual(g.duelEssaiArrivee({}, logger, nk, d, 0, p, { userId: "pauvre" }, {}).accept, false);
+  p = g.duelArrivee({}, logger, nk, d, 0, p, [{ userId: "a" }]).state;
+  p = g.duelArrivee({}, logger, nk, d, 0, p, [{ userId: "b" }]).state;
+  assert.strictEqual(nk.comptes.a.talents, 95, "mise prélevée à a");
+  assert.strictEqual(nk.comptes.b.talents, 95, "mise prélevée à b");
+  assert.strictEqual(d.recus.a.etape, "depart");
+  assert.strictEqual(d.recus.b.adversaire.pseudo, "joueur-a");
+  assert.ok(nk.stock["a/parties/recentes"], "cartes récentes enregistrées");
+  // On joue en envoyant les messages comme les téléphones, toujours juste.
+  const msg = function (userId, op, data) { return { sender: { userId: userId }, opCode: op, data: JSON.stringify(data || {}) }; };
+  const id = { 0: "a", 1: "b" };
+  for (let k = 0; k < 300 && p.etape !== "finie"; k++) {
+    let m = [];
+    if (p.etape === "depart") m = [msg("a", OP.DEPART, { choix: p.depart.reponse })];
+    else if (p.etape === "annonce") p.echeance = 1;  // on saute l'annonce
+    else if (p.etape === "choisir") m = [msg(id[p.duel.poseur], OP.JOUER, { index: 0 })];
+    else if (p.etape === "repondre") m = [msg(id[1 - p.duel.poseur], OP.REPONDRE, { choix: p.duel.jouee.reponse })];
+    else if (p.etape === "resultat") m = [msg("a", OP.CONTINUER), msg("b", OP.CONTINUER)];
+    const r = g.duelBoucle({}, logger, nk, d, k, p, m);
+    assert.ok(r, "la partie reste ouverte");
+    p = r.state;
+  }
+  assert.strictEqual(p.etape, "finie");
+  const gagnant = id[p.fin.gagnant];
+  const perdant = id[1 - p.fin.gagnant];
+  assert.strictEqual(nk.comptes[gagnant].talents, 105, "le gagnant remporte les deux mises");
+  assert.strictEqual(nk.comptes[perdant].talents, 95);
+  assert.strictEqual(nk.comptes[gagnant].xp, 30);
+  assert.strictEqual(nk.comptes[perdant].xp, 10);
+  assert.strictEqual(nk.classement[gagnant], 30);
+  assert.strictEqual(d.recus[gagnant].fin.talents, 105);
+  assert.strictEqual(d.recus[gagnant].fin.gagne, true);
+  // Revanche : nouvelles mises.
+  p = g.duelBoucle({}, logger, nk, d, 400, p, [msg("a", OP.REVANCHE, { accepte: true }), msg("b", OP.REVANCHE, { accepte: true })]).state;
+  assert.strictEqual(p.etape, "depart");
+  assert.strictEqual(nk.comptes[gagnant].talents, 100);
+  assert.strictEqual(nk.comptes[perdant].talents, 90);
+  // Arrêt du serveur en pleine partie : mises rendues.
+  g.duelFin({}, logger, nk, d, 401, p, 5);
+  assert.strictEqual(nk.comptes[gagnant].talents, 105);
+});
+
+test("duel entre amis : création avec code, difficulté inconnue refusée", function () {
+  const nk = fauxNakamaDuel({ a: 100 });
+  const r = JSON.parse(g.rpcDuelAmi({ userId: "a" }, logger, nk, JSON.stringify({ action: "creer", difficulte: "manne" })));
+  assert.strictEqual(r.code.length, 6);
+  assert.strictEqual(r.mise, 20);
+  assert.strictEqual(nk.crees[0].params.createur, "a");
+  assert.strictEqual(JSON.parse(g.duelInit({}, logger, nk, nk.crees[0].params).label).ouvert, "oui");
+  refuse(function () { g.rpcDuelAmi({ userId: "a" }, logger, nk, JSON.stringify({ action: "creer", difficulte: "x" })); }, "inconnue");
+  refuse(function () { g.rpcDuelAmi({ userId: "a" }, logger, nk, JSON.stringify({ action: "voir", code: "ABC234" })); }, "Aucune partie");
 });
 
 console.log("\n" + ok + " tests serveur réussis");

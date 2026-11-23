@@ -300,8 +300,7 @@ func _build_cards() -> void:
 	bt.tween_property(_adventure, "scale", Vector2.ONE, 1.9).set_trans(Tween.TRANS_SINE)
 
 	_card(TWO, 26, _go.bind("res://scenes/local_setup.tscn"))
-	var online := _card(ONLINE, 26, func(): _toast("Les parties en ligne arrivent bientôt."))
-	_soon(online, ONLINE, ONLINE_BUTTON, Color("eef3e2"))
+	_card(ONLINE, 26, _go.bind("res://scenes/duel_lobby.tscn"))
 	var rooms := _card(ROOMS, 26, func(): _toast("Les salons arrivent bientôt."))
 	_soon(rooms, ROOMS, ROOMS_BUTTON, Color("f6e4fb"))
 

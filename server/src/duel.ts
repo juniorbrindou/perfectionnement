@@ -2,8 +2,12 @@
 // L'état est un objet JSON simple, rangé dans le stockage Nakama entre deux appels.
 // Les scénarios communs tests/scenarios/*.json vérifient que les deux versions concordent.
 
-interface CarteSource { id: string; difficulty: string; books: string[]; answer: string; wrongs: string[]; }
-interface QuestionDepartSource { id: string; answer: string; wrongs: string[]; }
+interface CarteSource {
+  id: string; difficulty: string; books: string[]; answer: string; wrongs: string[];
+  // Textes envoyés au client (la réserve en ligne n'est pas dans l'APK) ; absents des scénarios de test.
+  testament?: string; category?: string; question?: string; reference?: string; explanation?: string; story?: string;
+}
+interface QuestionDepartSource { id: string; question?: string; answer: string; wrongs: string[]; }
 interface NiveauSource { id: number; nom: string; }
 interface ChapitreSource { nom: string; resume: string; livres: string[]; niveaux: NiveauSource[]; }
 interface AventureSource { chapitres: ChapitreSource[]; }

@@ -2,7 +2,7 @@
 // le serveur tire les cartes, fait jouer l'IA, tient les délais et règle la mise.
 //
 // RPC « arcade », charge utile { action, ... } :
-//   etat                          → progression (étoiles par niveau) et talents
+//   etat                          → progression (étoiles par niveau), talents, contenu des niveaux
 //   commencer { niveau, difficulte } → prélève la mise, distribue, pose la question de départ
 //   depart { choix }              → règle la question de départ ("" = temps écoulé)
 //   suite                         → coup suivant : l'IA pose sa carte, ou c'est au joueur de choisir
@@ -13,6 +13,7 @@
 // du duel, l'IA l'indice 1.
 
 const COLLECTION_ARCADE = "arcade";
+const COLLECTION_PARTIES = "parties";  // cartes des dernières parties, communes à l'arcade et aux duels
 const CLE_PARTIE = "partie";
 const CLE_RECENTES = "recentes";
 const CLE_AVENTURE = "aventure";
@@ -65,15 +66,71 @@ function niveauOuvert(p: ProgressionAventure, niveau: number): boolean {
   return !!avant && avant.length > 0;
 }
 
+function cartesDuChapitre(niveau: number, difficulte: string): CarteSource[] | null {
+  const ch = chapitreDuNiveau(niveau);
+  if (ch === null) return null;
+  const duChapitre = CARTES.filter(function (c) {
+    return c.difficulty === difficulte && c.books.some(function (b) { return ch.livres.indexOf(b) >= 0; });
+  });
+  return duChapitre.length >= TAILLE_MAIN * 2 ? duChapitre : null;
+}
+
 /** Cartes du niveau : les livres du chapitre, ou toute la Bible si elles ne suffisent pas encore. */
 function reserveDuNiveau(niveau: number, difficulte: string): CarteSource[] {
-  const ch = chapitreDuNiveau(niveau);
-  const toutes = CARTES.filter(function (c) { return c.difficulty === difficulte; });
-  if (ch === null) return toutes;
-  const duChapitre = toutes.filter(function (c) {
-    return c.books.some(function (b) { return ch.livres.indexOf(b) >= 0; });
+  const duChapitre = cartesDuChapitre(niveau, difficulte);
+  return duChapitre !== null ? duChapitre : CARTES.filter(function (c) { return c.difficulty === difficulte; });
+}
+
+/** Pour chaque niveau et difficulté : vrai si les livres du chapitre suffisent (sinon toute la Bible). */
+function contenuDesNiveaux(): { [niveau: string]: { [difficulte: string]: boolean } } {
+  const r: { [niveau: string]: { [difficulte: string]: boolean } } = {};
+  AVENTURE.chapitres.forEach(function (ch) {
+    ch.niveaux.forEach(function (n) {
+      const parDifficulte: { [difficulte: string]: boolean } = {};
+      DIFFICULTES.forEach(function (d) {
+        parDifficulte[d] = cartesDuChapitre(n.id, d) !== null;
+      });
+      r[String(n.id)] = parDifficulte;
+    });
   });
-  return duChapitre.length >= TAILLE_MAIN * 2 ? duChapitre : toutes;
+  return r;
+}
+
+// La réserve en ligne n'est pas dans l'APK : le serveur envoie le texte des cartes. Le client ne
+// reçoit la réponse que pour ses propres cartes, ou pour une carte de l'IA qu'il vient de trouver.
+
+function carteSource(id: string): CarteSource | null {
+  for (let i = 0; i < CARTES.length; i++) {
+    if (CARTES[i].id === id) return CARTES[i];
+  }
+  return null;
+}
+
+/** Carte entière, réponse comprise (même format que data/cartes.json). */
+function carteComplete(id: string): any {
+  const c = carteSource(id);
+  if (c === null) return { id: id };
+  return {
+    id: c.id, difficulty: c.difficulty, testament: c.testament, books: c.books, category: c.category,
+    question: c.question, answer: c.answer, wrongs: c.wrongs, reference: c.reference,
+    explanation: c.explanation, story: c.story,
+  };
+}
+
+/** Carte à deviner : la question et ses propositions, sans identifiant ni réponse. */
+function carteADeviner(id: string, presentees: string[]): any {
+  const c = carteSource(id);
+  return {
+    difficulty: c ? c.difficulty : "", category: c ? c.category : "", question: c ? c.question : "",
+    story: c ? c.story : "", propositions: presentees.slice(),
+  };
+}
+
+function questionDepart(id: string): string {
+  for (let i = 0; i < QUESTIONS_DEPART.length; i++) {
+    if (QUESTIONS_DEPART[i].id === id) return QUESTIONS_DEPART[i].question || "";
+  }
+  return "";
 }
 
 /** Ajoute l'étoile de la difficulté gagnée ; renvoie vrai si elle est nouvelle. */
@@ -190,7 +247,7 @@ function jouerArcade(partie: PartieArcade, index: number, maintenant: number, al
   const r = repondre(duel, choixIA);
   partie.etape = duel.phase === "finie" ? "finie" : "suite";
   partie.echeance = 0;
-  return { coup: { index: index, auHasard: auHasard, carte: r.carte, presentees: presentees, choix: choixIA, juste: r.juste } };
+  return { coup: { index: index, auHasard: auHasard, carte: carteComplete(r.carte), presentees: presentees, choix: choixIA, juste: r.juste } };
 }
 
 /** Le joueur répond à la carte de l'IA ("" ou délai dépassé : temps écoulé). */
@@ -203,7 +260,8 @@ function repondreArcade(partie: PartieArcade, choix: string, maintenant: number,
   const r = tempsEcoule ? repondreTempsEcoule(duel, alea) : repondre(duel, choix);
   partie.etape = duel.phase === "finie" ? "finie" : "suite";
   partie.echeance = 0;
-  return { coup: { carte: r.carte, choix: tempsEcoule ? "" : choix, juste: r.juste, tempsEcoule: tempsEcoule } };
+  // La réponse d'une carte ratée reste secrète (PRD §2.5).
+  return { coup: { carte: r.juste ? carteComplete(r.carte) : null, choix: tempsEcoule ? "" : choix, juste: r.juste, tempsEcoule: tempsEcoule } };
 }
 
 function abandonnerArcade(partie: PartieArcade): void {
@@ -224,11 +282,12 @@ function vueArcade(partie: PartieArcade, maintenant: number): any {
     mise: partie.mise,
     poseur: duel.poseur,
     gagnant: duel.gagnant,
-    main: duel.mains[0].map(function (c) { return { id: c.id, fausses: c.montrees.slice(), reserve: c.reserve.length }; }),
+    main: duel.mains[0].map(function (c) { return { carte: carteComplete(c.id), fausses: c.montrees.slice(), reserve: c.reserve.length }; }),
     mainIA: duel.mains[1].length,
-    carte: partie.etape === "repondre" && duel.jouee ? { id: duel.jouee.id, propositions: duel.presentees.slice() } : null,
-    depart: partie.etape === "depart" && partie.depart ? { id: partie.depart.id, propositions: partie.depart.propositions.slice() } : null,
-    detruites: [duel.detruites[0].slice(), duel.detruites[1].slice()],
+    carte: partie.etape === "repondre" && duel.jouee ? carteADeviner(duel.jouee.id, duel.presentees) : null,
+    depart: partie.etape === "depart" && partie.depart ? { question: questionDepart(partie.depart.id), propositions: partie.depart.propositions.slice() } : null,
+    // Cartes détruites : toutes trouvées, donc révélées aux deux joueurs.
+    detruites: [duel.detruites[0].map(carteComplete), duel.detruites[1].map(carteComplete)],
     temps: restant,
   };
 }
@@ -242,6 +301,23 @@ function lireStockage(nk: nkruntime.Nakama, userId: string, collection: string, 
 
 function ecriture(userId: string, collection: string, cle: string, valeur: any, version: string, lecture: nkruntime.ReadPermissionValues): nkruntime.StorageWriteRequest {
   return { collection: collection, key: cle, userId: userId, value: valeur, version: version, permissionRead: lecture, permissionWrite: 0 };
+}
+
+/** Cartes des dernières parties (tous modes en ligne), à éviter au tirage (PRD §2.1). */
+function cartesRecentes(valeurs: any[]): { [id: string]: boolean } {
+  const recentes: { [id: string]: boolean } = {};
+  valeurs.forEach(function (v) {
+    const parties: string[][] = (v && v.parties) || [];
+    parties.forEach(function (ids) { ids.forEach(function (id) { recentes[id] = true; }); });
+  });
+  return recentes;
+}
+
+/** Ajoute les cartes d'une partie qui commence aux 5 dernières parties du joueur. */
+function ecritureRecentes(userId: string, lue: { valeur: any; version: string }, duel: EtatDuel): nkruntime.StorageWriteRequest {
+  const parties: string[][] = (lue.valeur && lue.valeur.parties) || [];
+  const ids = duel.mains[0].concat(duel.mains[1]).map(function (c) { return c.id; });
+  return ecriture(userId, COLLECTION_PARTIES, CLE_RECENTES, { parties: [ids].concat(parties).slice(0, PARTIES_RECENTES) }, lue.version, 0);
 }
 
 function talentsDe(nk: nkruntime.Nakama, userId: string): number {
@@ -279,7 +355,12 @@ const rpcArcade: nkruntime.RpcFunction = function (ctx, logger, nk, payload) {
 
   if (action === "etat") {
     const lue = lireStockage(nk, userId, COLLECTION_ARCADE, CLE_PARTIE);
-    return JSON.stringify({ talents: talentsDe(nk, userId), etoiles: progressionDe(nk, userId).valeur.etoiles, enCours: !!lue.valeur && lue.valeur.etape !== "finie" });
+    return JSON.stringify({
+      talents: talentsDe(nk, userId),
+      etoiles: progressionDe(nk, userId).valeur.etoiles,
+      enCours: !!lue.valeur && lue.valeur.etape !== "finie",
+      duChapitre: contenuDesNiveaux(),
+    });
   }
 
   if (action === "commencer") {
@@ -291,17 +372,13 @@ const rpcArcade: nkruntime.RpcFunction = function (ctx, logger, nk, payload) {
     if (!niveauOuvert(progressionDe(nk, userId).valeur, niveau)) throw refus("Ce niveau n'est pas encore ouvert.");
     const somme = mise("arcade", difficulte);
     if (((compte.wallet && compte.wallet["talents"]) || 0) < somme) throw refus("Pas assez de talents pour cette difficulté.");
-    const rec = lireStockage(nk, userId, COLLECTION_ARCADE, CLE_RECENTES);
-    const parties: string[][] = (rec.valeur && rec.valeur.parties) || [];
-    const recentes: { [id: string]: boolean } = {};
-    parties.forEach(function (ids) { ids.forEach(function (id) { recentes[id] = true; }); });
-    const partie = nouvellePartie(niveau, difficulte, recentes, maintenant, alea);
-    const ids = partie.duel.mains[0].concat(partie.duel.mains[1]).map(function (c) { return c.id; });
+    const rec = lireStockage(nk, userId, COLLECTION_PARTIES, CLE_RECENTES);
+    const partie = nouvellePartie(niveau, difficulte, cartesRecentes([rec.valeur]), maintenant, alea);
     const precedente = lireStockage(nk, userId, COLLECTION_ARCADE, CLE_PARTIE);
     // Une partie laissée en cours est perdue : sa mise a déjà été prélevée.
     nk.multiUpdate(null, [
       ecriture(userId, COLLECTION_ARCADE, CLE_PARTIE, partie, precedente.version, 0),
-      ecriture(userId, COLLECTION_ARCADE, CLE_RECENTES, { parties: [ids].concat(parties).slice(0, PARTIES_RECENTES) }, rec.version, 0),
+      ecritureRecentes(userId, rec, partie.duel),
     ], null, [{ userId: userId, changeset: { talents: -somme }, metadata: { raison: "mise_arcade", niveau: niveau, difficulte: difficulte } }], true);
     return JSON.stringify({ vue: vueArcade(partie, maintenant), talents: talentsDe(nk, userId) });
   }

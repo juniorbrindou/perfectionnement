@@ -20,6 +20,7 @@ const GRASS := Color("5fb36a")
 
 var _chapter: Dictionary = {}
 var _stars: Dictionary = {}  ## "niveau" → difficultés gagnées
+var _by_chapter: Dictionary = {}  ## "niveau" → difficulté → les livres du chapitre suffisent
 var _loaded := false
 var _map: MapArt
 var _nodes: Array = []
@@ -128,6 +129,7 @@ func _load_progress() -> void:
 		_toast(r["erreur"])
 		return
 	_stars = r.get("etoiles", {})
+	_by_chapter = r.get("duChapitre", {})
 	_loaded = true
 	_refresh()
 	if Session.arcade_open_level > 0:
@@ -325,10 +327,8 @@ func _build_sheet() -> void:
 func _content_text() -> String:
 	var books: Array[String] = []
 	books.assign(_chapter.get("livres", []))
-	var pool := Session.bank.cards_by_id.values().filter(func(c: CardData):
-		return c.difficulty == _sheet_choice and c.books.any(func(b): return b in books))
-	# Même règle que le serveur : toute la Bible tant que le chapitre n'a pas assez de cartes.
-	if pool.size() >= Duel.HAND_SIZE * 2:
+	# Le serveur dit si le chapitre a assez de cartes ; sinon, il tire dans toute la Bible.
+	if _by_chapter.get(str(_sheet_level), {}).get(_sheet_choice, false):
 		return "Questions sur %s" % ", ".join(books)
 	return "Questions sur toute la Bible"
 

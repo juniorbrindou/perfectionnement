@@ -1,0 +1,662 @@
+[
+  {
+    "id": "L-AT-001",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Qui a construit l'arche pour échapper au déluge ?",
+    "answer": "Noé",
+    "wrongs": [
+      "Abraham",
+      "Moïse",
+      "Jonas",
+      "Élie",
+      "Josué"
+    ],
+    "reference": "Genèse 6:13-14",
+    "explanation": "Dieu ordonne à Noé de construire une arche en bois de gopher pour sauver sa famille et les animaux.",
+    "story": "deluge",
+    "status": "brouillon"
+  },
+  {
+    "id": "L-AT-002",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Quel jour Dieu s'est-il reposé après la création ?",
+    "answer": "Le septième jour",
+    "wrongs": [
+      "Le premier jour",
+      "Le troisième jour",
+      "Le sixième jour",
+      "Le dixième jour",
+      "Le quarantième jour"
+    ],
+    "reference": "Genèse 2:2-3",
+    "explanation": "Dieu se reposa au septième jour, le bénit et le sanctifia.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "L-AT-007",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Comment s'appelait le premier homme créé par Dieu ?",
+    "answer": "Adam",
+    "wrongs": [
+      "Abel",
+      "Caïn",
+      "Seth",
+      "Noé",
+      "Hénoc"
+    ],
+    "reference": "Genèse 2:7 ; 5:1",
+    "explanation": "Dieu forme l'homme de la poussière de la terre et souffle dans ses narines un souffle de vie.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "L-AT-009",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Comment s'appelait la femme d'Abraham, mère d'Isaac ?",
+    "answer": "Sara",
+    "wrongs": [
+      "Rebecca",
+      "Rachel",
+      "Léa",
+      "Ruth",
+      "Débora"
+    ],
+    "reference": "Genèse 17:15-19",
+    "explanation": "Dieu change le nom de Saraï en Sara et lui promet un fils, Isaac.",
+    "story": "abraham_sara",
+    "status": "brouillon"
+  },
+  {
+    "id": "L-AT-010",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Combien de fils Jacob avait-il ?",
+    "answer": "Douze",
+    "wrongs": [
+      "Sept",
+      "Dix",
+      "Trois",
+      "Quarante",
+      "Cinq"
+    ],
+    "reference": "Genèse 35:22-26",
+    "explanation": "Les douze fils de Jacob donneront leur nom aux tribus d'Israël.",
+    "story": "fils_jacob",
+    "status": "brouillon"
+  },
+  {
+    "id": "L-NT-002",
+    "difficulty": "lait",
+    "testament": "NT",
+    "books": [
+      "Matthieu"
+    ],
+    "category": "lieux_evenements",
+    "question": "Dans quelle ville Jésus est-il né ?",
+    "answer": "Bethléhem",
+    "wrongs": [
+      "Nazareth",
+      "Jérusalem",
+      "Capernaüm",
+      "Jéricho",
+      "Béthanie"
+    ],
+    "reference": "Matthieu 2:1",
+    "explanation": "Jésus naît à Bethléhem en Judée, au temps du roi Hérode.",
+    "story": "nativite",
+    "status": "brouillon"
+  },
+  {
+    "id": "L-NT-004",
+    "difficulty": "lait",
+    "testament": "NT",
+    "books": [
+      "Luc"
+    ],
+    "category": "personnages",
+    "question": "Combien d'apôtres Jésus a-t-il choisis ?",
+    "answer": "Douze",
+    "wrongs": [
+      "Sept",
+      "Dix",
+      "Trois",
+      "Soixante-dix",
+      "Cinq"
+    ],
+    "reference": "Luc 6:13",
+    "explanation": "Après une nuit de prière, Jésus choisit douze disciples qu'il nomme apôtres.",
+    "story": "choix_apotres",
+    "status": "brouillon"
+  },
+  {
+    "id": "L-NT-006",
+    "difficulty": "lait",
+    "testament": "NT",
+    "books": [
+      "Jean"
+    ],
+    "category": "miracles",
+    "question": "En quoi Jésus a-t-il changé l'eau aux noces de Cana ?",
+    "answer": "En vin",
+    "wrongs": [
+      "En lait",
+      "En huile",
+      "En miel",
+      "En sang",
+      "En vinaigre"
+    ],
+    "reference": "Jean 2:1-11",
+    "explanation": "C'est le premier des miracles de Jésus selon l'Évangile de Jean.",
+    "story": "noces_cana",
+    "status": "brouillon"
+  },
+  {
+    "id": "L-NT-008",
+    "difficulty": "lait",
+    "testament": "NT",
+    "books": [
+      "Matthieu"
+    ],
+    "category": "miracles",
+    "question": "Avec combien de pains Jésus a-t-il nourri environ cinq mille hommes ?",
+    "answer": "Cinq",
+    "wrongs": [
+      "Deux",
+      "Sept",
+      "Douze",
+      "Trois",
+      "Dix"
+    ],
+    "reference": "Matthieu 14:17-21",
+    "explanation": "Cinq pains et deux poissons suffisent ; on ramasse douze paniers pleins de restes.",
+    "story": "multiplication_pains",
+    "status": "brouillon"
+  },
+  {
+    "id": "L-NT-010",
+    "difficulty": "lait",
+    "testament": "NT",
+    "books": [
+      "Luc"
+    ],
+    "category": "paraboles",
+    "question": "Dans la parabole, qui prend soin de l'homme blessé sur la route de Jéricho ?",
+    "answer": "Un Samaritain",
+    "wrongs": [
+      "Un sacrificateur",
+      "Un Lévite",
+      "Un pharisien",
+      "Un soldat romain",
+      "Un publicain"
+    ],
+    "reference": "Luc 10:30-37",
+    "explanation": "Le sacrificateur et le Lévite passent outre ; le Samaritain, ému de compassion, le soigne.",
+    "story": "bon_samaritain",
+    "status": "brouillon"
+  },
+  {
+    "id": "M-AT-002",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Qui fut vendu par ses frères à des marchands qui allaient en Égypte ?",
+    "answer": "Joseph",
+    "wrongs": [
+      "Benjamin",
+      "Ruben",
+      "Juda",
+      "Isaac",
+      "Ésaü"
+    ],
+    "reference": "Genèse 37:28",
+    "explanation": "Ses frères le vendent vingt sicles d'argent aux Ismaélites.",
+    "story": "joseph_vendu",
+    "status": "brouillon"
+  },
+  {
+    "id": "M-AT-004",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Josué"
+    ],
+    "category": "miracles",
+    "question": "Quelle ville vit ses murailles s'écrouler après que le peuple en eut fait le tour ?",
+    "answer": "Jéricho",
+    "wrongs": [
+      "Aï",
+      "Jérusalem",
+      "Babylone",
+      "Ninive",
+      "Gath"
+    ],
+    "reference": "Josué 6:20",
+    "explanation": "Au septième jour, au son des trompettes et du grand cri, la muraille s'écroule.",
+    "story": "jericho",
+    "status": "brouillon"
+  },
+  {
+    "id": "M-AT-006",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "2 Rois"
+    ],
+    "category": "miracles",
+    "question": "Quel prophète monta au ciel dans un tourbillon ?",
+    "answer": "Élie",
+    "wrongs": [
+      "Élisée",
+      "Samuel",
+      "Ésaïe",
+      "Jérémie",
+      "Amos"
+    ],
+    "reference": "2 Rois 2:11",
+    "explanation": "Un char de feu sépare Élie et Élisée, et Élie monte au ciel dans un tourbillon.",
+    "story": "elie_enleve",
+    "status": "brouillon"
+  },
+  {
+    "id": "M-AT-008",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Juges"
+    ],
+    "category": "personnages",
+    "question": "Quel était le vrai secret de la force de Samson, révélé à Delila ?",
+    "answer": "Le rasoir n'avait jamais passé sur sa tête",
+    "wrongs": [
+      "Il portait une ceinture sacrée",
+      "Il mangeait du miel chaque jour",
+      "Il avait un anneau d'or",
+      "Il dormait sur une peau de lion",
+      "Il priait sept fois par jour"
+    ],
+    "reference": "Juges 16:17",
+    "explanation": "Samson est consacré à Dieu dès le sein de sa mère ; rasé, sa force l'abandonnerait.",
+    "story": "samson_delila",
+    "status": "brouillon"
+  },
+  {
+    "id": "M-AT-010",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "1 Samuel"
+    ],
+    "category": "personnages",
+    "question": "Quel enfant l'Éternel appela-t-il la nuit, pendant qu'il dormait dans le temple ?",
+    "answer": "Samuel",
+    "wrongs": [
+      "Élie",
+      "Élisée",
+      "Jérémie",
+      "Nathan",
+      "Jonas"
+    ],
+    "reference": "1 Samuel 3:4-10",
+    "explanation": "« Parle, car ton serviteur écoute. »",
+    "story": "appel_samuel",
+    "status": "brouillon"
+  },
+  {
+    "id": "M-NT-002",
+    "difficulty": "manne",
+    "testament": "NT",
+    "books": [
+      "Luc"
+    ],
+    "category": "personnages",
+    "question": "Quel homme de petite taille monta sur un sycomore pour voir Jésus ?",
+    "answer": "Zachée",
+    "wrongs": [
+      "Nicodème",
+      "Bartimée",
+      "Lazare",
+      "Jaïrus",
+      "Corneille"
+    ],
+    "reference": "Luc 19:2-4",
+    "explanation": "Zachée, chef des publicains, reçoit Jésus chez lui avec joie.",
+    "story": "zachee",
+    "status": "brouillon"
+  },
+  {
+    "id": "M-NT-004",
+    "difficulty": "manne",
+    "testament": "NT",
+    "books": [
+      "Jean"
+    ],
+    "category": "miracles",
+    "question": "Qui Jésus ressuscita-t-il après quatre jours passés dans le tombeau ?",
+    "answer": "Lazare",
+    "wrongs": [
+      "Jaïrus",
+      "Zachée",
+      "Bartimée",
+      "Nicodème",
+      "Étienne"
+    ],
+    "reference": "Jean 11:17 ; 11:43-44",
+    "explanation": "« Lazare, sors ! » Et le mort sort, les pieds et les mains liés de bandes.",
+    "story": "lazare",
+    "status": "brouillon"
+  },
+  {
+    "id": "M-NT-006",
+    "difficulty": "manne",
+    "testament": "NT",
+    "books": [
+      "Luc"
+    ],
+    "category": "miracles",
+    "question": "Combien de lépreux Jésus guérit-il, dont un seul revint lui rendre grâces ?",
+    "answer": "Dix",
+    "wrongs": [
+      "Deux",
+      "Cinq",
+      "Sept",
+      "Douze",
+      "Trois"
+    ],
+    "reference": "Luc 17:12-17",
+    "explanation": "Seul un Samaritain revient glorifier Dieu.",
+    "story": "dix_lepreux",
+    "status": "brouillon"
+  },
+  {
+    "id": "M-NT-008",
+    "difficulty": "manne",
+    "testament": "NT",
+    "books": [
+      "Matthieu"
+    ],
+    "category": "lieux_evenements",
+    "question": "Que fit Jésus en trouvant des vendeurs et des acheteurs dans le temple ?",
+    "answer": "Il les chassa",
+    "wrongs": [
+      "Il leur acheta des colombes",
+      "Il bénit leurs marchandises",
+      "Il s'assit pour enseigner parmi eux",
+      "Il les ignora",
+      "Il leur réclama l'impôt"
+    ],
+    "reference": "Matthieu 21:12-13",
+    "explanation": "« Ma maison sera appelée une maison de prière. »",
+    "story": "marchands_temple",
+    "status": "brouillon"
+  },
+  {
+    "id": "M-NT-010",
+    "difficulty": "manne",
+    "testament": "NT",
+    "books": [
+      "Matthieu"
+    ],
+    "category": "paraboles",
+    "question": "Quelle parabole compare la parole de Dieu à une semence tombée dans différents terrains ?",
+    "answer": "La parabole du semeur",
+    "wrongs": [
+      "La parabole du grain de sénevé",
+      "La parabole de l'ivraie",
+      "La parabole des talents",
+      "La parabole des dix vierges",
+      "La parabole de la brebis perdue"
+    ],
+    "reference": "Matthieu 13:3-9 ; 13:18-23",
+    "explanation": "Le chemin, les endroits pierreux, les épines et la bonne terre.",
+    "story": "semeur",
+    "status": "brouillon"
+  },
+  {
+    "id": "S-AT-001",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel âge avait Metuschélah (Mathusalem) à sa mort ?",
+    "answer": "969 ans",
+    "wrongs": [
+      "930 ans",
+      "950 ans",
+      "912 ans",
+      "777 ans",
+      "365 ans"
+    ],
+    "reference": "Genèse 5:27",
+    "explanation": "C'est la plus longue vie mentionnée dans la Bible.",
+    "story": "genealogie_adam",
+    "status": "brouillon"
+  },
+  {
+    "id": "S-AT-003",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Daniel"
+    ],
+    "category": "lieux_evenements",
+    "question": "Quel roi vit une main écrire sur la muraille pendant un festin ?",
+    "answer": "Belschatsar",
+    "wrongs": [
+      "Nebucadnetsar",
+      "Darius",
+      "Cyrus",
+      "Assuérus",
+      "Évil-Merodac"
+    ],
+    "reference": "Daniel 5:1-5",
+    "explanation": "Daniel interprète : « Compté, compté, pesé, et divisé. »",
+    "story": "festin_belschatsar",
+    "status": "brouillon"
+  },
+  {
+    "id": "S-AT-005",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Osée"
+    ],
+    "category": "personnages",
+    "question": "Quel prophète épousa Gomer sur l'ordre de l'Éternel ?",
+    "answer": "Osée",
+    "wrongs": [
+      "Amos",
+      "Michée",
+      "Joël",
+      "Ézéchiel",
+      "Jérémie"
+    ],
+    "reference": "Osée 1:2-3",
+    "explanation": "Ce mariage illustre la fidélité de Dieu envers un peuple infidèle.",
+    "story": "osee_gomer",
+    "status": "brouillon"
+  },
+  {
+    "id": "S-AT-007",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "2 Rois"
+    ],
+    "category": "miracles",
+    "question": "Combien d'années de vie l'Éternel ajouta-t-il au roi Ézéchias malade ?",
+    "answer": "Quinze ans",
+    "wrongs": [
+      "Dix ans",
+      "Sept ans",
+      "Quarante ans",
+      "Trois ans",
+      "Douze ans"
+    ],
+    "reference": "2 Rois 20:6",
+    "explanation": "En signe, l'ombre recule de dix degrés.",
+    "story": "ezechias",
+    "status": "brouillon"
+  },
+  {
+    "id": "S-AT-009",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Ézéchiel"
+    ],
+    "category": "miracles",
+    "question": "Quel prophète vit une vallée d'ossements desséchés reprendre vie ?",
+    "answer": "Ézéchiel",
+    "wrongs": [
+      "Ésaïe",
+      "Jérémie",
+      "Daniel",
+      "Zacharie",
+      "Élie"
+    ],
+    "reference": "Ézéchiel 37:1-10",
+    "explanation": "« Ossements desséchés, écoutez la parole de l'Éternel ! »",
+    "story": "ossements",
+    "status": "brouillon"
+  },
+  {
+    "id": "S-NT-002",
+    "difficulty": "solide",
+    "testament": "NT",
+    "books": [
+      "Actes"
+    ],
+    "category": "lieux_evenements",
+    "question": "Sur quelle île l'apôtre Paul fit-il naufrage ?",
+    "answer": "Malte",
+    "wrongs": [
+      "Chypre",
+      "Crète",
+      "Patmos",
+      "Rhodes",
+      "Sicile"
+    ],
+    "reference": "Actes 28:1",
+    "explanation": "Les habitants de l'île accueillent les naufragés avec bienveillance.",
+    "story": "naufrage_paul",
+    "status": "brouillon"
+  },
+  {
+    "id": "S-NT-004",
+    "difficulty": "solide",
+    "testament": "NT",
+    "books": [
+      "Jean"
+    ],
+    "category": "personnages",
+    "question": "Comment s'appelait le serviteur du souverain sacrificateur à qui Pierre coupa l'oreille ?",
+    "answer": "Malchus",
+    "wrongs": [
+      "Barabbas",
+      "Caïphe",
+      "Anne",
+      "Alexandre",
+      "Rufus"
+    ],
+    "reference": "Jean 18:10",
+    "explanation": "Pierre tire son épée lors de l'arrestation de Jésus.",
+    "story": "arrestation_jesus",
+    "status": "brouillon"
+  },
+  {
+    "id": "S-NT-006",
+    "difficulty": "solide",
+    "testament": "NT",
+    "books": [
+      "Actes"
+    ],
+    "category": "personnages",
+    "question": "Qui fut désigné par le sort pour remplacer Judas parmi les apôtres ?",
+    "answer": "Matthias",
+    "wrongs": [
+      "Barsabas",
+      "Paul",
+      "Barnabas",
+      "Silas",
+      "Timothée"
+    ],
+    "reference": "Actes 1:23-26",
+    "explanation": "Deux candidats sont présentés : Joseph appelé Barsabas, et Matthias.",
+    "story": "matthias",
+    "status": "brouillon"
+  },
+  {
+    "id": "S-NT-008",
+    "difficulty": "solide",
+    "testament": "NT",
+    "books": [
+      "Actes"
+    ],
+    "category": "personnages",
+    "question": "Chez quel centenier de Césarée Pierre fut-il envoyé après sa vision ?",
+    "answer": "Corneille",
+    "wrongs": [
+      "Julius",
+      "Lysias",
+      "Félix",
+      "Festus",
+      "Agrippa"
+    ],
+    "reference": "Actes 10:1-24",
+    "explanation": "Pierre comprend que Dieu ne fait point acception de personnes.",
+    "story": "corneille",
+    "status": "brouillon"
+  },
+  {
+    "id": "S-NT-010",
+    "difficulty": "solide",
+    "testament": "NT",
+    "books": [
+      "Actes"
+    ],
+    "category": "lieux_evenements",
+    "question": "Combien de personnes se trouvaient sur le navire de Paul lors du naufrage ?",
+    "answer": "Deux cent soixante-seize",
+    "wrongs": [
+      "Soixante-dix",
+      "Cent vingt",
+      "Trois cents",
+      "Cent cinquante-trois",
+      "Cinq cents"
+    ],
+    "reference": "Actes 27:37",
+    "explanation": "Toutes ces personnes parviennent saines et sauves à terre.",
+    "story": "naufrage_paul",
+    "status": "brouillon"
+  }
+]
