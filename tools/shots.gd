@@ -43,6 +43,14 @@ func _run() -> void:
 	await _shot("01c_creer_compte")
 	current_scene._show(2)
 	await _shot("01d_retrouver_compte")
+	change_scene_to_file("res://scenes/leaderboard.tscn")
+	await _shot("01e_classement_hors_ligne")
+	var names := ["Shalom", "Myriam_7", "Daniel_88", "Ruth", "Elie_03", "Abigaïl", "Jonas_tk", "Priscille", "Barnabé", "Lydie", "Timothée", "Silas"]
+	var top := []
+	for i in names.size():
+		top.append({"place": i + 1, "name": names[i], "xp": 3120 - i * 230, "me": false})
+	current_scene.show_data({"top": top, "me": {"place": 57, "name": "Toi", "xp": 340, "me": true}})
+	await _shot("01f_classement")
 	change_scene_to_file("res://scenes/local_setup.tscn")
 	await _shot("02_configuration")
 

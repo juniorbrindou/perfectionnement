@@ -39,7 +39,7 @@ const NAV_TOP := 1526.0  ## Barre d'onglets de l'image, de NAV_TOP à ART_H.
 ## Onglets de la barre du bas (abscisses dans l'image).
 const NAV_TABS := [
 	[30.0, 200.0, ""],
-	[210.0, 390.0, "Le classement arrive bientôt."],
+	[210.0, 390.0, "classement"],
 	[395.0, 580.0, "Les récompenses arrivent bientôt."],
 	[585.0, 760.0, "Les règles du jeu arrivent bientôt."],
 	[765.0, 915.0, "profil"],
@@ -160,7 +160,13 @@ func _build_nav(y: float) -> void:
 			b.add_theme_stylebox_override(state, StyleBoxEmpty.new())
 		b.position = Vector2(tab[0] * _s, y)
 		b.size = Vector2((tab[1] - tab[0]) * _s, (ART_H - NAV_TOP) * _s)
-		b.pressed.connect(_open_profile if message == "profil" else _toast.bind(message))
+		match message:
+			"profil":
+				b.pressed.connect(_open_profile)
+			"classement":
+				b.pressed.connect(func(): get_tree().change_scene_to_file("res://scenes/leaderboard.tscn"))
+			_:
+				b.pressed.connect(_toast.bind(message))
 		add_child(b)
 
 

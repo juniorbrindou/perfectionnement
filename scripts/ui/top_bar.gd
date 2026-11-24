@@ -31,6 +31,7 @@ var _initial: Label
 var _level: Label
 var _xp_fill: Panel
 var _talents: Label
+var _rank_s: Control  ## Badge du Rang S, à droite du niveau.
 
 
 ## Pose la barre sur un écran : ses bulles s'affichent sur l'écran, et elle passe au premier
@@ -68,6 +69,8 @@ func refresh() -> void:
 	_talents.text = str(Online.talents()) if online else "–"
 	var p := Progression.from_xp(Online.xp() if online else 0)
 	_level.text = "Niveau %d" % p["level"]
+	_rank_s.visible = online and Progression.has_rank_s(Online.rank_place)
+	_rank_s.position.x = _level.position.x + _level.get_combined_minimum_size().x + 6 * _s
 	var ratio := float(p["in_level"]) / float(p["to_next"])
 	_xp_fill.visible = ratio > 0.0
 	# Un minimum visible, pour que la barre ne paraisse pas cassée à 1 XP.
@@ -91,6 +94,10 @@ func _build() -> void:
 	_put(crown, Rect2(198, 86, 36, 32))
 	_level = _text(27, Color("f6c24a"))
 	_put(_level, Rect2(242, 84, 200, 36))
+	_rank_s = Glass.s_badge(14)
+	_rank_s.size = _rank_s.custom_minimum_size
+	_rank_s.position.y = _level.position.y + (_level.size.y - _rank_s.size.y) / 2
+	add_child(_rank_s)
 	var bar := _patch(Color(1, 1, 1, 0.14), 4)
 	_put(bar, XP_BAR)
 	_xp_fill = _patch(Color("f6b93b"), 4)

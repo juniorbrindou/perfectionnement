@@ -295,6 +295,26 @@ static func _player_chip(player_name: String, avatar_node: Control, cards: int, 
 	return chip
 
 
+## Badge doré « S » du Rang S (les 10 premiers du classement général).
+static func s_badge(side: float = 24) -> Panel:
+	var b := Panel.new()
+	var s := P.box(Color("f2c14e"), P.px(side * 0.3))
+	s.border_color = Color("ffe9a0")
+	s.set_border_width_all(maxi(1, P.px(1.5)))
+	s.shadow_color = Color(0.35, 0.18, 0.02, 0.6)
+	s.shadow_offset = Vector2(0, P.px(2))
+	s.shadow_size = 1
+	b.add_theme_stylebox_override("panel", s)
+	b.custom_minimum_size = Vector2(P.px(side), P.px(side))
+	b.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	b.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var l := P.title("S", side * 0.7, Color("5a2e06"))
+	l.set_anchors_preset(Control.PRESET_FULL_RECT)
+	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	b.add_child(l)
+	return b
+
+
 ## Libellé d'une difficulté et sa couleur.
 static func difficulty_name(d: String) -> String:
 	return CardData.DIFFICULTY_LABELS.get(d, d)

@@ -4,6 +4,7 @@ extends RefCounted
 ## attribue l'XP, le client l'affiche. Les tests des deux côtés vérifient les mêmes seuils.
 
 const RANKS := [[1, "Débutant"], [6, "Explorateur"], [11, "Connaisseur"], [21, "Expert"], [36, "Maître biblique"]]
+const RANK_S_PLACES := 10  ## Les 10 premiers du classement général portent le Rang S (PRD §7).
 
 
 ## XP à gagner pour passer du niveau n au niveau n + 1 : 100, puis 50 de plus à chaque niveau.
@@ -27,3 +28,8 @@ static func rank(level: int) -> String:
 		if level >= r[0]:
 			name = r[1]
 	return name
+
+
+## Rang S : être dans les 10 premiers du classement général (place 0 : pas classé).
+static func has_rank_s(place: int) -> bool:
+	return place >= 1 and place <= RANK_S_PLACES

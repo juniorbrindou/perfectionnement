@@ -35,6 +35,8 @@ var wallet := {}
 var last_error := ""
 var bread_today := false  ## Pain quotidien reçu aujourd'hui (maintenant ou plus tôt).
 var bread_gain := 0  ## Talents reçus par le pain pendant cette session.
+const LEADERBOARD := "xp"  ## Classement général, tenu par le serveur (docs/SERVEUR.md, 0.2.5).
+var rank_place := 0  ## Place au classement général (0 : pas encore classé).
 
 # Duels en ligne (server/src/duel_en_ligne.ts) : socket temps réel.
 const OP_DEPART := 1
@@ -123,8 +125,44 @@ func refresh_account() -> bool:
 	google_linked = not acc.user.google_id.is_empty()
 	var parsed = JSON.parse_string(acc.wallet) if acc.wallet else null
 	wallet = parsed if parsed is Dictionary else {}
+	await _refresh_rank()
 	account_changed.emit()
 	return true
+
+
+## Classement général : les `limit` premiers et ta propre ligne, ou {} hors ligne.
+## {"top": [{place, name, xp, me}], "me": {place, name, xp, me} ou {} si tu n'es pas classé}
+func leaderboard(limit: int = 50) -> Dictionary:
+	if not await _ensure_session():
+		return {}
+	var r = await client.list_leaderboard_records_async(session, LEADERBOARD, [session.user_id], null, limit)
+	if r.is_exception():
+		last_error = _message(r.get_exception())
+		return {}
+	var top := []
+	for rec in r.records:
+		top.append(_rank_row(rec))
+	var me := {}
+	for rec in r.owner_records:
+		me = _rank_row(rec)
+	if int(me.get("place", 0)) != rank_place:
+		rank_place = int(me.get("place", 0))
+		account_changed.emit()
+	return {"top": top, "me": me}
+
+
+## Place du joueur au classement, pour le badge du Rang S. Une erreur laisse l'ancienne valeur.
+func _refresh_rank() -> void:
+	var r = await client.list_leaderboard_records_async(session, LEADERBOARD, [session.user_id], null, 1)
+	if r.is_exception():
+		return
+	rank_place = 0
+	for rec in r.owner_records:
+		rank_place = int(rec.rank)
+
+
+func _rank_row(rec) -> Dictionary:
+	return {"place": int(rec.rank), "name": str(rec.username), "xp": int(rec.score), "me": rec.owner_id == session.user_id}
 
 
 ## Demande le pain quotidien (+10 talents une fois par jour, décidé par le serveur).
