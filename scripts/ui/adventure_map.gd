@@ -105,6 +105,11 @@ func _ready() -> void:
 	_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_overlay)
+	# La carte gardée sur le téléphone s'affiche tout de suite ; le serveur la confirme ensuite.
+	if Online.has_account() and not Online.adventure_stars.is_empty():
+		_stars = Online.adventure_stars.duplicate(true)
+		_loaded = true
+		_select(_current_level())
 	_refresh()
 
 	if not Online.is_online():
@@ -155,9 +160,10 @@ func _load_progress() -> void:
 	if r.has("erreur"):
 		_show_notice("Carte indisponible", str(r["erreur"]), "Réessayer", _retry)
 		return
+	var keep := _selected if _loaded else 0  # Un niveau déjà choisi pendant le chargement reste choisi.
 	_stars = r.get("etoiles", {})
 	_loaded = true
-	var level := _current_level()
+	var level := keep if keep > 0 and _is_open(keep) else _current_level()
 	if Session.arcade_open_level > 0 and _is_open(Session.arcade_open_level):
 		level = Session.arcade_open_level
 	Session.arcade_open_level = 0

@@ -20,6 +20,9 @@ const HOST := "brindoujunior.com"
 const PORT := 443
 const SCHEME := "https"
 const SESSION_PATH := "user://session.cfg"
+## Dernières infos connues du compte, gardées sur le téléphone : affichées dès le lancement,
+## avant que le serveur réponde (et hors ligne).
+const CACHE_PATH := "user://compte.cfg"
 const CONFLICT := 409
 ## Identifiant OAuth « Application Web » du projet Google Cloud (public : il est dans
 ## chaque APK). C'est l'audience des jetons Google que le serveur accepte.
@@ -37,6 +40,8 @@ var bread_today := false  ## Pain quotidien reçu aujourd'hui (maintenant ou plu
 var bread_gain := 0  ## Talents reçus par le pain pendant cette session.
 const LEADERBOARD := "xp"  ## Classement général, tenu par le serveur (docs/SERVEUR.md, 0.2.5).
 var rank_place := 0  ## Place au classement général (0 : pas encore classé).
+var adventure_stars := {}  ## Étoiles de la carte d'aventure (niveau → difficultés gagnées).
+var _bread_date := ""  ## Jour (AAAA-MM-JJ) du dernier pain quotidien reçu.
 
 # Duels en ligne (server/src/duel_en_ligne.ts) : socket temps réel.
 const OP_DEPART := 1
@@ -60,9 +65,22 @@ var _rng := RandomNumberGenerator.new()
 func _ready() -> void:
 	_rng.randomize()
 	client = Nakama.create_client(SERVER_KEY, HOST, PORT, SCHEME, 10, NakamaLogger.LOG_LEVEL.ERROR)
-	# Pas de réseau pendant les tests et les vérifications automatiques.
+	# Pas de réseau ni de données du téléphone pendant les tests et les vérifications automatiques.
 	if DisplayServer.get_name() != "headless":
+		_load_cache()
+		account_changed.connect(_save_cache)
 		connect_guest()
+
+
+## Le compte est connu (en cache ou en ligne) : de quoi afficher pseudo, talents et niveau.
+func is_known() -> bool:
+	return not username.is_empty()
+
+
+## Nouvelles étoiles de l'aventure (réponse « etat » du serveur), gardées pour le prochain lancement.
+func set_adventure_stars(stars: Dictionary) -> void:
+	adventure_stars = stars.duplicate(true)
+	_save_cache()
 
 
 func is_online() -> bool:
@@ -177,6 +195,7 @@ func claim_bread() -> void:
 	if not data is Dictionary:
 		return
 	bread_today = true
+	_bread_date = Time.get_date_string_from_system()
 	if data.get("accorde", false):
 		wallet["talents"] = int(data.get("talents", talents()))
 		bread_gain = int(data.get("gain", 0))
@@ -206,6 +225,8 @@ func arcade(request: Dictionary) -> Dictionary:
 		wallet["talents"] = int(t)
 	if t != null or x != null:
 		account_changed.emit()
+	if data.get("etoiles") is Dictionary:
+		set_adventure_stars(data["etoiles"])
 	return data
 
 
@@ -458,6 +479,36 @@ func _save_session() -> void:
 	cfg.set_value("session", "token", session.token)
 	cfg.set_value("session", "refresh_token", session.refresh_token)
 	cfg.save(SESSION_PATH)
+
+
+func _load_cache() -> void:
+	var cfg := ConfigFile.new()
+	if cfg.load(CACHE_PATH) != OK:
+		return
+	username = cfg.get_value("compte", "pseudo", "")
+	email = cfg.get_value("compte", "email", "")
+	google_linked = cfg.get_value("compte", "google", false)
+	var w = cfg.get_value("compte", "portefeuille", {})
+	wallet = w if w is Dictionary else {}
+	rank_place = cfg.get_value("compte", "place", 0)
+	var s = cfg.get_value("aventure", "etoiles", {})
+	adventure_stars = s if s is Dictionary else {}
+	_bread_date = cfg.get_value("pain", "jour", "")
+	bread_today = _bread_date == Time.get_date_string_from_system()
+
+
+func _save_cache() -> void:
+	if username.is_empty():
+		return
+	var cfg := ConfigFile.new()
+	cfg.set_value("compte", "pseudo", username)
+	cfg.set_value("compte", "email", email)
+	cfg.set_value("compte", "google", google_linked)
+	cfg.set_value("compte", "portefeuille", wallet)
+	cfg.set_value("compte", "place", rank_place)
+	cfg.set_value("aventure", "etoiles", adventure_stars)
+	cfg.set_value("pain", "jour", _bread_date)
+	cfg.save(CACHE_PATH)
 
 
 func _set_state(s: State) -> void:

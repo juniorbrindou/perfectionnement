@@ -119,7 +119,7 @@ func _build_profile(col: VBoxContainer) -> void:
 	col.add_child(holder)
 	col.add_child(Glass.title(shown, 34))
 
-	if Online.is_online():
+	if Online.is_known():
 		col.add_child(_progress())
 	col.add_child(_sound_settings())
 	if Sound.music_on and not Sound.tracks.is_empty():

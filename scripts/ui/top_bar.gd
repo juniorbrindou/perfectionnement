@@ -63,7 +63,8 @@ func bottom() -> float:
 
 
 func refresh() -> void:
-	var online: bool = Online.is_online()
+	# Le compte gardé sur le téléphone s'affiche tout de suite, avant que le serveur réponde.
+	var online: bool = Online.is_known()
 	_name.text = Online.username if online else ("Connexion…" if Online.state == Online.State.CONNECTING else "Hors ligne")
 	_initial.text = (Online.username.substr(0, 1) if online else "?").to_upper()
 	_talents.text = str(Online.talents()) if online else "–"

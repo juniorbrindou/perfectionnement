@@ -381,13 +381,21 @@ func _refresh() -> void:
 	_check_patch.visible = not shown
 
 
+## Progression de l'aventure : d'abord celle gardée sur le téléphone, puis celle du serveur.
 func _load_progress() -> void:
-	if not Online.is_online() or not Online.has_account():
+	if not Online.has_account():
+		return
+	if not Online.adventure_stars.is_empty():
+		_show_progress(Online.adventure_stars)
+	if not Online.is_online():
 		return
 	var r := await Online.arcade({"action": "etat"})
 	if r.has("erreur") or not is_inside_tree():
 		return
-	var stars: Dictionary = r.get("etoiles", {})
+	_show_progress(r.get("etoiles", {}))
+
+
+func _show_progress(stars: Dictionary) -> void:
 	var count := 8
 	var data = JSON.parse_string(FileAccess.get_file_as_string(ADVENTURE_PATH))
 	if data is Dictionary and not data.get("chapitres", []).is_empty():
