@@ -34,6 +34,11 @@ func _wrong(m) -> String:
 
 func _run() -> void:
 	change_scene_to_file("res://scenes/main_menu.tscn")
+	# Animation de démarrage (avec un rendu réel seulement) : une capture toutes les 0,9 s, puis
+	# l'accueil une fois qu'elle est finie (3,06 s).
+	await _shot("00a_demarrage_choc")
+	await _shot("00b_demarrage_logo")
+	await _shot("00c_demarrage_vers_accueil")
 	await _shot("01_accueil")
 	current_scene._on_bread(10)
 	await _shot("01a_pain_quotidien")

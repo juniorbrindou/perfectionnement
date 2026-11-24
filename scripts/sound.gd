@@ -34,6 +34,7 @@ var current := ""  ## Musique en cours (chemin), "" pour la boucle de secours.
 var _music: AudioStreamPlayer
 var _voices: Array[AudioStreamPlayer] = []
 var _next_voice := 0
+var _intro := false  ## Animation de démarrage en cours : la musique attend sa fin.
 
 
 func _ready() -> void:
@@ -57,20 +58,36 @@ func _ready() -> void:
 	_music.finished.connect(_play_next)
 	add_child(_music)
 	# Pas de musique pendant les tests et les captures automatiques.
+	# Différé : l'accueil peut d'abord lancer l'animation de démarrage, qui fait attendre la musique.
 	if music_on and DisplayServer.get_name() != "headless":
+		_play_next.call_deferred()
+
+
+## L'animation de démarrage commence : la musique ne joue pas pendant ce temps.
+func begin_intro() -> void:
+	_intro = true
+	_music.stop()
+
+
+## L'animation est finie : la musique de l'accueil commence.
+func end_intro() -> void:
+	_intro = false
+	if music_on and not _music.playing and DisplayServer.get_name() != "headless":
 		_play_next()
 
 
-## Joue un effet (nom de fichier dans assets/sons, sans extension).
-func play(effect: String, volume_db: float = 0.0, pitch: float = 1.0) -> void:
+## Joue un effet (nom de fichier dans assets/sons, sans extension). Renvoie le lecteur, pour
+## un fondu par exemple, ou null si les effets sont coupés.
+func play(effect: String, volume_db: float = 0.0, pitch: float = 1.0) -> AudioStreamPlayer:
 	if not effects_on or not EFFECTS.has(effect):
-		return
+		return null
 	var p := _voices[_next_voice]
 	_next_voice = (_next_voice + 1) % VOICES
 	p.stream = EFFECTS[effect]
 	p.volume_db = volume_db
 	p.pitch_scale = pitch
 	p.play()
+	return p
 
 
 func set_effects(on: bool) -> void:
@@ -126,7 +143,7 @@ func playlist() -> Array[String]:
 
 
 func _play_next() -> void:
-	if not music_on:
+	if not music_on or _intro:
 		return
 	var pool := playlist()
 	if pool.is_empty():

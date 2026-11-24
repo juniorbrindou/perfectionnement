@@ -49,3 +49,18 @@ position cible sur l'écran réel.
    2. l'enseigne en bois avec le titre « Perfectionnement » et le ruban « Le duel des cartes bibliques », sans la Bible.
    Aucun fond, aucune étoile, aucune poussière : seulement l'objet, bords nets.
    ```
+
+## Réalisation (2026-11-24)
+
+- **Code** : `scripts/ui/splash.gd` (une seule horloge, mêmes courbes que la maquette), reflet
+  `scripts/ui/splash_reflet.gdshader`. L'accueil (`main_menu.gd`) l'ajoute au démarrage à froid ; la
+  musique attend la fin (`Sound.begin_intro` / `end_intro`).
+- **Image de démarrage** : `assets/logo/demarrage.png` n'est plus que le fond (halo bleu, poussière d'or).
+- **Calques provisoires** : `assets/logo/logo_livre.png` et `logo_enseigne.png`, détourés de `logo.png`
+  par `tools/logo_calques.ps1`. Le livre est coupé à 33 % de la hauteur (au lieu de 41 %) pour ne pas
+  emporter le haut des lettres. **Pour les vrais calques de ChatGPT : remplacer ces deux fichiers, au
+  même format, sans toucher au code, et ne plus relancer le script** (il les écraserait).
+- **Position finale** : le titre peint de l'accueil occupe `Rect2(84, 115, 784, 410)` en pixels de
+  `assets/accueil/accueil.png` (`Splash.HOME_TITLE`), vérifié par superposition à 50 %.
+- **Vérification** : `tools/shots.gd` capture l'animation (`00a` à `00c`) avant l'accueil ; sans écran,
+  elle est sautée.

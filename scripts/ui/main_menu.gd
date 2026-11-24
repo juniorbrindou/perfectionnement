@@ -59,6 +59,11 @@ var _cards: Array = []
 
 func _ready() -> void:
 	theme = P.get_theme()
+	# Animation de démarrage, au lancement à froid seulement (pas en revenant d'une partie ; sans
+	# écran, pour les tests, on la saute).
+	if not Splash.shown and DisplayServer.get_name() != "headless":
+		Splash.shown = true
+		add_child(Splash.new())
 	# L'image est réduite à l'écran : les mipmaps évitent le crénelage.
 	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	var screen := get_viewport_rect().size
