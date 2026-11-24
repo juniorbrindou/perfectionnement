@@ -260,6 +260,10 @@ supprimés depuis :
 - **`voir {code}`** ne trouve la partie qu'une fois que le créateur l'a rejointe. Avant, la liste des parties ne
   la contient pas encore (404). C'est l'ordre prévu : le créateur rejoint aussitôt après `creer`.
 
+**Délais redéployés le 2026-11-24** (commit `283ead1`). Le module servi porte `DELAI_*` 20/20/30 s pour l'arcade
+et `DUEL_*` 30/30/45 s pour les duels en ligne. Vérifié en public : 20 s pour la question de départ de l'arcade,
+30 s pour celle d'un duel entre amis, des deux côtés.
+
 ## Ce qui est sur le serveur (pour mémoire)
 
 - Service systemd `nakama`, binaire et configuration dans `/opt/nakama`, sans Docker. L'API, la console
