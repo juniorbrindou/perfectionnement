@@ -9,6 +9,8 @@ const BACKGROUND := preload("res://assets/duel/fond_flou.png")
 const COINS := preload("res://assets/duel/pieces.png")
 const CROWN := preload("res://assets/duel/couronne.png")
 const SCRIBE := preload("res://assets/duel/scribe.png")
+const CARD_BACK := preload("res://assets/duel/dos_carte.png")
+const CARD_FACE := preload("res://assets/duel/face_carte.png")
 
 const PANEL := Color(0.063, 0.125, 0.282, 0.86)
 const PANEL_DARK := Color(0.047, 0.094, 0.204, 0.75)
@@ -22,6 +24,8 @@ const WIN := Color("5fe39a")
 const ALERT := Color("ff6b6b")
 const ME := Color("1fa9a3")
 const FOE := Color("7a52e0")
+const INK := Color("3a220c")  ## Texte sur parchemin.
+const SHADOW := Color(0.23, 0.12, 0.03, 0.85)  ## Ombre brune des titres dorés.
 
 
 ## Paysage flouté qui couvre l'écran, assombri vers le bas.
@@ -194,6 +198,101 @@ static func toast(parent: Control, text: String) -> void:
 	t.tween_interval(2.2)
 	t.tween_property(box, "modulate:a", 0.0, 0.4)
 	t.tween_callback(box.queue_free)
+
+
+## Titre doré à ombre brune (écrans de match, maquette validée le 2026-11-24).
+static func title(text: String, size: float = 26, color: Color = GOLD, align := HORIZONTAL_ALIGNMENT_CENTER) -> Label:
+	var l := P.title(text, size, color, align)
+	l.add_theme_color_override("font_shadow_color", SHADOW)
+	l.add_theme_constant_override("shadow_offset_y", maxi(2, P.px(size / 9.0)))
+	l.add_theme_constant_override("shadow_offset_x", 0)
+	return l
+
+
+## Bouton rond « × » cerclé d'or.
+static func close_button(on_pressed: Callable) -> Button:
+	var b := button("×", on_pressed, 22, 38)
+	b.custom_minimum_size = Vector2(P.px(38), P.px(38))
+	for state in ["normal", "hover", "pressed", "hover_pressed"]:
+		b.add_theme_stylebox_override(state, panel_style(Color(0.055, 0.12, 0.3, 0.88), 999, RING, 0, 0))
+	return b
+
+
+## Fond de parchemin peint (la face de carte), étiré.
+static func parchment_style(pad_h: float = 14, pad_v: float = 12) -> StyleBoxTexture:
+	var s := StyleBoxTexture.new()
+	s.texture = CARD_FACE
+	s.region_rect = Rect2(60, 60, 166, 150)
+	s.content_margin_left = P.px(pad_h)
+	s.content_margin_right = P.px(pad_h)
+	s.content_margin_top = P.px(pad_v)
+	s.content_margin_bottom = P.px(pad_v)
+	return s
+
+
+## Parchemin dans un cadre doré à halo, comme les cartes.
+static func framed(content: Control) -> PanelContainer:
+	var frame := PanelContainer.new()
+	var fs := P.box(Color("f0c05a"), P.px(22), P.px(6), P.px(6))
+	fs.border_color = Color("ffe9a8")
+	fs.set_border_width_all(P.px(2))
+	fs.shadow_color = Color(1.0, 0.84, 0.42, 0.4)
+	fs.shadow_size = P.px(10)
+	frame.add_theme_stylebox_override("panel", fs)
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var sheet := PanelContainer.new()
+	sheet.add_theme_stylebox_override("panel", parchment_style())
+	sheet.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	sheet.add_child(content)
+	frame.add_child(sheet)
+	return frame
+
+
+## Cartes restantes d'un joueur : de petits dos de carte peints.
+static func card_pips(count: int, align_end: bool = false) -> HBoxContainer:
+	var row := P.hbox(3)
+	row.alignment = BoxContainer.ALIGNMENT_END if align_end else BoxContainer.ALIGNMENT_BEGIN
+	for i in count:
+		row.add_child(icon(CARD_BACK, 12, 15))
+	return row
+
+
+## En-tête de match : un bandeau par joueur (avatar, nom, cartes restantes), le minuteur
+## au milieu (ou rien).
+static func players_bar(left_name: String, left_avatar: Control, left_cards: int,
+		right_name: String, right_avatar: Control, right_cards: int, center: Control = null) -> HBoxContainer:
+	var bar := P.hbox(6)
+	bar.add_child(_player_chip(left_name, left_avatar, left_cards, false))
+	if center:
+		center.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		bar.add_child(center)
+	bar.add_child(_player_chip(right_name, right_avatar, right_cards, true))
+	return bar
+
+
+static func _player_chip(player_name: String, avatar_node: Control, cards: int, right: bool) -> PanelContainer:
+	var chip := panel(PANEL, 999, Color(RING, 0.65), 4, 4)
+	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var row := P.hbox(6)
+	row.alignment = BoxContainer.ALIGNMENT_END if right else BoxContainer.ALIGNMENT_BEGIN
+	chip.add_child(row)
+	avatar_node.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var info := P.vbox(2)
+	info.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var n := P.label(player_name, 14, P.CREAM, 900, HORIZONTAL_ALIGNMENT_RIGHT if right else HORIZONTAL_ALIGNMENT_LEFT)
+	n.autowrap_mode = TextServer.AUTOWRAP_OFF
+	n.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	n.clip_text = true
+	info.add_child(n)
+	info.add_child(card_pips(cards, right))
+	if right:
+		row.add_child(info)
+		row.add_child(avatar_node)
+	else:
+		row.add_child(avatar_node)
+		row.add_child(info)
+	return chip
 
 
 ## Libellé d'une difficulté et sa couleur.

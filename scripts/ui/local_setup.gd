@@ -18,7 +18,7 @@ var _start: Button
 
 func _ready() -> void:
 	theme = UiTheme.get_theme()
-	UiTheme.night_background(self, 0.15)
+	Glass.background(self, 0.6)
 	_restore_from_session()
 
 	var scroll := ScrollContainer.new()
@@ -32,14 +32,14 @@ func _ready() -> void:
 	var v := UiTheme.vbox(12)
 	margin.add_child(v)
 
-	v.add_child(UiTheme.title("Partie à deux", 34, UiTheme.YELLOW, HORIZONTAL_ALIGNMENT_LEFT))
-	v.add_child(UiTheme.label("Un seul téléphone, que vous vous passez à chaque question.", 15, UiTheme.LILAC, 800, HORIZONTAL_ALIGNMENT_LEFT))
+	v.add_child(Glass.title("Partie à deux", 34, Glass.GOLD, HORIZONTAL_ALIGNMENT_LEFT))
+	v.add_child(UiTheme.label("Un seul téléphone, que vous vous passez à chaque question.", 15, Glass.PALE, 800, HORIZONTAL_ALIGNMENT_LEFT))
 
 	v.add_child(_section("Joueurs"))
-	var colors := [UiTheme.TEAL, UiTheme.FRAMBOISE]
+	var colors := [Color("1fa9a3"), Color("3a6fd8")]
 	for i in 2:
 		var row := UiTheme.hbox(10)
-		var av := UiTheme.avatar(Session.player_names[i], colors[i], 44)
+		var av := Glass.avatar(Session.player_names[i], colors[i], 44)
 		av.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		row.add_child(av)
 		var e := LineEdit.new()
@@ -48,6 +48,8 @@ func _ready() -> void:
 		e.max_length = 16
 		e.add_theme_font_size_override("font_size", UiTheme.px(17))
 		e.custom_minimum_size = Vector2(0, UiTheme.px(50))
+		for state in ["normal", "focus"]:
+			e.add_theme_stylebox_override(state, Glass.panel_style(Glass.PANEL_DARK, 14, Color(Glass.RING, 0.7) if state == "focus" else Color(1, 1, 1, 0.25), 14, 6))
 		e.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(e)
 		v.add_child(row)
@@ -82,24 +84,25 @@ func _ready() -> void:
 		b.toggle_mode = true
 		b.custom_minimum_size = Vector2(0, UiTheme.px(50))
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		_glass_toggle(b)
 		grid.add_child(b)
 		_content_buttons[c] = b
 	v.add_child(grid)
 
 	_books_wrap = UiTheme.vbox(6)
-	_books_wrap.add_child(UiTheme.label("Coche un ou plusieurs livres.", 14, UiTheme.LILAC, 800, HORIZONTAL_ALIGNMENT_LEFT))
+	_books_wrap.add_child(UiTheme.label("Coche un ou plusieurs livres.", 14, Glass.PALE, 800, HORIZONTAL_ALIGNMENT_LEFT))
 	_books_box = GridContainer.new()
 	_books_box.columns = 2
 	_books_wrap.add_child(_books_box)
 	v.add_child(_books_wrap)
 
 	v.add_child(UiTheme.spacer(6))
-	_info = UiTheme.label("", 14, UiTheme.LILAC)
+	_info = UiTheme.label("", 14, Glass.PALE)
 	v.add_child(_info)
 	_start = UiTheme.button("Commencer la partie", _on_start, 23)
 	_start.custom_minimum_size = Vector2(0, UiTheme.px(64))
 	v.add_child(_start)
-	v.add_child(UiTheme.button("Retour", _back, 18, "GhostButton"))
+	v.add_child(Glass.button("Retour", _back, 18, 56))
 
 	_refresh()
 
@@ -128,7 +131,7 @@ func _dye(b: Button, color: Color) -> void:
 	off.border_color = color.lightened(0.2)
 	off.set_border_width_all(UiTheme.px(3))
 	var on := UiTheme.box(color, UiTheme.px(14), UiTheme.px(8), UiTheme.px(8))
-	on.border_color = UiTheme.YELLOW
+	on.border_color = Glass.RING
 	on.set_border_width_all(UiTheme.px(3))
 	for state in ["normal", "hover"]:
 		b.add_theme_stylebox_override(state, off)
@@ -136,6 +139,18 @@ func _dye(b: Button, color: Color) -> void:
 		b.add_theme_stylebox_override(state, on)
 	for state in ["font_pressed_color", "font_hover_pressed_color"]:
 		b.add_theme_color_override(state, UiTheme.CREAM)
+
+## Choix de contenu : verre bleu nuit, doré quand il est choisi.
+func _glass_toggle(b: Button) -> void:
+	for state in ["normal", "hover"]:
+		b.add_theme_stylebox_override(state, Glass.panel_style(Glass.PANEL_DARK, 14, Color(1, 1, 1, 0.25), 8, 6))
+	for state in ["pressed", "hover_pressed"]:
+		b.add_theme_stylebox_override(state, Glass.panel_style(Glass.GOLD, 14, Color("ffe9a8"), 8, 6))
+	for state in ["font_color", "font_hover_color"]:
+		b.add_theme_color_override(state, UiTheme.CREAM)
+	for state in ["font_pressed_color", "font_hover_pressed_color"]:
+		b.add_theme_color_override(state, Glass.INK)
+
 
 func _on_difficulty(d: String) -> void:
 	_difficulty = d
@@ -190,7 +205,7 @@ func _refresh_count() -> void:
 	var needed := DeckBuilder.min_pool_size()
 	if n >= needed:
 		_info.text = "%d questions disponibles" % n
-		_info.add_theme_color_override("font_color", UiTheme.LILAC)
+		_info.add_theme_color_override("font_color", Glass.PALE)
 	else:
 		_info.text = "Pas encore assez de questions (%d sur %d)" % [n, needed]
 		_info.add_theme_color_override("font_color", Color("ff8fa3"))

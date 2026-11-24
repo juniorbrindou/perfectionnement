@@ -2,7 +2,7 @@ extends Control
 ## Duel en ligne contre un autre joueur, sur l'écran peint « partie » (assets/duel/partie.png) :
 ## les deux joueurs et leurs cartes en haut, le minuteur au milieu, la carte posée sur le
 ## parchemin, et rien d'autre (direction validée le 2026-11-23 : écran épuré, la carte au
-## centre). La carte trouvée se désagrège en particules dorées.
+## centre). La carte trouvée brûle au feu doré.
 ##
 ## Le serveur mène la partie (server/src/duel_en_ligne.ts) : il envoie à ce téléphone sa
 ## propre vue à chaque changement, et le téléphone n'envoie que ses choix. L'écran est
@@ -11,6 +11,7 @@ extends Control
 
 const P := preload("res://scripts/ui/ui_theme.gd")
 const G := preload("res://scripts/ui/glass.gd")
+const THUNDER := preload("res://assets/sons/tonnerre.wav")  ## Synthétisé par tools/son_tonnerre.ps1.
 const ART := preload("res://assets/duel/partie.png")
 const CARD_BACK := preload("res://assets/duel/dos_carte.png")
 const CARD_FACE := preload("res://assets/duel/face_carte.png")
@@ -36,6 +37,7 @@ var view: Dictionary = {}
 var _key := ""
 var _sent := false  ## Choix déjà envoyé pour l'écran en cours.
 var _end_applied := false
+var _versus_shown := false  ## L'écran « Adversaire trouvé ! » de cette partie est passé.
 var _rng := RandomNumberGenerator.new()
 var _hand: Array[CardInPlay] = []
 var _selected := -1
@@ -103,6 +105,8 @@ func _on_view(v: Dictionary) -> void:
 	view = v
 	if v.get("etape") == "depart":
 		_end_applied = false  # Revanche : nouvelle partie.
+	elif v.get("etape") == "finie":
+		_versus_shown = false  # Une revanche se présentera de nouveau.
 	_apply_hand()
 	var fin = v.get("fin")
 	if fin is Dictionary and fin.has("talents") and not _end_applied:
@@ -116,6 +120,9 @@ func _on_view(v: Dictionary) -> void:
 	else:
 		_refresh_in_place()
 	_update_pause()
+	if v.get("etape") == "depart" and not _versus_shown:
+		_versus_shown = true
+		_show_versus()
 
 
 func _key_of(v: Dictionary) -> String:
@@ -244,6 +251,203 @@ func _base(active: String = "", with_timer: bool = false) -> void:
 	_timer.set_time(_time_left if with_timer else 1.0, _time_total if with_timer else 1.0)
 	var quit := a.tap(Rect2(124, 4, 72, 34), _ask_quit)
 	quit.tooltip_text = "Quitter"
+
+
+## « Adversaire trouvé ! » (demande du 2026-11-24) : les deux joueurs arrivent ensemble, l'un
+## de la gauche, l'autre de la droite ; le « VS » tombe d'en haut et s'écrase en fissurant
+## l'écran, avec un coup de tonnerre et une légère vibration. 3 secondes, rien à toucher.
+func _show_versus() -> void:
+	var screen := get_viewport_rect().size
+	var layer := Control.new()
+	layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	layer.mouse_filter = Control.MOUSE_FILTER_STOP
+	_top.add_child(layer)
+	var dim := ColorRect.new()
+	dim.color = Color(G.DEEP, 0.82)
+	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(dim)
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(center)
+	var stack := P.vbox(-18)
+	stack.custom_minimum_size = Vector2(screen.x * 0.92, 0)
+	center.add_child(stack)
+
+	var banner := PanelContainer.new()
+	var bs := P.box(Color("2f9e57"), P.px(16), P.px(22), P.px(6))
+	bs.border_color = Color("ffd76a")
+	bs.set_border_width_all(P.px(3))
+	banner.add_theme_stylebox_override("panel", bs)
+	banner.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	banner.z_index = 1
+	banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var brow := P.hbox(8)
+	brow.add_child(Sparkle.new(P.px(20)))
+	var bl := G.title("Adversaire trouvé !", 24, Color.WHITE)
+	bl.autowrap_mode = TextServer.AUTOWRAP_OFF
+	brow.add_child(bl)
+	brow.add_child(Sparkle.new(P.px(20)))
+	banner.add_child(brow)
+	stack.add_child(banner)
+
+	var panel := PanelContainer.new()
+	var ps := P.box(Color("163a86"), P.px(22), P.px(14), P.px(30))
+	ps.border_color = Color("f0c05a")
+	ps.set_border_width_all(P.px(4))
+	ps.shadow_color = Color(1.0, 0.84, 0.42, 0.35)
+	ps.shadow_size = P.px(12)
+	panel.add_theme_stylebox_override("panel", ps)
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stack.add_child(panel)
+	panel.add_child(CenterLine.new())
+	var row := P.hbox(4)
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	panel.add_child(row)
+	# Chaque élément est posé dans un support fixe : on l'anime sans que la rangée le replace.
+	_versus_slot(row, _versus_player(Online.username, int(Progression.from_xp(Online.xp())["level"]), G.ME, Color("3d8bff")), false)
+	var vs := G.title("VS", 56, G.GOLD)
+	vs.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	var glow := VersusGlow.new()
+	glow.set_anchors_preset(Control.PRESET_FULL_RECT)
+	glow.show_behind_parent = true
+	vs.add_child(glow)
+	var laurel := Laurel.new()
+	laurel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	laurel.show_behind_parent = true
+	laurel.modulate.a = 0.0
+	vs.add_child(laurel)
+	var vs_slot := _versus_slot(row, vs, true)
+	_versus_slot(row, _versus_player(_opponent(), _opponent_level(), G.FOE, Color("a46bff")), false)
+
+	vs.position.y = -screen.y * 0.7
+	vs.modulate.a = 0.0
+	layer.modulate.a = 0.0
+	var t := layer.create_tween()
+	t.tween_property(layer, "modulate:a", 1.0, 0.2)
+	t.tween_interval(0.25)
+	t.tween_callback(func(): vs.modulate.a = 1.0)
+	t.tween_property(vs, "position:y", 0.0, 0.3).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	t.tween_callback(func(): _versus_impact(layer, vs_slot, vs, laurel))
+	t.tween_interval(2.3)
+	t.tween_property(layer, "modulate:a", 0.0, 0.35)
+	t.tween_callback(layer.queue_free)
+
+
+## Le « VS » touche : onde de choc dorée, éclats, laurier, secousse, tonnerre et vibration.
+func _versus_impact(layer: Control, slot: Control, vs: Control, laurel: Control) -> void:
+	var sound := AudioStreamPlayer.new()
+	sound.stream = THUNDER
+	layer.add_child(sound)
+	sound.play()
+	Input.vibrate_handheld(120, 0.45)
+	var at := slot.get_global_rect().get_center()
+	var wave := Shockwave.new(at)
+	wave.set_anchors_preset(Control.PRESET_FULL_RECT)
+	layer.add_child(wave)
+	layer.add_child(_versus_sparks(at))
+	laurel.pivot_offset = laurel.size / 2
+	laurel.scale = Vector2(0.6, 0.6)
+	var lt := laurel.create_tween().set_parallel()
+	lt.tween_property(laurel, "modulate:a", 1.0, 0.2)
+	lt.tween_property(laurel, "scale", Vector2.ONE, 0.45).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	var flash := ColorRect.new()
+	flash.color = Color(1, 0.97, 0.85, 0.35)
+	flash.set_anchors_preset(Control.PRESET_FULL_RECT)
+	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(flash)
+	var ft := flash.create_tween()
+	ft.tween_property(flash, "color:a", 0.0, 0.2)
+	ft.tween_callback(flash.queue_free)
+	vs.pivot_offset = vs.size / 2
+	vs.scale = Vector2(1.3, 0.75)
+	vs.create_tween().tween_property(vs, "scale", Vector2.ONE, 0.4).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+	# Secousse de tout l'écran, qui s'amortit.
+	var st := create_tween()
+	for i in 7:
+		var k := P.px(9) * (1.0 - i / 7.0)
+		var offset := Vector2(randf_range(-k, k), randf_range(-k, k))
+		st.tween_callback(func():
+			layer.position = offset
+			_screen.position = offset * 0.6)
+		st.tween_interval(0.035)
+	st.tween_callback(func():
+		layer.position = Vector2.ZERO
+		_screen.position = Vector2.ZERO)
+
+
+## Pluie d'éclats dorés qui jaillit du point d'impact.
+func _versus_sparks(at: Vector2) -> CPUParticles2D:
+	var p := CPUParticles2D.new()
+	p.position = at
+	p.one_shot = true
+	p.explosiveness = 1.0
+	p.amount = 40
+	p.lifetime = 1.0
+	p.spread = 180
+	p.gravity = Vector2(0, P.px(60))
+	p.initial_velocity_min = P.px(90)
+	p.initial_velocity_max = P.px(260)
+	p.damping_min = P.px(80)
+	p.damping_max = P.px(140)
+	p.scale_amount_min = 0.25
+	p.scale_amount_max = 0.6
+	var g := Gradient.new()
+	g.set_color(0, Color(1, 1, 1, 1))
+	g.set_color(1, Color(1, 1, 1, 0))
+	var dot := GradientTexture2D.new()
+	dot.gradient = g
+	dot.fill = GradientTexture2D.FILL_RADIAL
+	dot.fill_from = Vector2(0.5, 0.5)
+	dot.fill_to = Vector2(1.0, 0.5)
+	dot.width = 24
+	dot.height = 24
+	p.texture = dot
+	var ramp := Gradient.new()
+	ramp.set_color(0, Color(1, 0.97, 0.75, 1))
+	ramp.set_color(1, Color(1, 0.75, 0.25, 0))
+	p.color_ramp = ramp
+	var add := CanvasItemMaterial.new()
+	add.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	p.material = add
+	p.emitting = true
+	get_tree().create_timer(1.5).timeout.connect(p.queue_free)
+	return p
+
+
+func _versus_slot(row: HBoxContainer, content: Control, expand: bool) -> Control:
+	var slot := Control.new()
+	slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	slot.custom_minimum_size = Vector2(P.px(70) if expand else P.px(118), P.px(150))
+	if expand:
+		slot.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(slot)
+	content.set_anchors_preset(Control.PRESET_FULL_RECT)
+	slot.add_child(content)
+	return content
+
+func _versus_player(player: String, level: int, fill: Color, rim: Color) -> Control:
+	var v := P.vbox(6)
+	v.custom_minimum_size = Vector2(P.px(118), 0)
+	var face := G.avatar(player, fill, 92, rim)
+	face.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	v.add_child(face)
+	var name_pill := G.panel(Color(0.02, 0.07, 0.2, 0.7), 999, Color(1, 1, 1, 0.08), 10, 3)
+	var n := P.title(player, 16, Color.WHITE)
+	n.autowrap_mode = TextServer.AUTOWRAP_OFF
+	n.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	n.clip_text = true
+	name_pill.add_child(n)
+	v.add_child(name_pill)
+	var lv := P.hbox(4)
+	lv.alignment = BoxContainer.ALIGNMENT_CENTER
+	lv.add_child(G.icon(G.CROWN, 18, 16))
+	var ll := P.label("Niveau %d" % level, 13, G.GOLD, 900)
+	ll.autowrap_mode = TextServer.AUTOWRAP_OFF
+	lv.add_child(ll)
+	v.add_child(lv)
+	return v
 
 
 func _ribbon(text: String) -> void:
@@ -1070,6 +1274,116 @@ class Countdown extends Control:
 
 
 ## Halo doré qui bat autour de l'avatar du joueur qui doit agir.
+## Éclat doré derrière le « VS ».
+class VersusGlow extends Control:
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _draw() -> void:
+		var c := size / 2
+		var r := minf(size.x, size.y) * 1.1
+		for i in 8:
+			draw_circle(c, r * (1.0 - i * 0.11), Color(1.0, 0.85, 0.4, 0.05))
+		for i in 12:
+			var a := TAU * i / 12.0
+			draw_line(c, c + Vector2(cos(a), sin(a)) * r * 1.3, Color(1.0, 0.9, 0.55, 0.18), 2.0, true)
+
+
+## Onde de choc dorée : trois anneaux qui s'élargissent depuis le « VS » et s'effacent.
+class Shockwave extends Control:
+	var _origin := Vector2.ZERO
+	var _t := 0.0
+
+	func _init(origin: Vector2) -> void:
+		_origin = origin
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _process(delta: float) -> void:
+		_t += delta
+		queue_redraw()
+		if _t > 0.9:
+			queue_free()
+
+	func _draw() -> void:
+		var o := _origin - global_position
+		for k in 3:
+			var p := clampf((_t - k * 0.09) / 0.7, 0.0, 1.0)
+			if p <= 0.0 or p >= 1.0:
+				continue
+			var r := lerpf(60.0, 330.0, ease(p, 0.4))
+			var a := (1.0 - p) * (0.75 - k * 0.18)
+			draw_set_transform(o, 0, Vector2(1.0, 0.7))
+			draw_arc(Vector2.ZERO, r, 0, TAU, 96, Color(1.0, 0.84, 0.42, a), lerpf(12.0, 2.0, p) - k * 2.0, true)
+			draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
+
+
+## Couronne de laurier dorée autour du « VS ».
+class Laurel extends Control:
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _draw() -> void:
+		var c := size / 2 + Vector2(0, size.y * 0.04)
+		var r := size.y * 0.3  # Elle déborde de son support, jusqu'aux avatars.
+		for side in [-1.0, 1.0]:
+			var stem := PackedVector2Array()
+			for k in 13:
+				var a := deg_to_rad(110.0 + k * 11.0)
+				stem.append(c + Vector2(-side * r * cos(a), r * 0.85 * sin(a)))
+			draw_polyline(stem, Color("c98a24"), maxf(2.0, r * 0.035), true)
+			for k in range(1, 12):
+				var a := deg_to_rad(110.0 + k * 11.0)
+				var p := c + Vector2(-side * r * cos(a), r * 0.85 * sin(a))
+				var tangent := atan2(r * 0.85 * cos(a), side * r * sin(a))
+				var length := r * (0.27 - k * 0.01)
+				_leaf(p + Vector2(side * r * 0.08, 0), tangent - side * 0.6, length)
+				_leaf(p - Vector2(side * r * 0.08, 0), tangent + side * 0.6, length)
+
+	func _leaf(at: Vector2, angle: float, length: float) -> void:
+		draw_set_transform(at, angle, Vector2(1.0, 0.4))
+		draw_circle(Vector2.ZERO, length / 2, Color("c98a24"))
+		draw_circle(Vector2(0, -length * 0.08), length * 0.42, Color("ffe08a"))
+		draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
+
+
+## Étincelle dorée à quatre branches, qui scintille.
+class Sparkle extends Control:
+	var _t := randf() * TAU
+
+	func _init(side: float) -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		custom_minimum_size = Vector2(side, side)
+		size_flags_vertical = Control.SIZE_SHRINK_CENTER
+
+	func _process(delta: float) -> void:
+		_t += delta * 4.0
+		queue_redraw()
+
+	func _draw() -> void:
+		var c := size / 2
+		var r := minf(size.x, size.y) / 2 * (0.8 + 0.2 * sin(_t))
+		var pts := PackedVector2Array()
+		for k in 8:
+			var rr := r if k % 2 == 0 else r * 0.28
+			var a := k * PI / 4 - PI / 2
+			pts.append(c + Vector2(cos(a), sin(a)) * rr)
+		draw_colored_polygon(pts, Color("fff3c4"))
+
+
+## Fine ligne lumineuse qui sépare les deux joueurs.
+class CenterLine extends Control:
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _draw() -> void:
+		var x := size.x / 2
+		var steps := 24
+		for k in steps:
+			var y0 := size.y * k / steps
+			var y1 := size.y * (k + 1) / steps
+			var a := sin(PI * (k + 0.5) / steps) * 0.45
+			draw_line(Vector2(x, y0), Vector2(x, y1), Color(0.82, 0.88, 1.0, a), 2.0)
+
 class Halo extends Control:
 	var _t := 0.0
 

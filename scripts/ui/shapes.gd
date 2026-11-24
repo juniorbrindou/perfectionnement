@@ -115,7 +115,7 @@ class SpeechBubble extends MarginContainer:
 		draw_string(font, Vector2(pill.position.x + Shapes._px(18), baseline), tag, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, UiTheme.YELLOW)
 
 
-## Minuteur circulaire : anneau jaune qui se vide, secondes au centre.
+## Minuteur circulaire : anneau doré qui se vide sur fond bleu nuit, secondes au centre.
 class TimerRing extends Control:
 	var value := 1.0
 	var text := ""
@@ -133,10 +133,10 @@ class TimerRing extends Control:
 		var c := size / 2
 		var r := minf(size.x, size.y) / 2
 		var w := Shapes._px(6)
-		draw_circle(c, r, UiTheme.NIGHT)
+		draw_circle(c, r, Color("0e1f4c"))
 		draw_arc(c, r - w / 2, 0, TAU, 64, Color(1, 1, 1, 0.15), w, true)
 		var urgent := value <= 0.27
-		var col := UiTheme.FRAMBOISE.lightened(0.2) if urgent else UiTheme.YELLOW
+		var col := Color("ff6b6b") if urgent else Color("ffc84a")
 		if value > 0:
 			draw_arc(c, r - w / 2, -PI / 2, -PI / 2 + TAU * value, 64, col, w, true)
 		var font := UiTheme.TITLE_FONT
@@ -218,7 +218,7 @@ class Icon extends Control:
 				draw_circle(o + Vector2(s * 0.78, s * 0.2), s * 0.1, color)
 
 
-## Carte miniature de la main : dos coloré, petite bulle. Touchable.
+## Carte miniature de la main : le dos de carte peint, halo doré quand elle est choisie. Touchable.
 class MiniCard extends Control:
 	signal pressed
 	var color := UiTheme.TEAL
@@ -226,7 +226,7 @@ class MiniCard extends Control:
 
 	func _init(c: Color = UiTheme.TEAL) -> void:
 		color = c
-		custom_minimum_size = Vector2(Shapes._px(62), Shapes._px(92))
+		custom_minimum_size = Vector2(Shapes._px(70), Shapes._px(83))  # Proportions du dos peint.
 		pivot_offset = custom_minimum_size / 2
 		mouse_filter = Control.MOUSE_FILTER_STOP
 
@@ -242,18 +242,10 @@ class MiniCard extends Control:
 	func _draw() -> void:
 		var r := Rect2(Vector2.ZERO, size)
 		if selected:
-			var halo := UiTheme.box(Color(UiTheme.YELLOW, 0.35), int(Shapes._px(16)))
-			halo.draw(get_canvas_item(), r.grow(Shapes._px(8)))
-		var s := UiTheme.box(color, int(Shapes._px(10)))
-		s.border_color = UiTheme.CREAM if selected else UiTheme.YELLOW
-		s.set_border_width_all(int(Shapes._px(3)))
-		s.draw(get_canvas_item(), r)
-		var bubble := Rect2(size.x * 0.18, size.y * 0.22, size.x * 0.64, size.y * 0.3)
-		UiTheme.box(UiTheme.CREAM, int(Shapes._px(8))).draw(get_canvas_item(), bubble)
-		var font := UiTheme.TITLE_FONT
-		var fs := int(Shapes._px(16))
-		var tw := font.get_string_size("?", HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
-		draw_string(font, Vector2(bubble.get_center().x - tw / 2, bubble.get_center().y + fs * 0.35), "?", HORIZONTAL_ALIGNMENT_LEFT, -1, fs, UiTheme.VIOLET)
+			for i in 4:
+				var halo := UiTheme.box(Color(1.0, 0.84, 0.42, 0.16), int(Shapes._px(12 + i * 3)))
+				halo.draw(get_canvas_item(), r.grow(Shapes._px(3 + i * 3)))
+		draw_texture_rect(Glass.CARD_BACK, r, false)
 
 
 ## Dos de carte : framboise et sarcelle, tourbillons, grande bulle « ? ».

@@ -50,7 +50,7 @@ func _ready() -> void:
 		for ch in data.get("chapitres", []):
 			for l in ch.get("niveaux", []):
 				_level_names[int(l["id"])] = str(l["nom"])
-	P.night_background(self)
+	Glass.background(self, 0.6)
 	_screen = Control.new()
 	_screen.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_screen.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -59,8 +59,7 @@ func _ready() -> void:
 	_top.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_top.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_top)
-	var quit := P.button("×", _ask_quit, 20, "GhostButton")
-	quit.custom_minimum_size = Vector2(P.px(34), P.px(34))
+	var quit := Glass.close_button(_ask_quit)
 	quit.position = Vector2(P.px(8), P.px(6))
 	quit.size = quit.custom_minimum_size
 	_top.add_child(quit)
@@ -187,43 +186,8 @@ func _new_screen(top: float = 44, sides: float = 16, bottom: float = 18) -> VBox
 
 ## Toi à gauche, le Scribe à droite, cartes restantes sous les noms, minuteur au milieu.
 func _top_bar(with_timer: bool = true) -> HBoxContainer:
-	var bar := P.hbox(8)
-	var counts := [view.get("main", []).size(), int(view.get("mainIA", 0))]
-	for p in [0, 1]:
-		var block := P.hbox(8)
-		block.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		if p == 1:
-			block.alignment = BoxContainer.ALIGNMENT_END
-		var av := P.avatar(Online.username, P.TEAL, 40) if p == 0 else Map.scribe_avatar(40)
-		av.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		var info := P.vbox(3)
-		info.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		var n := P.label("Toi" if p == 0 else "Le Scribe", 15, P.CREAM, 900, HORIZONTAL_ALIGNMENT_RIGHT if p == 1 else HORIZONTAL_ALIGNMENT_LEFT)
-		n.autowrap_mode = TextServer.AUTOWRAP_OFF
-		info.add_child(n)
-		var row := P.hbox(3)
-		row.alignment = BoxContainer.ALIGNMENT_END if p == 1 else BoxContainer.ALIGNMENT_BEGIN
-		for i in counts[p]:
-			var c := ColorRect.new()
-			c.color = P.YELLOW
-			c.custom_minimum_size = Vector2(P.px(10), P.px(14))
-			c.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			row.add_child(c)
-		info.add_child(row)
-		if p == 0:
-			block.add_child(av)
-			block.add_child(info)
-		else:
-			block.add_child(info)
-			block.add_child(av)
-		bar.add_child(block)
-		if p == 0:
-			if with_timer:
-				bar.add_child(_timer_ring())
-			else:
-				bar.add_child(P.spacer(0))
-	return bar
-
+	return Glass.players_bar("Toi", Glass.avatar(Online.username, Glass.ME, 42), view.get("main", []).size(),
+		"Le Scribe", Glass.scribe_portrait(42), int(view.get("mainIA", 0)), _timer_ring() if with_timer else null)
 
 # ---------------------------------------------------------------- Question de départ
 
@@ -232,27 +196,28 @@ func _show_starter() -> void:
 	var d: Dictionary = view.get("depart", {}) if view.get("depart") is Dictionary else {}
 	var col := _new_screen(52, 16, 18)
 	col.add_child(_top_bar())
-	col.add_child(P.spacer(8))
-	col.add_child(P.title("Question de départ", 26, P.YELLOW))
-	col.add_child(P.label("Le premier qui répond juste commence. Le Scribe cherche aussi.", 14, P.LILAC))
-	var bubble := Shapes.SpeechBubble.new("Question")
-	bubble.add_child(P.label(str(d.get("question", "")), 20, P.NIGHT, 900))
-	col.add_child(bubble)
-	var band := PanelContainer.new()
-	band.add_theme_stylebox_override("panel", P.box(P.FRAMBOISE, P.px(18), P.px(8), P.px(8)))
-	band.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	band.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	col.add_child(P.spacer(4))
+	col.add_child(Glass.title("Question de départ", 26))
+	col.add_child(P.label("Le premier qui répond juste commence. Le Scribe cherche aussi.", 14, Glass.PALE))
+	var sheet := P.vbox(8)
+	sheet.add_child(P.title(str(d.get("question", "")), 21, Glass.INK))
+	sheet.add_child(CardView.Divider.new())
 	var rows := P.vbox(8)
-	band.add_child(rows)
+	rows.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	rows.alignment = BoxContainer.ALIGNMENT_CENTER
+	sheet.add_child(rows)
 	var buttons := {}
 	var options: Array = d.get("propositions", [])
 	for i in options.size():
 		var option: String = options[i]
 		var b := CardView.make_answer_button(CardView.LETTERS[i], option, 54)
+		b.size_flags_vertical = Control.SIZE_FILL
 		b.pressed.connect(func(): _on_starter_answer(option, buttons))
 		rows.add_child(b)
 		buttons[option] = b
-	col.add_child(band)
+	var framed := Glass.framed(sheet)
+	framed.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	col.add_child(framed)
 	_start_timer(STARTER_TIME, func(): _on_starter_answer("", buttons))
 
 
@@ -298,8 +263,8 @@ func _begin_choose() -> void:
 	var head := P.hbox(10)
 	var titles := P.vbox(0)
 	titles.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	titles.add_child(P.title("À toi de poser", 22, P.CREAM, HORIZONTAL_ALIGNMENT_LEFT))
-	titles.add_child(P.label("Choisis la carte que le Scribe devra deviner", 14, P.LILAC, 800, HORIZONTAL_ALIGNMENT_LEFT))
+	titles.add_child(Glass.title("À toi de poser", 24, P.CREAM, HORIZONTAL_ALIGNMENT_LEFT))
+	titles.add_child(P.label("Choisis la carte que le Scribe devra deviner", 14, Glass.PALE, 800, HORIZONTAL_ALIGNMENT_LEFT))
 	head.add_child(titles)
 	head.add_child(_timer_ring())
 	col.add_child(head)
@@ -309,7 +274,7 @@ func _begin_choose() -> void:
 	col.add_child(_card)
 
 	var actions := P.hbox(12)
-	var other := P.button("Une autre", _next_card, 19, "GhostButton")
+	var other := Glass.button("Une autre", _next_card, 19, 56)
 	other.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	actions.add_child(other)
 	_play_button = P.button("Poser cette carte", _play_selected, 21)
@@ -409,11 +374,11 @@ func _show_ai_answering(coup: Dictionary, before: Dictionary) -> void:
 	col.add_child(_card)
 	_card.show_owner_answering(data, presented, "Ta carte")
 	var pill := PanelContainer.new()
-	pill.add_theme_stylebox_override("panel", P.box(P.VIOLET, P.px(999), P.px(10), P.px(6)))
+	pill.add_theme_stylebox_override("panel", Glass.panel_style(Glass.PANEL, 999, Color(Glass.RING, 0.6), 10, 6))
 	pill.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	pill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var ph := P.hbox(10)
-	var av := Map.scribe_avatar(32)
+	var av := Glass.scribe_portrait(32)
 	av.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	ph.add_child(av)
 	var status := P.label("Le Scribe réfléchit…", 15, P.CREAM, 900)
@@ -458,7 +423,7 @@ func _begin_answer() -> void:
 	_card.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_card.answered.connect(_on_answer.bind(presented.size()))
 	col.add_child(_card)
-	col.add_child(P.label("Touche ta réponse sur la carte", 14, P.LILAC))
+	col.add_child(P.label("Touche ta réponse sur la carte", 14, Glass.PALE))
 	_card.flip(func(): _card.show_question(data, presented, "", "La carte du Scribe"))
 	_start_timer(ANSWER_TIME, _on_answer.bind("", presented.size()))
 
@@ -498,8 +463,8 @@ func _show_result(info: Dictionary) -> void:
 	else:
 		headline = "Bonne réponse !" if correct else ("Temps écoulé !" if info["timed_out"] else "Raté !")
 	var good_for_me := correct != mine
-	var title := P.title(headline, 36, P.YELLOW if good_for_me else Color("ff8fa3"))
-	title.add_theme_color_override("font_shadow_color", P.EMBER if good_for_me else P.VIOLET)
+	var title := Glass.title(headline, 36, Glass.GOLD if good_for_me else Color("ff8fa3"))
+	title.add_theme_color_override("font_shadow_color", Glass.SHADOW)
 	title.add_theme_constant_override("shadow_offset_y", P.px(4))
 	title.add_theme_constant_override("shadow_offset_x", 0)
 	col.add_child(title)
@@ -541,7 +506,7 @@ func _show_result(info: Dictionary) -> void:
 		t.tween_property(stamp, "modulate:a", 1.0, 0.2).set_delay(0.6)
 	else:
 		var note := PanelContainer.new()
-		note.add_theme_stylebox_override("panel", P.box(P.CREAM, P.px(18), P.px(16), P.px(14)))
+		note.add_theme_stylebox_override("panel", Glass.parchment_style(16, 14))
 		note.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		note.anchor_left = 0.08
 		note.anchor_right = 0.92
@@ -551,9 +516,9 @@ func _show_result(info: Dictionary) -> void:
 		var nv := P.vbox(6)
 		var choice: String = info["choice"]
 		if not choice.is_empty():
-			nv.add_child(P.label("« %s » n'est pas la bonne réponse." % choice, 16, P.NIGHT, 900))
-		nv.add_child(P.title("Ta carte te revient." if mine else "La carte retourne chez le Scribe.", 20, P.VIOLET))
-		nv.add_child(P.label(_weakened_text(info), 15, Color("6b5a8e"), 800))
+			nv.add_child(P.label("« %s » n'est pas la bonne réponse." % choice, 16, Glass.INK, 900))
+		nv.add_child(P.title("Ta carte te revient." if mine else "La carte retourne chez le Scribe.", 20, Color("13275e")))
+		nv.add_child(P.label(_weakened_text(info), 15, Color("7a5a3a"), 800))
 		note.add_child(nv)
 		stage.add_child(note)
 
@@ -618,45 +583,45 @@ func _show_end() -> void:
 			tag.add_theme_stylebox_override("panel", P.box(P.GREEN, P.px(999), P.px(14), P.px(4)))
 			tag.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 			tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			var tl := P.label("Nouvelle étoile : %s" % CardData.DIFFICULTY_LABELS.get(_difficulty(), ""), 14, P.NIGHT, 900)
+			var tl := P.label("Nouvelle étoile : %s" % CardData.DIFFICULTY_LABELS.get(_difficulty(), ""), 14, P.CREAM, 900)
 			tl.autowrap_mode = TextServer.AUTOWRAP_OFF
 			tag.add_child(tl)
 			col.add_child(tag)
-		var t := P.title("Victoire !", 52, P.YELLOW)
-		t.add_theme_color_override("font_shadow_color", P.EMBER)
+		var t := Glass.title("Victoire !", 52, Glass.GOLD)
+		t.add_theme_color_override("font_shadow_color", Glass.SHADOW)
 		t.add_theme_constant_override("shadow_offset_y", P.px(5))
 		t.add_theme_constant_override("shadow_offset_x", 0)
 		col.add_child(t)
-		col.add_child(P.label("Le Scribe n'a plus de cartes.\nNiveau %d : %s" % [_level(), _level_name(_level())], 17, P.LILAC))
+		col.add_child(P.label("Le Scribe n'a plus de cartes.\nNiveau %d : %s" % [_level(), _level_name(_level())], 17, Glass.PALE))
 	else:
-		var av := Map.scribe_avatar(110)
+		var av := Glass.scribe_portrait(110)
 		av.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		col.add_child(av)
 		col.add_child(P.title("Le Scribe gagne", 44, P.CREAM))
 		var left := int(view.get("mainIA", 0))
 		var why := "Tu as abandonné la partie." if not view.get("main", []).is_empty() else "Tu n'as plus de cartes."
 		var secret := "Ses %d cartes survivantes gardent leur secret." % left if left > 1 else "Sa carte survivante garde son secret."
-		col.add_child(P.label("%s\n%s" % [why, secret], 17, P.LILAC))
+		col.add_child(P.label("%s\n%s" % [why, secret], 17, Glass.PALE))
 
 	var recap := PanelContainer.new()
-	recap.add_theme_stylebox_override("panel", P.box(P.VIOLET, P.px(22), P.px(16), P.px(6)))
+	recap.add_theme_stylebox_override("panel", Glass.panel_style(Glass.PANEL, 22, Color(Glass.RING, 0.6), 16, 6))
 	recap.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var rv := P.vbox(0)
 	var gain := int(fin.get("gain", _stake() if won else -_stake()))
-	rv.add_child(_recap_row("Mise remportée" if won else "Mise perdue", "+%d talents" % gain if won else "−%d talents" % absi(gain), P.GREEN if won else Color("ff8fb8")))
-	rv.add_child(_recap_row("Tes talents", str(int(fin.get("talents", Online.talents()))), P.YELLOW))
+	rv.add_child(_recap_row("Mise remportée" if won else "Mise perdue", "+%d talents" % gain if won else "−%d talents" % absi(gain), Glass.WIN if won else Color("ff8fb8")))
+	rv.add_child(_recap_row("Tes talents", str(int(fin.get("talents", Online.talents()))), Glass.GOLD))
 	var xp := int(fin.get("xp", 0))
-	rv.add_child(_recap_row("Expérience", "+%d XP" % xp if xp > 0 else "0 XP (abandon)", P.TEAL.lightened(0.3)))
+	rv.add_child(_recap_row("Expérience", "+%d XP" % xp if xp > 0 else "0 XP (abandon)", Glass.GOLD))
 	recap.add_child(rv)
 	col.add_child(P.spacer(10))
 	col.add_child(recap)
 	var level_now := int(fin.get("niveau", 0))
 	if level_now > int(fin.get("niveauAvant", level_now)):
 		var up := PanelContainer.new()
-		up.add_theme_stylebox_override("panel", P.box(P.YELLOW, P.px(999), P.px(16), P.px(6)))
+		up.add_theme_stylebox_override("panel", P.box(Glass.GOLD, P.px(999), P.px(16), P.px(6)))
 		up.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		up.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		var ul := P.title("Niveau %d atteint : %s" % [level_now, Progression.rank(level_now)], 18, P.NIGHT)
+		var ul := P.title("Niveau %d atteint : %s" % [level_now, Progression.rank(level_now)], 18, Glass.INK)
 		ul.autowrap_mode = TextServer.AUTOWRAP_OFF
 		up.add_child(ul)
 		col.add_child(up)
@@ -677,7 +642,7 @@ func _show_end() -> void:
 		again.pressed.connect(_replay.bind(again))
 		again.disabled = Online.talents() < _stake()
 		col.add_child(again)
-	col.add_child(P.button("Retour à la carte", _to_map, 19, "GhostButton"))
+	col.add_child(Glass.button("Retour à la carte", _to_map, 19, 56))
 
 
 func _recap_row(caption: String, value: String, color: Color) -> Control:
@@ -709,7 +674,7 @@ func _replay(button: Button) -> void:
 
 func _show_destroyed() -> void:
 	var col := _new_screen(50, 16, 20)
-	col.add_child(P.title("Cartes détruites", 30, P.YELLOW, HORIZONTAL_ALIGNMENT_LEFT))
+	col.add_child(Glass.title("Cartes détruites", 30, Glass.GOLD, HORIZONTAL_ALIGNMENT_LEFT))
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -732,14 +697,14 @@ func _show_destroyed() -> void:
 			var v := P.vbox(6)
 			card.add_child(v)
 			var owner := "Ta carte" if p == 0 else "Carte du Scribe"
-			v.add_child(P.label("%s, %s" % [owner, data.category_label().to_lower()], 12, Color("6b5a8e"), 800, HORIZONTAL_ALIGNMENT_LEFT))
-			v.add_child(P.label(data.question, 15, P.NIGHT, 900, HORIZONTAL_ALIGNMENT_LEFT))
+			v.add_child(P.label("%s, %s" % [owner, data.category_label().to_lower()], 12, Color("7a5a3a"), 800, HORIZONTAL_ALIGNMENT_LEFT))
+			v.add_child(P.label(data.question, 15, Glass.INK, 900, HORIZONTAL_ALIGNMENT_LEFT))
 			v.add_child(P.title(data.answer, 19, Color("1d7a47"), HORIZONTAL_ALIGNMENT_LEFT))
-			v.add_child(P.title(data.reference, 14, P.FRAMBOISE, HORIZONTAL_ALIGNMENT_LEFT))
+			v.add_child(P.title(data.reference, 14, Color("9a3412"), HORIZONTAL_ALIGNMENT_LEFT))
 			list.add_child(card)
 	if list.get_child_count() == 0:
-		list.add_child(P.label("Aucune carte détruite.", 16, P.LILAC))
-	col.add_child(P.button("Retour", _show_end, 18, "GhostButton"))
+		list.add_child(P.label("Aucune carte détruite.", 16, Glass.PALE))
+	col.add_child(Glass.button("Retour", _show_end, 18, 56))
 
 
 func _level_name(level: int) -> String:
@@ -753,16 +718,16 @@ func _show_error(message: String) -> void:
 	step = Step.END
 	var col := _new_screen(60, 24, 28)
 	col.alignment = BoxContainer.ALIGNMENT_CENTER
-	col.add_child(P.title("La partie est interrompue", 30, P.YELLOW))
-	col.add_child(P.label(message, 16, P.LILAC))
+	col.add_child(Glass.title("La partie est interrompue", 30, Glass.GOLD))
+	col.add_child(P.label(message, 16, Glass.PALE))
 	col.add_child(P.spacer(20))
 	col.add_child(P.button("Retour à la carte", _to_map, 22))
 
 
 func _flash(text: String) -> void:
 	var box := PanelContainer.new()
-	var s := P.box(P.NIGHT, P.px(18), P.px(18), P.px(14))
-	s.border_color = P.YELLOW
+	var s := P.box(Color(0.05, 0.09, 0.2, 0.95), P.px(18), P.px(18), P.px(14))
+	s.border_color = Glass.RING
 	s.set_border_width_all(P.px(3))
 	box.add_theme_stylebox_override("panel", s)
 	box.anchor_left = 0.06
@@ -797,7 +762,7 @@ func _ask_quit() -> void:
 	if _quit_box:
 		return
 	var dim := ColorRect.new()
-	dim.color = Color(P.NIGHT, 0.94)
+	dim.color = Color(Glass.DEEP, 0.94)
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_top.add_child(dim)
 	_quit_box = dim
@@ -807,13 +772,13 @@ func _ask_quit() -> void:
 	var v := P.vbox(14)
 	v.alignment = BoxContainer.ALIGNMENT_CENTER
 	m.add_child(v)
-	v.add_child(P.title("Abandonner la partie ?", 32, P.YELLOW))
-	v.add_child(P.label("Ta mise de %d talents est perdue." % _stake(), 16, P.LILAC))
+	v.add_child(Glass.title("Abandonner la partie ?", 32, Glass.GOLD))
+	v.add_child(P.label("Ta mise de %d talents est perdue." % _stake(), 16, Glass.PALE))
 	v.add_child(P.spacer(16))
 	v.add_child(P.button("Continuer la partie", func():
 		_quit_box.queue_free()
 		_quit_box = null, 22))
-	v.add_child(P.button("Abandonner", _abandon, 18, "GhostButton"))
+	v.add_child(Glass.button("Abandonner", _abandon, 18, 56))
 
 
 func _abandon() -> void:
