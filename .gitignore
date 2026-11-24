@@ -12,3 +12,6 @@ build/
 # Système
 .DS_Store
 Thumbs.db
+
+# Originaux des illustrations (tools/livres_images.ps1 en fait les JPG d'assets/illustrations).
+/assets/livres/

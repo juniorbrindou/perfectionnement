@@ -239,7 +239,6 @@ func _build_panel() -> void:
 	ps.set_border_width_all(maxi(2, int(3 * _s)))
 	pill.add_theme_stylebox_override("panel", ps)
 	pill.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	pill.z_index = 1
 	_place(pill, STAKE_PILL)
 	var row := P.hbox(int(6 * _s))
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -264,6 +263,7 @@ func _build_panel() -> void:
 	_play_veil.add_theme_stylebox_override("panel", P.box(Color(0.12, 0.1, 0.08, 0.45), int(PLAY.size.y * _s / 2)))
 	_play_veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_place(_play_veil, PLAY.grow(-6))
+	move_child(pill, -1)  # Au-dessus du voile, mais sous les fenêtres ajoutées ensuite.
 	_tap(PLAY, _on_play)
 	_tap(BACK, _to_menu)
 
@@ -340,7 +340,7 @@ func _clear_overlay() -> void:
 
 func _dim(alpha: float) -> void:
 	var dim := ColorRect.new()
-	dim.color = Color(P.NIGHT, alpha)
+	dim.color = Color(Glass.DEEP, alpha)
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
 	dim.mouse_filter = Control.MOUSE_FILTER_STOP
 	_overlay.add_child(dim)
@@ -353,10 +353,10 @@ func _show_guest() -> void:
 	var v := _notice_card("L'arcade demande un compte",
 		"Crée ton compte pour affronter le Scribe sur la carte d'aventure. Tu gardes ton pseudo, tes talents et ton XP.")
 	var acc := PanelContainer.new()
-	acc.add_theme_stylebox_override("panel", P.box(Color(1, 1, 1, 0.08), P.px(16), P.px(12), P.px(10)))
+	acc.add_theme_stylebox_override("panel", Glass.panel_style(Glass.PANEL_DARK, 16, Glass.EDGE, 12, 10))
 	acc.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var ah := P.hbox(10)
-	var av := P.avatar(Online.username, P.TEAL, 42)
+	var av := Glass.avatar(Online.username, Glass.ME, 42)
 	av.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	ah.add_child(av)
 	var who := P.vbox(0)
@@ -365,25 +365,25 @@ func _show_guest() -> void:
 	var un := P.label(Online.username, 16, P.CREAM, 900, HORIZONTAL_ALIGNMENT_LEFT)
 	un.autowrap_mode = TextServer.AUTOWRAP_OFF
 	who.add_child(un)
-	who.add_child(P.label("Invité sur ce téléphone", 13, P.LILAC, 800, HORIZONTAL_ALIGNMENT_LEFT))
+	who.add_child(P.label("Invité sur ce téléphone", 13, Glass.SOFT, 800, HORIZONTAL_ALIGNMENT_LEFT))
 	ah.add_child(who)
-	var tal := P.label("%d talents" % Online.talents(), 15, P.YELLOW, 900)
+	var tal := P.label("%d talents" % Online.talents(), 15, Glass.GOLD, 900)
 	tal.autowrap_mode = TextServer.AUTOWRAP_OFF
 	tal.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	ah.add_child(tal)
 	acc.add_child(ah)
 	v.add_child(acc)
 	v.add_child(P.spacer(6))
-	v.add_child(P.button("Créer mon compte", _open_profile.bind(0), 22))
-	v.add_child(P.button("J'ai déjà un compte", _open_profile.bind(2), 19, "GhostButton"))
-	_add_home_link()
+	v.add_child(Glass.gold_button("Créer mon compte", _open_profile.bind(0)))
+	v.add_child(Glass.button("J'ai déjà un compte", _open_profile.bind(2), 19))
+	v.add_child(_link("Retour à l'accueil", _to_menu))
 
 
 func _show_notice(title: String, text: String, action: String, on_action: Callable) -> void:
 	var v := _notice_card(title, text)
 	v.add_child(P.spacer(6))
-	v.add_child(P.button(action, on_action, 22))
-	_add_home_link()
+	v.add_child(Glass.gold_button(action, on_action))
+	v.add_child(_link("Retour à l'accueil", _to_menu))
 
 
 func _notice_card(title: String, text: String) -> VBoxContainer:
@@ -401,18 +401,18 @@ func _notice_card(title: String, text: String) -> VBoxContainer:
 	# Le médaillon du cadenas chevauche le haut de la carte (séparation négative).
 	var stack := P.vbox(-44)
 	center.add_child(stack)
-	var lock := P.circle(P.NIGHT, 88, P.YELLOW, 4)
+	var lock := P.circle(Glass.DEEP, 88, Glass.RING, 4)
 	lock.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	lock.z_index = 1
-	var icon := Shapes.Icon.new("cadenas", P.YELLOW, 44)
+	var icon := Shapes.Icon.new("cadenas", Glass.GOLD, 44)
 	icon.position = Vector2(P.px(22), P.px(22))
 	lock.add_child(icon)
 	stack.add_child(lock)
 	var card := PanelContainer.new()
-	var s := P.box(P.VIOLET, P.px(26), P.px(22), P.px(22))
+	var s := P.box(Color(0.05, 0.1, 0.24, 0.97), P.px(26), P.px(22), P.px(22))
 	s.content_margin_top = P.px(64)
-	s.border_color = P.YELLOW
-	s.set_border_width_all(P.px(4))
+	s.border_color = Glass.RING
+	s.set_border_width_all(P.px(3))
 	s.shadow_color = Color(0, 0, 0, 0.3)
 	s.shadow_offset = Vector2(0, P.px(8))
 	card.add_theme_stylebox_override("panel", s)
@@ -421,19 +421,10 @@ func _notice_card(title: String, text: String) -> VBoxContainer:
 	stack.add_child(card)
 	var v := P.vbox(14)
 	card.add_child(v)
-	v.add_child(P.title(title, 28, P.YELLOW))
-	v.add_child(P.label(text, 16, P.LILAC, 800))
+	v.add_child(P.title(title, 28, Glass.GOLD))
+	v.add_child(P.label(text, 16, Glass.PALE, 800))
 	return v
 
-
-func _add_home_link() -> void:
-	var m := P.margins(0, 0, 0, 30)
-	m.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_overlay.add_child(m)
-	var v := P.vbox(0)
-	v.alignment = BoxContainer.ALIGNMENT_END
-	m.add_child(v)
-	v.add_child(_link("Retour à l'accueil", _to_menu))
 
 
 func _open_profile(view: int) -> void:
@@ -460,23 +451,7 @@ func _link(text: String, on_pressed: Callable) -> Button:
 
 
 func _toast(text: String) -> void:
-	var box := PanelContainer.new()
-	var s := P.box(P.NIGHT, P.px(18), P.px(18), P.px(12))
-	s.border_color = P.YELLOW
-	s.set_border_width_all(P.px(3))
-	box.add_theme_stylebox_override("panel", s)
-	box.anchor_left = 0.08
-	box.anchor_right = 0.92
-	box.anchor_top = 0.5
-	box.anchor_bottom = 0.5
-	box.grow_vertical = Control.GROW_DIRECTION_BOTH
-	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	box.add_child(P.title(text, 18, P.CREAM))
-	add_child(box)
-	var t := box.create_tween()
-	t.tween_interval(1.8)
-	t.tween_property(box, "modulate:a", 0.0, 0.4)
-	t.tween_callback(box.queue_free)
+	Glass.toast(self, text)
 
 
 ## Pastille du Scribe : rouleau sur fond parchemin.

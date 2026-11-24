@@ -1,28 +1,49 @@
 class_name CardView
 extends Control
-## La carte à l'écran (maquettes validées) : la question et ses réponses sont écrites
-## sur la carte, et on répond en touchant la carte.
+## La carte à l'écran (maquette B validée le 2026-11-24) : un cadre doré, l'illustration du
+## livre en haut avec son nom dans un bandeau, puis un parchemin où sont écrites la question
+## et ses réponses. On répond en touchant la carte.
+##
+## L'illustration vient de assets/illustrations/<livre>.jpg (demandes : docs/IMAGES_LIVRES.md) ;
+## tant qu'un livre n'a pas la sienne, la carte montre la Bible lumineuse du dos de carte.
 ##
 ## Modes :
-##   BACK   dos de carte (framboise et sarcelle, bulle « ? »)
+##   BACK   dos de carte peint
 ##   OWNER  vue du propriétaire : la bonne réponse est marquée en vert
 ##   ANSWER vue de celui qui répond : les réponses sont des boutons → signal answered
-##   REVEAL après une bonne réponse : illustration du récit, réponse, référence
+##   REVEAL après une bonne réponse : récit, réponse, référence
 
 signal answered(choice: String)
 
 enum Mode { BACK, OWNER, ANSWER, REVEAL }
+enum Highlight { NONE, HESITATE, RIGHT, WRONG }
 
 const LETTERS := ["A", "B", "C", "D", "E"]
-const BADGE_LABELS := {"lait": "Lait", "manne": "Manne", "solide": "Nourriture\nsolide"}
+const BADGE_LABELS := {"lait": "Lait", "manne": "Manne", "solide": "Solide"}
+
+const CARD_BACK := preload("res://assets/duel/dos_carte.png")
+const CARD_FACE := preload("res://assets/duel/face_carte.png")
+const BOOKS_DIR := "res://assets/illustrations/"
+
+const GOLD := Color("f0c05a")
+const GOLD_LIGHT := Color("ffe9a8")
+const GOLD_DARK := Color("6b3f10")
+const NAVY := Color("13275e")
+const INK := Color("4a2a12")  ## Texte sur le parchemin.
+const INK_SOFT := Color("7a5a3a")
+const PILL := Color("fff1d6")
+const PILL_PRESSED := Color("f3dcae")
+const PILL_EDGE := Color("d9b77a")
+const RIGHT := Color("2fae68")
+const WRONG := Color("d9445a")
 
 var mode := Mode.BACK
 
+var _frame: Control
 var _body: Panel
-var _pattern: Control
-var _back_art: Control
-var _content: MarginContainer
+var _content: Control
 var _overlay: Control
+var _sheet: VBoxContainer  ## Colonne du parchemin de la face en cours.
 var _answer_buttons := {}  ## texte de la réponse → Button
 var _owner_rows := {}  ## texte de la réponse → PanelContainer (vue du propriétaire)
 
@@ -31,28 +52,33 @@ func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	resized.connect(func(): pivot_offset = size / 2)
 
-	var frame := Shapes.NotchedFrame.new()
-	frame.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(frame)
+	# Cadre doré avec son halo, et un filet sombre à l'intérieur.
+	_frame = Panel.new()
+	_frame.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var fs := UiTheme.box(GOLD, UiTheme.px(22))
+	fs.border_color = GOLD_LIGHT
+	fs.set_border_width_all(UiTheme.px(2))
+	fs.shadow_color = Color(1.0, 0.84, 0.42, 0.45)
+	fs.shadow_size = UiTheme.px(10)
+	_frame.add_theme_stylebox_override("panel", fs)
+	add_child(_frame)
+	var line := Panel.new()
+	line.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_inset(line, 5)
+	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	line.add_theme_stylebox_override("panel", UiTheme.box(GOLD_DARK, UiTheme.px(18)))
+	_frame.add_child(line)
 
 	_body = Panel.new()
 	_body.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_body.offset_left = UiTheme.px(16)
-	_body.offset_top = UiTheme.px(16)
-	_body.offset_right = -UiTheme.px(16)
-	_body.offset_bottom = -UiTheme.px(44)
+	_inset(_body, 7)
 	_body.clip_children = CanvasItem.CLIP_CHILDREN_AND_DRAW
 	_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_body.add_theme_stylebox_override("panel", UiTheme.box(NAVY, UiTheme.px(16)))
 	add_child(_body)
 
-	_back_art = Shapes.CardBackArt.new()
-	_back_art.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_body.add_child(_back_art)
-	_pattern = Shapes.RingPattern.new()
-	_pattern.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_body.add_child(_pattern)
-
-	_content = MarginContainer.new()
+	_content = Control.new()
 	_content.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_body.add_child(_content)
@@ -64,104 +90,111 @@ func _init() -> void:
 	show_back()
 
 
+# ---------------------------------------------------------------- Illustrations
+
+## Nom de fichier d'un livre : « 1 Samuel » → 1_samuel, « Ézéchiel » → ezechiel.
+static func book_slug(book: String) -> String:
+	var s := book.to_lower()
+	for pair in [["é", "e"], ["è", "e"], ["ê", "e"], ["ë", "e"], ["à", "a"], ["â", "a"], ["î", "i"],
+			["ï", "i"], ["ô", "o"], ["û", "u"], ["ù", "u"], ["ç", "c"], [" ", "_"], ["'", ""]]:
+		s = s.replace(pair[0], pair[1])
+	return s
+
+
+## Illustration du livre de la carte, ou la Bible lumineuse du dos de carte en attendant.
+static func book_art(data: CardData) -> Texture2D:
+	if data != null and not data.books.is_empty():
+		var path := BOOKS_DIR + book_slug(data.books[0]) + ".jpg"
+		if ResourceLoader.exists(path):
+			return load(path)
+	var a := AtlasTexture.new()
+	a.atlas = CARD_BACK
+	a.region = Rect2(38, 40, 196, 133)
+	return a
+
+
 # ---------------------------------------------------------------- Modes
 
 func show_back() -> void:
-	_reset(Mode.BACK, UiTheme.FRAMBOISE)
-	_back_art.visible = true
+	_reset(Mode.BACK)
+	var back := _picture(CARD_BACK, TextureRect.STRETCH_KEEP_ASPECT_COVERED)
+	back.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_content.add_child(back)
 
 
 ## Vue du propriétaire : sa carte avec la bonne réponse marquée.
 func show_owner(card: CardInPlay, owner_name: String) -> void:
 	var data := card.data
-	_reset(Mode.OWNER, UiTheme.difficulty_color(data.difficulty))
 	var options: Array[String] = [data.answer]
 	options.append_array(card.shown_wrongs)
 	options.sort()
-	var col := _question_layout(data)
-	var band := _answers_band(data, col)
+	_reset(Mode.OWNER)
+	var rows := _face(data, _book(data), book_art(data))
 	for i in options.size():
-		band.add_child(_owner_row(LETTERS[i], options[i], options[i] == data.answer))
-	_chrome(data, options.size(), "Ta carte" if owner_name.is_empty() else "La carte de %s" % owner_name)
+		rows.add_child(_owner_row(LETTERS[i], options[i], options[i] == data.answer))
+	_footer(data, "Ta carte" if owner_name.is_empty() else "La carte de %s" % owner_name)
 
 
 ## Vue du propriétaire pendant que l'adversaire répond : les propositions dans l'ordre
 ## qu'il voit, la bonne réponse marquée. highlight_owner_row() montre son hésitation.
 func show_owner_answering(data: CardData, presented: Array[String], footer: String) -> void:
-	_reset(Mode.OWNER, UiTheme.difficulty_color(data.difficulty))
-	var col := _question_layout(data)
-	var band := _answers_band(data, col)
+	_reset(Mode.OWNER)
+	var rows := _face(data, _book(data), book_art(data))
 	for i in presented.size():
 		var row := _owner_row(LETTERS[i], presented[i], presented[i] == data.answer)
-		band.add_child(row)
+		rows.add_child(row)
 		_owner_rows[presented[i]] = row
-	_chrome(data, presented.size(), footer)
+	_footer(data, footer)
 
-
-enum Highlight { NONE, HESITATE, RIGHT, WRONG }
 
 func highlight_owner_row(text: String, state: Highlight) -> void:
 	for t in _owner_rows:
 		var row: PanelContainer = _owner_rows[t]
 		var correct := (row.get_meta("correct", false) as bool)
-		var s := UiTheme.box(UiTheme.GREEN if correct else Color.TRANSPARENT, UiTheme.px(10), UiTheme.px(12), UiTheme.px(8))
+		var fill := RIGHT if correct else PILL
+		var edge := Color.TRANSPARENT
 		if t == text and state != Highlight.NONE:
 			match state:
 				Highlight.HESITATE:
-					s.bg_color = UiTheme.GREEN if correct else Color(1, 1, 1, 0.18)
+					fill = RIGHT if correct else PILL_PRESSED
 				Highlight.RIGHT:
-					s.bg_color = UiTheme.GREEN
+					fill = RIGHT
 				Highlight.WRONG:
-					s.bg_color = Color("ff4f6d")
-			s.border_color = UiTheme.CREAM
-			s.set_border_width_all(UiTheme.px(3))
-		row.add_theme_stylebox_override("panel", s)
+					fill = WRONG
+			edge = NAVY
+		row.add_theme_stylebox_override("panel", _pill_style(fill, edge))
+		_set_row_ink(row, PILL if fill != PILL and fill != PILL_PRESSED else INK)
 
 
 ## Vue de celui qui répond : les propositions se touchent sur la carte.
 func show_question(data: CardData, presented: Array[String], owner_name: String, footer: String = "") -> void:
-	_reset(Mode.ANSWER, UiTheme.difficulty_color(data.difficulty))
-	var col := _question_layout(data)
-	var band := _answers_band(data, col)
+	_reset(Mode.ANSWER)
+	# Ni le livre ni son illustration : ils trahiraient souvent la réponse (« Ruth », « Jonas »…).
+	var rows := _face(data, "", null)
 	for i in presented.size():
-		var b := _answer_button(LETTERS[i], presented[i])
-		band.add_child(b)
+		var b := make_answer_button(LETTERS[i], presented[i])
+		b.size_flags_vertical = Control.SIZE_FILL
+		b.pressed.connect(func(): answered.emit(presented[i]))
+		rows.add_child(b)
 		_answer_buttons[presented[i]] = b
-	_chrome(data, presented.size(), footer if not footer.is_empty() else "La carte de %s" % owner_name)
+	_footer(data, footer if not footer.is_empty() else "La carte de %s" % owner_name)
 
 
 ## Après une bonne réponse : la carte montre son récit.
 func show_reveal(data: CardData, story_title: String) -> void:
-	_reset(Mode.REVEAL, UiTheme.CREAM)
-	_pattern.visible = false
-	_set_margins(0, 0, 0, 0)
-	var col := UiTheme.vbox(0)
-	_content.add_child(col)
-
-	var art := PanelContainer.new()
-	var hue := float(abs(data.story.hash()) % 360) / 360.0
-	art.add_theme_stylebox_override("panel", UiTheme.box(Color.from_hsv(hue, 0.45, 0.6), 0))
-	art.custom_minimum_size = Vector2(0, UiTheme.px(230))
-	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var art_label := UiTheme.label("Illustration : %s" % story_title, 13, UiTheme.CREAM, 900)
-	art_label.size_flags_vertical = Control.SIZE_SHRINK_END
-	art.add_child(art_label)
-	col.add_child(art)
-
-	var text := UiTheme.margins(18, 16, 18, 16)
-	text.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	col.add_child(text)
-	var v := UiTheme.vbox(10)
-	text.add_child(v)
-	v.add_child(UiTheme.label(data.question, 15, Color("6b5a8e"), 800, HORIZONTAL_ALIGNMENT_LEFT))
+	_reset(Mode.REVEAL)
+	var v := _layout(book_art(data), story_title if not story_title.is_empty() else _book(data), 0.42)
+	v.add_child(UiTheme.label(data.question, 14, INK_SOFT, 800))
 	var pill := PanelContainer.new()
-	pill.add_theme_stylebox_override("panel", UiTheme.box(UiTheme.GREEN, UiTheme.px(12), UiTheme.px(14), UiTheme.px(8)))
+	pill.add_theme_stylebox_override("panel", _pill_style(RIGHT, Color.TRANSPARENT, 16, 8))
 	pill.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	pill.add_child(UiTheme.title(data.answer, 26, UiTheme.CREAM, HORIZONTAL_ALIGNMENT_LEFT))
+	pill.add_child(UiTheme.title(data.answer, 26, UiTheme.CREAM))
 	v.add_child(pill)
-	v.add_child(UiTheme.title(data.reference, 18, UiTheme.FRAMBOISE, HORIZONTAL_ALIGNMENT_LEFT))
+	v.add_child(UiTheme.title(data.reference, 18, Color("9a3412")))
 	if not data.explanation.is_empty():
-		v.add_child(UiTheme.label(data.explanation, 15, UiTheme.NIGHT, 700, HORIZONTAL_ALIGNMENT_LEFT))
+		var e := UiTheme.label(data.explanation, 14, INK, 700)
+		e.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		v.add_child(e)
 
 
 ## Retourne la carte (animation), en changeant de face au milieu.
@@ -172,7 +205,7 @@ func flip(change_face: Callable) -> void:
 	t.tween_property(self, "scale:x", 1.0, 0.22).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
-## Colore la proposition choisie (verte si juste, framboise sinon) et bloque les autres.
+## Colore la proposition choisie (verte si juste, rouge sinon) et bloque les autres.
 func mark_answer(choice: String, correct: bool) -> void:
 	for text in _answer_buttons:
 		var b: Button = _answer_buttons[text]
@@ -186,100 +219,82 @@ func set_answers_enabled(on: bool) -> void:
 		(_answer_buttons[text] as Button).disabled = not on
 
 
-# ---------------------------------------------------------------- Construction
+# ---------------------------------------------------------------- Réponses
 
-func _reset(m: Mode, body_color: Color) -> void:
-	mode = m
-	_answer_buttons.clear()
-	_owner_rows.clear()
-	for child in _content.get_children():
-		child.queue_free()
-	for child in _overlay.get_children():
-		child.queue_free()
-	_body.add_theme_stylebox_override("panel", UiTheme.box(body_color, UiTheme.px(16)))
-	_back_art.visible = false
-	_pattern.visible = m != Mode.BACK
-	_set_margins(14, 62, 14, 14)
-
-
-func _set_margins(left: float, top: float, right: float, bottom: float) -> void:
-	_content.add_theme_constant_override("margin_left", UiTheme.px(left))
-	_content.add_theme_constant_override("margin_top", UiTheme.px(top))
-	_content.add_theme_constant_override("margin_right", UiTheme.px(right))
-	_content.add_theme_constant_override("margin_bottom", UiTheme.px(bottom))
+## Bouton de réponse en pastille crème, lettre dans un rond bleu nuit cerclé d'or
+## (aussi utilisé par la question de départ).
+static func make_answer_button(letter: String, text: String, height: float = 50) -> Button:
+	var b := Button.new()
+	b.focus_mode = Control.FOCUS_NONE
+	b.custom_minimum_size = Vector2(0, UiTheme.px(height))
+	b.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	for state in ["normal", "hover", "disabled", "focus"]:
+		b.add_theme_stylebox_override(state, _pill_style(PILL))
+	for state in ["pressed", "hover_pressed"]:
+		b.add_theme_stylebox_override(state, _pill_style(PILL_PRESSED))
+	var row := _row(letter, text)
+	row.set_anchors_preset(Control.PRESET_FULL_RECT)
+	b.add_child(row)
+	b.set_meta("row", row)
+	return b
 
 
-func _question_layout(data: CardData) -> VBoxContainer:
-	var col := UiTheme.vbox(16)
-	_content.add_child(col)
-	var bubble := Shapes.SpeechBubble.new("Question")
-	var q := UiTheme.label(data.question, 21, UiTheme.NIGHT, 900)
-	bubble.add_child(q)
-	col.add_child(bubble)
-	return col
+## Colore une réponse après coup : vert si juste, rouge si fausse.
+static func tint(b: Button, correct: bool) -> void:
+	var s := _pill_style(RIGHT if correct else WRONG, NAVY)
+	for state in ["normal", "hover", "pressed", "disabled", "hover_pressed"]:
+		b.add_theme_stylebox_override(state, s)
+	if b.has_meta("row"):
+		_set_row_ink(b.get_meta("row"), PILL)
 
 
-func _answers_band(data: CardData, col: VBoxContainer) -> VBoxContainer:
-	var band := PanelContainer.new()
-	band.add_theme_stylebox_override("panel", UiTheme.box(UiTheme.answers_color(data.difficulty), UiTheme.px(18), UiTheme.px(8), UiTheme.px(8)))
-	band.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	band.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	col.add_child(band)
-	var rows := UiTheme.vbox(8)
-	rows.alignment = BoxContainer.ALIGNMENT_CENTER
-	band.add_child(rows)
-	return rows
+static func _pill_style(fill: Color, edge: Color = Color.TRANSPARENT, pad_h: float = 6, pad_v: float = 3) -> StyleBoxFlat:
+	var s := UiTheme.box(fill, UiTheme.px(40), UiTheme.px(pad_h), UiTheme.px(pad_v))
+	s.border_color = PILL_EDGE if edge == Color.TRANSPARENT else edge
+	s.border_width_bottom = UiTheme.px(3)
+	if edge != Color.TRANSPARENT:
+		s.set_border_width_all(UiTheme.px(3))
+	s.anti_aliasing = true
+	return s
 
 
-static func row_content(letter: String, text: String, letter_color: Color) -> HBoxContainer:
-	var h := UiTheme.hbox(12)
-	var l := UiTheme.title("%s)" % letter, 22, letter_color, HORIZONTAL_ALIGNMENT_LEFT)
-	l.custom_minimum_size = Vector2(UiTheme.px(28), 0)
-	l.autowrap_mode = TextServer.AUTOWRAP_OFF
-	h.add_child(l)
-	var t := UiTheme.title(text, 22, UiTheme.CREAM, HORIZONTAL_ALIGNMENT_LEFT)
+## Lettre dans son rond, puis le texte de la réponse.
+static func _row(letter: String, text: String) -> HBoxContainer:
+	var h := UiTheme.hbox(10)
+	h.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var pad := Control.new()
+	pad.custom_minimum_size = Vector2(UiTheme.px(2), 0)
+	pad.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	h.add_child(pad)
+	var dot := UiTheme.circle(NAVY, 32, Color("c99a3c"), 2.5)
+	dot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var l := UiTheme.title(letter, 17, UiTheme.CREAM)
+	l.set_anchors_preset(Control.PRESET_FULL_RECT)
+	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	dot.add_child(l)
+	h.add_child(dot)
+	var t := UiTheme.label(text, 17, INK, 900, HORIZONTAL_ALIGNMENT_LEFT)
 	t.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	t.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	t.name = "Text"
 	h.add_child(t)
 	return h
 
 
-## Bouton de réponse posé sur une carte (aussi utilisé par la question de départ).
-static func make_answer_button(letter: String, text: String, height: float = 58) -> Button:
-	var b := Button.new()
-	b.theme_type_variation = "AnswerButton"
-	b.focus_mode = Control.FOCUS_NONE
-	b.custom_minimum_size = Vector2(0, UiTheme.px(height))
-	b.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	var m := UiTheme.margins(14, 4, 14, 4)
-	m.set_anchors_preset(Control.PRESET_FULL_RECT)
-	var row := row_content(letter, text, UiTheme.YELLOW)
-	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	m.add_child(row)
-	b.add_child(m)
-	return b
+static func _set_row_ink(row: Control, color: Color) -> void:
+	var r: Node = row if row is HBoxContainer else row.get_child(0)
+	var t := r.get_node_or_null("Text") as Label
+	if t:
+		t.add_theme_color_override("font_color", color)
 
-
-## Colore une réponse après coup : vert si juste, rose vif si fausse.
-static func tint(b: Button, correct: bool) -> void:
-	var s := UiTheme.box(UiTheme.GREEN if correct else Color("ff4f6d"), UiTheme.px(12))
-	s.border_color = UiTheme.CREAM
-	s.set_border_width_all(UiTheme.px(3))
-	for state in ["normal", "hover", "pressed", "disabled", "hover_pressed"]:
-		b.add_theme_stylebox_override(state, s)
-
-
-func _answer_button(letter: String, text: String) -> Button:
-	var b := make_answer_button(letter, text)
-	b.pressed.connect(func(): answered.emit(text))
-	return b
 
 func _owner_row(letter: String, text: String, correct: bool) -> Control:
 	var p := PanelContainer.new()
-	p.add_theme_stylebox_override("panel", UiTheme.box(UiTheme.GREEN if correct else Color.TRANSPARENT, UiTheme.px(10), UiTheme.px(12), UiTheme.px(8)))
-	p.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	p.add_theme_stylebox_override("panel", _pill_style(RIGHT if correct else PILL))
+	p.custom_minimum_size = Vector2(0, UiTheme.px(48))
 	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	p.set_meta("correct", correct)
-	var row := row_content(letter, text, UiTheme.CREAM if correct else UiTheme.YELLOW)
+	var row := _row(letter, text)
 	if correct:
 		var tag := PanelContainer.new()
 		tag.add_theme_stylebox_override("panel", UiTheme.box(UiTheme.CREAM, UiTheme.px(10), UiTheme.px(8), UiTheme.px(2)))
@@ -289,61 +304,190 @@ func _owner_row(letter: String, text: String, correct: bool) -> Control:
 		tl.autowrap_mode = TextServer.AUTOWRAP_OFF
 		tag.add_child(tl)
 		row.add_child(tag)
+		var end := Control.new()
+		end.custom_minimum_size = Vector2(UiTheme.px(4), 0)
+		row.add_child(end)
 	p.add_child(row)
+	_set_row_ink(row, PILL if correct else INK)
 	return p
 
 
-## Médaillon de difficulté, pastille de catégorie, jauge des réponses, pied de carte.
-func _chrome(data: CardData, options: int, footer_right: String) -> void:
-	var badge := UiTheme.circle(UiTheme.NIGHT, 84, UiTheme.YELLOW, 4)
-	badge.position = Vector2(-UiTheme.px(10), -UiTheme.px(10))
+# ---------------------------------------------------------------- Construction
+
+func _reset(m: Mode) -> void:
+	mode = m
+	_answer_buttons.clear()
+	_owner_rows.clear()
+	for child in _content.get_children():
+		child.queue_free()
+	for child in _overlay.get_children():
+		child.queue_free()
+
+
+func _book(data: CardData) -> String:
+	return data.books[0] if not data.books.is_empty() else ""
+
+
+## Face de carte : illustration et bandeau, puis la question sur le parchemin. Renvoie la
+## colonne où poser les réponses.
+func _face(data: CardData, ribbon: String, art: Texture2D) -> VBoxContainer:
+	var v := _layout(art if art != null else book_art(null), ribbon, 0.36)
+	var q := UiTheme.title(data.question, 21, INK)
+	v.add_child(q)
+	v.add_child(Divider.new())
+	var rows := UiTheme.vbox(7)
+	rows.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	rows.alignment = BoxContainer.ALIGNMENT_CENTER
+	v.add_child(rows)
+	_badges(data)
+	return rows
+
+
+## Illustration en haut (part de la hauteur : art_share), parchemin dessous. Renvoie la
+## colonne du parchemin.
+func _layout(picture: Texture2D, ribbon: String, art_share: float) -> VBoxContainer:
+	var col := UiTheme.vbox(0)
+	col.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_content.add_child(col)
+
+	var art := Control.new()
+	art.clip_contents = true
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	art.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	art.size_flags_stretch_ratio = art_share
+	col.add_child(art)
+	var pic := _picture(picture, TextureRect.STRETCH_KEEP_ASPECT_COVERED)
+	pic.set_anchors_preset(Control.PRESET_FULL_RECT)
+	art.add_child(pic)
+	if not ribbon.is_empty():
+		art.add_child(_ribbon(ribbon))
+
+	var sheet := PanelContainer.new()
+	var paper := StyleBoxTexture.new()
+	paper.texture = CARD_FACE
+	paper.region_rect = Rect2(60, 60, 166, 150)
+	sheet.add_theme_stylebox_override("panel", paper)
+	sheet.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	sheet.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	sheet.size_flags_stretch_ratio = 1.0 - art_share
+	col.add_child(sheet)
+	sheet.add_child(_shade())
+	var m := UiTheme.margins(14, 12, 14, 8)
+	sheet.add_child(m)
+	_sheet = UiTheme.vbox(8)
+	m.add_child(_sheet)
+	return _sheet
+
+
+## Ombre douce en haut du parchemin, sous l'illustration.
+static func _shade() -> Control:
+	var g := Gradient.new()
+	g.set_color(0, Color(0.23, 0.12, 0.03, 0.45))
+	g.set_color(1, Color(0.23, 0.12, 0.03, 0))
+	var tex := GradientTexture2D.new()
+	tex.gradient = g
+	tex.fill_from = Vector2(0.5, 0)
+	tex.fill_to = Vector2(0.5, 1)
+	var tr := TextureRect.new()
+	tr.texture = tex
+	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tr.stretch_mode = TextureRect.STRETCH_SCALE
+	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tr.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	tr.custom_minimum_size = Vector2(0, UiTheme.px(10))
+	return tr
+
+
+## Bandeau bleu nuit cerclé d'or, en bas de l'illustration.
+func _ribbon(text: String) -> Control:
+	var holder := CenterContainer.new()
+	holder.anchor_left = 0
+	holder.anchor_right = 1
+	holder.anchor_top = 1
+	holder.anchor_bottom = 1
+	holder.offset_top = -UiTheme.px(40)
+	holder.offset_bottom = -UiTheme.px(8)
+	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var p := PanelContainer.new()
+	var s := UiTheme.box(Color(0.055, 0.12, 0.3, 0.92), UiTheme.px(16), UiTheme.px(16), UiTheme.px(2))
+	s.border_color = Color("f2c14e")
+	s.set_border_width_all(UiTheme.px(2))
+	p.add_theme_stylebox_override("panel", s)
+	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var l := UiTheme.title(text, 16, Color("ffd76a"))
+	l.autowrap_mode = TextServer.AUTOWRAP_OFF
+	p.add_child(l)
+	holder.add_child(p)
+	return holder
+
+
+## Médaillon de difficulté (haut gauche) et pastille de catégorie (haut droite).
+func _badges(data: CardData) -> void:
+	var badge := UiTheme.circle(NAVY, 58, Color("f2c14e"), 3)
+	badge.position = Vector2(UiTheme.px(10), UiTheme.px(10))
 	badge.size = badge.custom_minimum_size
 	var bv := UiTheme.vbox(0)
 	bv.alignment = BoxContainer.ALIGNMENT_CENTER
 	bv.set_anchors_preset(Control.PRESET_FULL_RECT)
-	var icon := Shapes.Icon.new(data.difficulty, UiTheme.CREAM, 22)
+	var icon := Shapes.Icon.new(data.difficulty, UiTheme.CREAM, 18)
 	icon.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	bv.add_child(icon)
-	var bl := UiTheme.title(BADGE_LABELS.get(data.difficulty, ""), 13 if data.difficulty == "solide" else 16, UiTheme.YELLOW)
-	bl.add_theme_constant_override("line_spacing", -UiTheme.px(4))
-	bv.add_child(bl)
+	bv.add_child(UiTheme.title(BADGE_LABELS.get(data.difficulty, ""), 12, Color("ffd76a")))
 	badge.add_child(bv)
 	_overlay.add_child(badge)
 
-	var orb := UiTheme.circle(UiTheme.YELLOW, 60, UiTheme.CREAM.lerp(UiTheme.YELLOW, 0.5), 3)
+	var orb := UiTheme.circle(NAVY, 44, Color("f2c14e"), 3)
 	orb.anchor_left = 1.0
 	orb.anchor_right = 1.0
-	orb.offset_left = -UiTheme.px(66)
-	orb.offset_right = -UiTheme.px(6)
-	orb.offset_top = UiTheme.px(4)
-	orb.offset_bottom = UiTheme.px(64)
-	var cat := Shapes.Icon.new(data.category, UiTheme.VIOLET, 30)
+	orb.offset_left = -UiTheme.px(54)
+	orb.offset_right = -UiTheme.px(10)
+	orb.offset_top = UiTheme.px(10)
+	orb.offset_bottom = UiTheme.px(54)
+	var cat := Shapes.Icon.new(data.category, Color("ffd76a"), 24)
 	cat.set_anchors_preset(Control.PRESET_FULL_RECT)
 	orb.add_child(cat)
 	_overlay.add_child(orb)
 
-	var gauge := UiTheme.vbox(5)
-	gauge.position = Vector2(UiTheme.px(8), UiTheme.px(150))
-	for i in 4:
-		var seg := ColorRect.new()
-		seg.custom_minimum_size = Vector2(UiTheme.px(8), UiTheme.px(22))
-		seg.color = UiTheme.YELLOW if i < options else Color(1, 1, 1, 0.18)
-		seg.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		gauge.add_child(seg)
-	_overlay.add_child(gauge)
 
+## Pied du parchemin : catégorie à gauche, à qui est la carte à droite.
+func _footer(data: CardData, right_text: String) -> void:
 	var foot := UiTheme.hbox(8)
-	foot.anchor_top = 1.0
-	foot.anchor_bottom = 1.0
-	foot.anchor_right = 1.0
-	foot.offset_left = UiTheme.px(26)
-	foot.offset_right = -UiTheme.px(26)
-	foot.offset_top = -UiTheme.px(36)
-	foot.offset_bottom = -UiTheme.px(8)
-	var left := UiTheme.label(data.category_label(), 13, UiTheme.LILAC, 800, HORIZONTAL_ALIGNMENT_LEFT)
+	var left := UiTheme.label(data.category_label(), 12, INK_SOFT, 800, HORIZONTAL_ALIGNMENT_LEFT)
 	left.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	foot.add_child(left)
-	var right := UiTheme.label(footer_right, 13, UiTheme.LILAC, 800, HORIZONTAL_ALIGNMENT_RIGHT)
+	var right := UiTheme.label(right_text, 12, INK_SOFT, 800, HORIZONTAL_ALIGNMENT_RIGHT)
 	right.autowrap_mode = TextServer.AUTOWRAP_OFF
 	foot.add_child(right)
-	_overlay.add_child(foot)
+	_sheet.add_child(foot)
+
+
+func _picture(texture: Texture2D, stretch: TextureRect.StretchMode) -> TextureRect:
+	var t := TextureRect.new()
+	t.texture = texture
+	t.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	t.stretch_mode = stretch
+	t.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return t
+
+
+func _inset(c: Control, v: float) -> void:
+	c.offset_left = UiTheme.px(v)
+	c.offset_top = UiTheme.px(v)
+	c.offset_right = -UiTheme.px(v)
+	c.offset_bottom = -UiTheme.px(v)
+
+
+## Filet brun avec un losange au milieu, sous la question.
+class Divider extends Control:
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		custom_minimum_size = Vector2(0, UiTheme.px(12))
+
+	func _draw() -> void:
+		var c := size / 2
+		var col := Color("7a4a1c")
+		var d := UiTheme.px(6)
+		var w := maxf(1.0, UiTheme.px(1.2))
+		draw_line(Vector2(size.x * 0.14, c.y), Vector2(c.x - d * 2, c.y), col, w, true)
+		draw_line(Vector2(c.x + d * 2, c.y), Vector2(size.x * 0.86, c.y), col, w, true)
+		draw_colored_polygon(PackedVector2Array([c + Vector2(0, -d), c + Vector2(d * 1.4, 0), c + Vector2(0, d), c + Vector2(-d * 1.4, 0)]), col)

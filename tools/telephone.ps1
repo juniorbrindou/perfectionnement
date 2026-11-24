@@ -18,11 +18,23 @@ $apk = "build\perfectionnement-debug.apk"
 $saved = "build\telephone.txt"
 
 function Connect-Phone {
+    # Un téléphone déjà vu par adb (reconnexion automatique du débogage sans fil) sert tel quel :
+    # se connecter à une adresse périmée peut bloquer de longues minutes.
+    for ($i = 0; $i -lt 8; $i++) {
+        $listed = @(& $adb devices | Select-String "\tdevice$" | ForEach-Object { ("$_" -split "\t")[0] })
+        if ($listed.Count -gt 0) { break }
+        Start-Sleep 1
+    }
+    if ($listed.Count -gt 0) {
+        if (-not ($script:device -and $listed -contains $script:device)) { $script:device = $listed[0] }
+        return
+    }
     if (-not $script:device -and (Test-Path $saved)) { $script:device = (Get-Content $saved -Raw).Trim() }
     if (-not $script:device) {
         $script:device = Read-Host "Adresse du téléphone (Paramètres > Options de développement > Débogage sans fil, ex. 192.168.1.2:45917)"
     }
-    $out = & $adb connect $script:device 2>&1
+    $job = Start-Job { param($a, $d) & $a connect $d 2>&1 } -ArgumentList $adb, $script:device
+    $out = if (Wait-Job $job -Timeout 15) { Receive-Job $job } else { Stop-Job $job; "pas de réponse en 15 s" }
     if ("$out" -notmatch "connected") {
         Write-Host "Connexion impossible à $script:device : $out" -ForegroundColor Red
         Write-Host "L'adresse change à chaque activation du débogage sans fil. Relance avec la nouvelle, ex. : deployer 192.168.1.2:41234"
