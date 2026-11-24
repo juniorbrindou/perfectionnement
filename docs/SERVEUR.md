@@ -282,3 +282,9 @@ et `DUEL_*` 30/30/45 s pour les duels en ligne. Vérifié en public : 20 s pour 
   démarrage « Google auth config missing client ID » a disparu. Un jeton forgé pour une autre application est
   refusé (401, « Could not authenticate Google profile. »). Aucun vrai jeton Google n'a encore été essayé : le
   premier passera par le téléphone.
+- **Correction du 2026-11-24** : les vraies connexions depuis le téléphone échouaient (« google id token invalid »).
+  Quand `client_ids` est renseigné, Nakama vérifie l'audience **et** la partie autorisée (`azp`) du jeton. Sur
+  Android, `azp` est l'identifiant du client OAuth **Android** (paquet + empreinte SHA-1 de l'APK), pas celui de
+  l'application Web. Les deux clients Android, `…-n2b5kq2s3r7vei7b6a9eeo4grkq23nd3` pour l'APK de test et
+  `…-6pvrha92lpr8ct0n16o46ld9rsbtnla2` pour l'APK publiée, sont maintenant déclarés avec le client Web. Toute
+  nouvelle clé de signature demande un nouveau client Android dans Google Cloud, **et** son ajout ici.
