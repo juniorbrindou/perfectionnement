@@ -20,6 +20,7 @@ var step := Step.WAIT
 var fin: Dictionary = {}
 
 var _busy := false
+var _burning := false  ## La carte détruite brûle avant la suite.
 var _hand: Array[CardInPlay] = []
 var _rng := RandomNumberGenerator.new()
 var _selected := -1
@@ -511,9 +512,10 @@ func _show_result(info: Dictionary) -> void:
 	_card.set_anchors_preset(Control.PRESET_FULL_RECT)
 	stage.add_child(_card)
 
+	var stamp: Control = null
 	if correct:
 		_card.flip(func(): _card.show_reveal(data, Session.bank.story_title(data.story)))
-		var stamp := PanelContainer.new()
+		stamp = PanelContainer.new()
 		var ss := P.box(P.FRAMBOISE, P.px(10), P.px(12), P.px(6))
 		ss.border_color = P.YELLOW
 		ss.set_border_width_all(P.px(3))
@@ -556,11 +558,26 @@ func _show_result(info: Dictionary) -> void:
 		stage.add_child(note)
 
 	var go := P.button("Continuer", func():
-		if step != Step.RESULT:
+		if step != Step.RESULT or _burning:
 			return
+		if correct:
+			await _burn(stamp)
+			if step != Step.RESULT:
+				return
 		_next(), 23)
 	go.custom_minimum_size = Vector2(0, P.px(62))
 	col.add_child(go)
+
+
+## Carte détruite : elle brûle au feu doré avec son tampon, avant la suite.
+func _burn(stamp: Control) -> void:
+	_burning = true
+	var fire := FeuDore.burn(_card, P.px(22))
+	if stamp:
+		stamp.create_tween().tween_property(stamp, "modulate:a", 0.0, 0.25).set_delay(0.05)
+	await fire.consumed
+	await get_tree().create_timer(0.35).timeout
+	_burning = false
 
 
 func _weakened_text(info: Dictionary) -> String:

@@ -14,7 +14,6 @@ const G := preload("res://scripts/ui/glass.gd")
 const ART := preload("res://assets/duel/partie.png")
 const CARD_BACK := preload("res://assets/duel/dos_carte.png")
 const CARD_FACE := preload("res://assets/duel/face_carte.png")
-const DISSOLVE := preload("res://assets/duel/dissolution.gdshader")
 const MENU_SCENE := "res://scenes/main_menu.tscn"
 
 const AVATAR_ME := Rect2(10, 21, 46, 46)
@@ -680,7 +679,7 @@ func _show_result() -> void:
 	_refresh_in_place()
 
 
-## Carte trouvée : elle montre sa réponse un instant, puis se désagrège en particules dorées.
+## Carte trouvée : elle montre sa réponse un instant, puis brûle au feu doré (FeuDore).
 func _destroy_card(data: CardData, stamp_text: String) -> void:
 	var card := _rounded(CARD.grow(-4), 16)
 	var face := TextureRect.new()
@@ -705,25 +704,14 @@ func _destroy_card(data: CardData, stamp_text: String) -> void:
 	text.offset_bottom = -_fs(60)
 	face.add_child(text)
 	card.modulate.a = 0.0
-	var noise := NoiseTexture2D.new()
-	var fast := FastNoiseLite.new()
-	fast.frequency = 0.03
-	noise.noise = fast
-	noise.width = 128
-	noise.height = 128
-	var mat := ShaderMaterial.new()
-	mat.shader = DISSOLVE
-	mat.set_shader_parameter("noise", noise)
-	mat.set_shader_parameter("progress", 0.0)
-	face.material = mat
 	var stamp := _stamp(stamp_text)
 	var t := card.create_tween()
 	t.tween_property(card, "modulate:a", 1.0, 0.25)
 	t.tween_interval(1.4)
-	t.tween_callback(func(): _burst(card.get_global_rect()))
-	t.parallel().tween_property(text, "modulate:a", 0.0, 0.3)
-	t.parallel().tween_method(func(v: float): mat.set_shader_parameter("progress", v), 0.0, 1.0, 1.1)
 	t.tween_callback(func():
+		await FeuDore.burn(card, float(_fs(16))).consumed
+		if not is_instance_valid(stamp):
+			return
 		stamp.visible = true
 		stamp.scale = Vector2(1.6, 1.6)
 		var st := stamp.create_tween().set_parallel()
@@ -753,32 +741,6 @@ func _stamp(text: String) -> Control:
 	stamp.modulate.a = 0.0
 	stamp.resized.connect(func(): stamp.pivot_offset = stamp.size / 2)
 	return stamp
-
-
-## Éclats dorés qui s'envolent de la carte.
-func _burst(area: Rect2) -> void:
-	var p := CPUParticles2D.new()
-	p.one_shot = true
-	p.explosiveness = 0.75
-	p.amount = 140
-	p.lifetime = 1.3
-	p.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
-	p.emission_rect_extents = area.size / 2
-	p.position = area.get_center()
-	p.direction = Vector2(0, -1)
-	p.spread = 70
-	p.gravity = Vector2(0, -60)
-	p.initial_velocity_min = _fs(20)
-	p.initial_velocity_max = _fs(90)
-	p.scale_amount_min = _fs(1.2)
-	p.scale_amount_max = _fs(3.2)
-	var ramp := Gradient.new()
-	ramp.set_color(0, Color(1, 0.95, 0.6, 1))
-	ramp.set_color(1, Color(1, 0.7, 0.2, 0))
-	p.color_ramp = ramp
-	_top.add_child(p)
-	p.emitting = true
-	get_tree().create_timer(2.0).timeout.connect(p.queue_free)
 
 
 # ---------------------------------------------------------------- Fin
