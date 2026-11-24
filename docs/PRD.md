@@ -55,12 +55,12 @@ Un jeu de cartes rapide et stratégique pour apprendre la Bible en s'affrontant.
 - Une question **facile à 5 propositions** est posée **aux deux joueurs en même temps**. Elle provient d'une **réserve séparée** des cartes de jeu.
 - Le premier qui répond juste commence.
 - Si un joueur répond faux, **l'autre commence directement**.
-- Si personne ne répond en 10 secondes, une nouvelle question de départ est posée.
+- Si personne ne répond en 20 secondes, une nouvelle question de départ est posée.
 
 ### 2.5 Déroulement d'un tour
 
-1. **Le poseur choisit une carte** de sa main en **10 secondes**. Il voit le contenu et la bonne réponse de ses cartes. Si le temps est écoulé, une carte est jouée **au hasard** (passer la main est exclu, car un joueur pourrait alors ne jamais prendre de risque).
-2. **Celui qui répond voit** la question, la catégorie et les propositions restantes de la carte (4, 3 ou 2). Il a **15 secondes** pour choisir.
+1. **Le poseur choisit une carte** de sa main en **20 secondes**. Il voit le contenu et la bonne réponse de ses cartes. Si le temps est écoulé, une carte est jouée **au hasard** (passer la main est exclu, car un joueur pourrait alors ne jamais prendre de risque).
+2. **Celui qui répond voit** la question, la catégorie et les propositions restantes de la carte (4, 3 ou 2). Il a **30 secondes** pour choisir.
 3. **Bonne réponse** : la carte est **détruite** (avec une animation). Les deux joueurs voient la bonne réponse, la référence, l'explication et l'illustration du récit, puis touchent « Continuer ».
 4. **Mauvaise réponse** : la carte **retourne chez son propriétaire** et la bonne réponse **n'est pas révélée**. La carte s'affaiblit :
    - **4 → 3 → 2 propositions** : la proposition choisie (fausse) est retirée ;
@@ -300,7 +300,7 @@ Correspondance avec les fonctions de Nakama :
 
 Ces valeurs sont validées pour démarrer, mais seront rééquilibrées :
 
-- les minuteurs (10 s pour choisir, 15 s pour répondre, 10 s pour la question de départ, 30 s pour une reconnexion) ;
+- les minuteurs (20 s pour choisir, 30 s pour répondre, 20 s pour la question de départ, 30 s pour une reconnexion) ;
 - les 5 cartes par joueur, pour une durée visée de 3 à 5 minutes ;
 - les pourcentages de réussite de l'IA ;
 - les mises, le pain quotidien, le capital de départ et le coût de création d'un salon ;

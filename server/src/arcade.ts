@@ -17,9 +17,9 @@ const COLLECTION_PARTIES = "parties";  // cartes des dernières parties, commune
 const CLE_PARTIE = "partie";
 const CLE_RECENTES = "recentes";
 const CLE_AVENTURE = "aventure";
-const DELAI_DEPART_S = 10;
-const DELAI_CHOISIR_S = 10;
-const DELAI_REPONDRE_S = 15;
+const DELAI_DEPART_S = 20;
+const DELAI_CHOISIR_S = 20;
+const DELAI_REPONDRE_S = 30;
 /** Délai accordé en plus pour le réseau avant de jouer à la place du joueur. */
 const MARGE_S = 3;
 const PARTIES_RECENTES = 5;

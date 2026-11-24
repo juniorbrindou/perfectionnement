@@ -9,9 +9,9 @@ extends Control
 const P := preload("res://scripts/ui/ui_theme.gd")
 const Map := preload("res://scripts/ui/adventure_map.gd")
 const ADVENTURE_PATH := "res://data/aventure.json"
-const STARTER_TIME := 10.0
-const CHOOSE_TIME := 10.0
-const ANSWER_TIME := 15.0
+const STARTER_TIME := 20.0
+const CHOOSE_TIME := 20.0
+const ANSWER_TIME := 30.0
 
 enum Step { STARTER, WAIT, CHOOSE, AI_ANSWERS, ANSWER, RESULT, END }
 
@@ -522,13 +522,15 @@ func _show_result(info: Dictionary) -> void:
 		var stamp_text := P.title("Ta carte est détruite" if mine else "Carte du Scribe détruite", 16, P.CREAM)
 		stamp_text.autowrap_mode = TextServer.AUTOWRAP_OFF
 		stamp.add_child(stamp_text)
-		stamp.anchor_left = 1.0
-		stamp.anchor_right = 1.0
-		stamp.anchor_top = 0.4
-		stamp.anchor_bottom = 0.4
-		stamp.grow_horizontal = Control.GROW_DIRECTION_BEGIN
-		stamp.offset_right = P.px(10)
-		stamp.rotation_degrees = 10
+		# Sur l'illustration : le parchemin dessous porte le texte du récit.
+		stamp.anchor_left = 0.5
+		stamp.anchor_right = 0.5
+		stamp.anchor_top = 0.2
+		stamp.anchor_bottom = 0.2
+		stamp.grow_horizontal = Control.GROW_DIRECTION_BOTH
+		stamp.grow_vertical = Control.GROW_DIRECTION_BOTH
+		stamp.rotation_degrees = -8
+		stamp.resized.connect(func(): stamp.pivot_offset = stamp.size / 2)
 		stamp.scale = Vector2(1.6, 1.6)
 		stamp.modulate.a = 0
 		stage.add_child(stamp)

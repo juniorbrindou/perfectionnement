@@ -111,14 +111,14 @@ RPC **`arcade`**, charge utile `{action, ...}` :
 | `etat` | `{talents, etoiles, enCours}` ; `etoiles` : niveau → difficultés gagnées |
 | `commencer {niveau, difficulte}` | compte e-mail ou Google exigé, niveau ouvert, talents suffisants ; **prélève la mise** (2, 5 ou 10), distribue, pose la question de départ |
 | `depart {choix}` | règle la question de départ (`""` = temps écoulé) ; le Scribe répond en 3 à 9 s, juste 7 fois sur 10 |
-| `suite` | coup suivant : le Scribe pose sa carte, ou le joueur a 10 s pour choisir |
+| `suite` | coup suivant : le Scribe pose sa carte, ou le joueur a 20 s pour choisir |
 | `jouer {index}` | le joueur pose (`-1` ou hors délai : au hasard), le Scribe répond aussitôt |
 | `repondre {choix}` | réponse à la carte du Scribe (`""` ou hors délai : temps écoulé) |
 | `abandonner` | défaite, la mise reste perdue |
 
 Chaque réponse contient `vue` (ce que le joueur voit : ses cartes, le nombre de cartes du Scribe, la carte à
 deviner) et, en fin de partie, `fin {gagne, gain, nouvelleEtoile, talents, etoiles}`. Victoire : le joueur
-reçoit **deux fois la mise** (`raison: gain_arcade`). Délais : 10 s pour poser, 15 s pour répondre, plus 3 s
+reçoit **deux fois la mise** (`raison: gain_arcade`). Délais : 20 s pour poser, 30 s pour répondre, plus 3 s
 de marge réseau. Une partie laissée en cours est perdue quand le joueur en commence une autre.
 
 | Stockage | Contenu | Lecture |
@@ -229,8 +229,8 @@ coup, les cartes détruites, le temps restant, la pause, la fin et la revanche.
 | Règle | Valeur |
 |---|---|
 | Mises | prélevées aux deux joueurs quand la partie commence ; le gagnant reçoit les deux (`mise_duel`, `gain_duel`) |
-| Question de départ | posée aux deux ; le premier qui répond décide (juste : il commence ; faux : l'autre). Personne en 10 s : nouvelle question |
-| Délais | 10 s pour poser, 15 s pour répondre, 1 s de marge réseau ; ensuite carte au hasard ou temps écoulé |
+| Question de départ | posée aux deux ; le premier qui répond décide (juste : il commence ; faux : l'autre). Personne en 20 s : nouvelle question |
+| Délais | 20 s pour poser, 30 s pour répondre, 1 s de marge réseau ; ensuite carte au hasard ou temps écoulé |
 | Résultat d'un coup | tour suivant quand les deux touchent « Continuer », ou au bout de 10 s |
 | Abandon | défaite, 0 XP ; l'adversaire gagne la mise et 30 XP |
 | Déconnexion | la partie se met en pause (délais gelés) ; 30 s pour revenir, sinon défaite sans XP |
