@@ -241,6 +241,25 @@ coup, les cartes détruites, le temps restant, la pause, la fin et la revanche.
 Les cartes des 5 dernières parties sont désormais rangées dans `parties` / `recentes`, communes à l'arcade et aux
 duels (l'ancienne clé `arcade` / `recentes` n'est plus lue).
 
+**0.3.1 et 0.3.2 déployées le 2026-11-24** (commit `5393100`, 29 tests serveur verts). Le module embarque 30 cartes
+et 10 questions de départ de la réserve en ligne. Vérifié depuis l'adresse publique avec des comptes de test,
+supprimés depuis :
+
+- **arcade** : la question de départ arrive avec son texte, les cartes de la main sont complètes. Sur toute une
+  partie, la carte à deviner n'a jamais eu d'`id` ni d'`answer`. Fin de partie avec XP et talents.
+- **entre amis** : `creer` (code, mise 5), puis l'ami rejoint et joue la partie par le socket jusqu'à `fin`
+  (raison `cartes`). Perdant 98 → 93 talents et +10 XP, gagnant 100 → 105 et +30 XP. Aucune réponse dans les
+  vues du joueur qui devine.
+- **duel rapide** : deux invités appariés par le matchmaker (`+properties.difficulte:lait`), partie créée par
+  le hook. Abandon : 0 XP pour celui qui part, +5 talents et +30 XP pour l'autre.
+
+À savoir pour le client :
+
+- **Appariement** : comme le hook crée la partie, le message `matchmaker_matched` porte un `match_id` et pas de
+  `token`. Il faut rejoindre avec ce `match_id` (rejoindre avec le jeton renvoie « No match ID or token found »).
+- **`voir {code}`** ne trouve la partie qu'une fois que le créateur l'a rejointe. Avant, la liste des parties ne
+  la contient pas encore (404). C'est l'ordre prévu : le créateur rejoint aussitôt après `creer`.
+
 ## Ce qui est sur le serveur (pour mémoire)
 
 - Service systemd `nakama`, binaire et configuration dans `/opt/nakama`, sans Docker. L'API, la console
