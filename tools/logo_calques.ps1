@@ -1,64 +1,35 @@
-# Calques provisoires du logo pour l'animation de démarrage (docs/SPLASH.md), et image de
-# démarrage sans logo. Le logo (assets\logo\logo.png) est peint sur un ciel bleu nuit : on rend ce
-# ciel transparent (pixels sombres et bleus, même règle que docs/maquettes/splash.html), puis on
-# découpe deux calques de la taille du logo, parfaitement superposables :
-#   assets\logo\logo_livre.png      la Bible (derrière)
-#   assets\logo\logo_enseigne.png   l'enseigne « Perfectionnement » et son ruban (devant)
-#   assets\logo\demarrage.png       l'image de démarrage d'Android : le fond seul
-# Quand les vrais calques de ChatGPT arrivent, il suffit de remplacer les deux PNG : ne relance
-# alors plus ce script, il les écraserait.
+# Calques du logo pour l'animation de démarrage (docs/SPLASH.md), à partir des deux calques peints
+# (fond transparent) fournis le 2026-11-24 :
+#   assets\logo\source_livre.png      la Bible seule
+#   assets\logo\source_enseigne.png   l'enseigne « Perfectionnement » et son ruban
+# Ils sont posés sur une toile de la taille de assets\logo\logo.png, chacun à la place qu'il occupe
+# dans ce logo (donc aussi sur le titre peint de l'accueil, où l'animation se termine) :
+#   assets\logo\logo_livre.png, assets\logo\logo_enseigne.png   (lus par scripts/ui/splash.gd)
+# Il écrit aussi assets\logo\demarrage.png, l'image de démarrage d'Android : le fond seul.
 # Usage, depuis la racine du dépôt : pwsh -File tools/logo_calques.ps1
 Add-Type -AssemblyName System.Drawing
 $dir = Join-Path (Split-Path $PSScriptRoot -Parent) "assets\logo"
-$src = [System.Drawing.Bitmap]::FromFile("$dir\logo.png")
-$W = $src.Width; $H = $src.Height
-$rect = New-Object System.Drawing.Rectangle 0, 0, $W, $H
-$fmt = [System.Drawing.Imaging.PixelFormat]::Format32bppArgb
-$data = $src.LockBits($rect, [System.Drawing.Imaging.ImageLockMode]::ReadOnly, $fmt)
-$pixels = [byte[]]::new($data.Stride * $H)
-[System.Runtime.InteropServices.Marshal]::Copy($data.Scan0, $pixels, 0, $pixels.Length)
-$stride = $data.Stride
-$src.UnlockBits($data); $src.Dispose()
+$ref = [System.Drawing.Image]::FromFile("$dir\logo.png")
+$W = $ref.Width; $H = $ref.Height; $ref.Dispose()
 
-# Transparence du ciel, calculée une fois (octets BGRA).
-$alpha = [byte[]]::new($W * $H)
-for ($y = 0; $y -lt $H; $y++) {
-    $row = $y * $stride
-    for ($x = 0; $x -lt $W; $x++) {
-        $i = $row + $x * 4
-        $b = $pixels[$i]; $g = $pixels[$i + 1]; $r = $pixels[$i + 2]
-        $lum = 0.3 * $r + 0.59 * $g + 0.11 * $b
-        $blue = $b - $r
-        $a = 1.0
-        if ($blue -gt 0) { $a = [math]::Min(1.0, [math]::Max(0.0, ($lum - 70) / 70)) }
-        if ($blue -gt 25 -and $lum -lt 120) { $a = 0.0 }
-        $alpha[$y * $W + $x] = [byte][math]::Round($a * $pixels[$i + 3])
-    }
-}
-
-function Layer([string]$name, [scriptblock]$keep) {
-    $out = [byte[]]::new($pixels.Length)
-    [Array]::Copy($pixels, $out, $pixels.Length)
-    for ($y = 0; $y -lt $H; $y++) {
-        $fy = $y / $H; $row = $y * $stride
-        for ($x = 0; $x -lt $W; $x++) {
-            $i = $row + $x * 4
-            $out[$i + 3] = if (& $keep ($x / $W) $fy) { $alpha[$y * $W + $x] } else { 0 }
-        }
-    }
-    $bmp = New-Object System.Drawing.Bitmap $W, $H, $fmt
-    $d = $bmp.LockBits($rect, [System.Drawing.Imaging.ImageLockMode]::WriteOnly, $fmt)
-    [System.Runtime.InteropServices.Marshal]::Copy($out, 0, $d.Scan0, $out.Length)
-    $bmp.UnlockBits($d)
+## Pose un calque : la partie peinte `content` (pixels de la source) va dans `target` (pixels du logo).
+function Place([string]$source, [string]$name, [System.Drawing.RectangleF]$content, [System.Drawing.RectangleF]$target) {
+    $src = [System.Drawing.Image]::FromFile("$dir\$source")
+    $k = $target.Width / $content.Width
+    $bmp = New-Object System.Drawing.Bitmap $W, $H, ([System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+    $g = [System.Drawing.Graphics]::FromImage($bmp)
+    $g.InterpolationMode = "HighQualityBicubic"; $g.PixelOffsetMode = "HighQuality"; $g.Clear([System.Drawing.Color]::Transparent)
+    $x = $target.X - $content.X * $k; $y = $target.Y - $content.Y * $k
+    $g.DrawImage($src, [single]$x, [single]$y, [single]($src.Width * $k), [single]($src.Height * $k))
+    $g.Dispose(); $src.Dispose()
     $bmp.Save("$dir\$name", [System.Drawing.Imaging.ImageFormat]::Png); $bmp.Dispose()
     "$name écrit"
 }
 
-# Découpes de l'aperçu validé : livre = inset(15% 29% 59% 31.5%), arrêté à 33 % de la hauteur au lieu
-# de 41 % pour ne pas emporter le haut des lettres (l'enseigne recouvre ce bas du livre) ;
-# enseigne = tout sauf l'encoche du livre.
-Layer "logo_livre.png" { param($fx, $fy) $fx -ge 0.315 -and $fx -le 0.71 -and $fy -ge 0.15 -and $fy -le 0.33 }
-Layer "logo_enseigne.png" { param($fx, $fy) -not ($fx -ge 0.315 -and $fx -le 0.71 -and $fy -lt 0.325) }
+# Parties peintes mesurées dans les sources, et leur place dans logo.png (largeur imposée, la hauteur suit).
+Place "source_livre.png" "logo_livre.png" (New-Object System.Drawing.RectangleF 93, 29, 1232, 427) (New-Object System.Drawing.RectangleF 686, 178, 782, 271)
+# Enseigne : échelle et décalage cherchés automatiquement (lettres crème de la source sur celles du logo).
+Place "source_enseigne.png" "logo_enseigne.png" (New-Object System.Drawing.RectangleF 0, 0, 1902, 485) (New-Object System.Drawing.RectangleF 60, 328, 1985.7, 506)
 
 # Image de démarrage : le fond de l'animation seul (halo bleu, poussière d'or), sans logo.
 $SW = 1080; $SH = 1920

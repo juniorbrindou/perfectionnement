@@ -56,11 +56,12 @@ position cible sur l'écran réel.
   `scripts/ui/splash_reflet.gdshader`. L'accueil (`main_menu.gd`) l'ajoute au démarrage à froid ; la
   musique attend la fin (`Sound.begin_intro` / `end_intro`).
 - **Image de démarrage** : `assets/logo/demarrage.png` n'est plus que le fond (halo bleu, poussière d'or).
-- **Calques provisoires** : `assets/logo/logo_livre.png` et `logo_enseigne.png`, détourés de `logo.png`
-  par `tools/logo_calques.ps1`. Le livre est coupé à 33 % de la hauteur (au lieu de 41 %) pour ne pas
-  emporter le haut des lettres. **Pour les vrais calques de ChatGPT : remplacer ces deux fichiers, au
-  même format, sans toucher au code, et ne plus relancer le script** (il les écraserait).
-- **Position finale** : le titre peint de l'accueil occupe `Rect2(84, 115, 784, 410)` en pixels de
+- **Calques** : les calques peints (fournis le 2026-11-24) sont gardés tels quels dans
+  `assets/logo/source_livre.png` et `source_enseigne.png`. `tools/logo_calques.ps1` les pose sur une toile
+  de la taille de `logo.png`, chacun à sa place dans ce logo (l'enseigne par une recherche automatique
+  d'échelle et de décalage sur les lettres), et écrit `logo_livre.png` et `logo_enseigne.png`, lus par
+  l'animation. « Perfectionnement » tombe exactement sur le titre peint de l'accueil ; le sous-titre de la
+  nouvelle enseigne est un peu plus bas que celui de l'accueil, ce qui se voit à peine pendant le fondu final.- **Position finale** : le titre peint de l'accueil occupe `Rect2(84, 115, 784, 410)` en pixels de
   `assets/accueil/accueil.png` (`Splash.HOME_TITLE`), vérifié par superposition à 50 %.
 - **Vérification** : `tools/shots.gd` capture l'animation (`00a` à `00c`) avant l'accueil ; sans écran,
   elle est sautée.
