@@ -20,7 +20,7 @@ $saved = "build\telephone.txt"
 function Connect-Phone {
     # Un téléphone déjà vu par adb (reconnexion automatique du débogage sans fil) sert tel quel :
     # se connecter à une adresse périmée peut bloquer de longues minutes.
-    for ($i = 0; $i -lt 8; $i++) {
+    for ($i = 0; $i -lt 20; $i++) {  # Après l'export, adb redémarre et retrouve le téléphone en quelques secondes.
         $listed = @(& $adb devices | Select-String "\tdevice$" | ForEach-Object { ("$_" -split "\t")[0] })
         if ($listed.Count -gt 0) { break }
         Start-Sleep 1

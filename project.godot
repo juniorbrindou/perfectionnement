@@ -14,7 +14,12 @@ config/name="Perfectionnement"
 config/version="0.1.0"
 run/main_scene="res://scenes/main_menu.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
-config/icon="res://icon.svg"
+config/icon="res://assets/icone/icone_512.png"
+boot_splash/bg_color=Color(0.012, 0.063, 0.165, 1)
+boot_splash/image="res://assets/logo/demarrage.png"
+boot_splash/fullsize=true
+boot_splash/stretch_mode=1
+boot_splash/use_filter=true
 config/quit_on_go_back=false
 
 [autoload]
