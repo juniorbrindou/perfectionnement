@@ -23,6 +23,9 @@ const OP_ABANDONNER = 5;
 const OP_REVANCHE = 6;
 const OP_VUE = 10;
 
+const DUEL_DEPART_S = 30;       // en ligne, trois fois les délais d'origine (10, 10, 15 s) :
+const DUEL_CHOISIR_S = 30;      // les joueurs trouvaient le temps trop court
+const DUEL_REPONDRE_S = 45;
 const ANNONCE_S = 3;            // résultat de la question de départ, avant le premier tour
 const RESULTAT_S = 10;          // écran de résultat d'un coup, si les deux n'ont pas touché « Continuer »
 const RECONNEXION_S = 30;       // PRD §3.4
@@ -165,7 +168,7 @@ function poserQuestionDepartDuel(p: PartieDuel, maintenant: number, alea: Alea):
   melanger(props, alea);
   p.depart = { id: q.id, propositions: props, reponse: q.answer };
   p.etape = "depart";
-  p.echeance = maintenant + DELAI_DEPART_S * 1000;
+  p.echeance = maintenant + DUEL_DEPART_S * 1000;
   p.version++;
 }
 
@@ -193,7 +196,7 @@ function suivantDuel(p: PartieDuel, maintenant: number): void {
     ouvrirRevanche(p, maintenant);
   } else {
     p.etape = "choisir";
-    p.echeance = maintenant + DELAI_CHOISIR_S * 1000;
+    p.echeance = maintenant + DUEL_CHOISIR_S * 1000;
   }
   p.coup = p.fin !== null ? p.coup : null;
   p.version++;
@@ -205,7 +208,7 @@ function poserCarteDuel(p: PartieDuel, index: number, auHasard: boolean, mainten
   else jouer(duel, index, alea);
   p.coup = { type: "pose", poseur: duel.poseur, auHasard: auHasard };
   p.etape = "repondre";
-  p.echeance = maintenant + DELAI_REPONDRE_S * 1000;
+  p.echeance = maintenant + DUEL_REPONDRE_S * 1000;
   p.version++;
 }
 
@@ -324,7 +327,7 @@ function ticDuel(p: PartieDuel, maintenant: number, alea: Alea): EffetDuel[] {
       return [];
     case "annonce":
       p.etape = "choisir";
-      p.echeance = maintenant + DELAI_CHOISIR_S * 1000;
+      p.echeance = maintenant + DUEL_CHOISIR_S * 1000;
       p.version++;
       return [];
     case "choisir":

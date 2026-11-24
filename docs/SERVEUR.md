@@ -229,8 +229,8 @@ coup, les cartes détruites, le temps restant, la pause, la fin et la revanche.
 | Règle | Valeur |
 |---|---|
 | Mises | prélevées aux deux joueurs quand la partie commence ; le gagnant reçoit les deux (`mise_duel`, `gain_duel`) |
-| Question de départ | posée aux deux ; le premier qui répond décide (juste : il commence ; faux : l'autre). Personne en 20 s : nouvelle question |
-| Délais | 20 s pour poser, 30 s pour répondre, 1 s de marge réseau ; ensuite carte au hasard ou temps écoulé |
+| Question de départ | posée aux deux ; le premier qui répond décide (juste : il commence ; faux : l'autre). Personne en 30 s : nouvelle question |
+| Délais | 30 s pour poser, 45 s pour répondre (le triple des délais d'origine), 1 s de marge réseau ; ensuite carte au hasard ou temps écoulé |
 | Résultat d'un coup | tour suivant quand les deux touchent « Continuer », ou au bout de 10 s |
 | Abandon | défaite, 0 XP ; l'adversaire gagne la mise et 30 XP |
 | Déconnexion | la partie se met en pause (délais gelés) ; 30 s pour revenir, sinon défaite sans XP |

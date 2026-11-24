@@ -300,7 +300,7 @@ Correspondance avec les fonctions de Nakama :
 
 Ces valeurs sont validées pour démarrer, mais seront rééquilibrées :
 
-- les minuteurs (20 s pour choisir, 30 s pour répondre, 20 s pour la question de départ, 30 s pour une reconnexion) ;
+- les minuteurs (20 s pour choisir, 30 s pour répondre, 20 s pour la question de départ ; en duel en ligne 30 s, 45 s et 30 s ; 30 s pour une reconnexion) ;
 - les 5 cartes par joueur, pour une durée visée de 3 à 5 minutes ;
 - les pourcentages de réussite de l'IA ;
 - les mises, le pain quotidien, le capital de départ et le coût de création d'un salon ;

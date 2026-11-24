@@ -424,17 +424,17 @@ test("duel en ligne : question de départ, pose, réponse, la réponse ratée re
 test("duel en ligne : délais dépassés, carte au hasard puis temps écoulé", function () {
   const alea = aleaFixe(9);
   const p = duelPret(alea);
-  g.ticDuel(p, T0 + 21001, alea);
+  g.ticDuel(p, T0 + 31001, alea);
   assert.strictEqual(p.coup.type, "nouvelle_question", "personne n'a répondu au départ");
-  g.messageDuel(p, 0, OP.DEPART, { choix: p.depart.reponse }, T0 + 22000, alea);
-  g.ticDuel(p, T0 + 26500, alea);
+  g.messageDuel(p, 0, OP.DEPART, { choix: p.depart.reponse }, T0 + 32000, alea);
+  g.ticDuel(p, T0 + 36500, alea);
   assert.strictEqual(p.etape, "choisir");
-  g.ticDuel(p, T0 + 47000, alea);
+  g.ticDuel(p, T0 + 67000, alea);
   assert.strictEqual(p.etape, "choisir", "1 s de marge pour le réseau");
-  g.ticDuel(p, T0 + 48000, alea);
+  g.ticDuel(p, T0 + 68000, alea);
   assert.strictEqual(p.etape, "repondre");
   assert.strictEqual(p.coup.auHasard, true);
-  g.ticDuel(p, T0 + 79500, alea);
+  g.ticDuel(p, T0 + 114500, alea);
   assert.strictEqual(p.etape, "resultat");
   assert.strictEqual(p.coup.tempsEcoule, true);
   assert.strictEqual(p.coup.juste, false);
