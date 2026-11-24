@@ -9,7 +9,6 @@ extends Control
 signal consumed  ## La carte a fini de brûler (les dernières étincelles retombent encore).
 
 const SHADER := preload("res://scripts/ui/feu_dore.gdshader")
-const SOUND := preload("res://assets/sons/feu.wav")  ## Synthétisé par tools/son_feu.ps1.
 const DURATION := 1.8
 const FADE_OUT := 1.6  ## Temps laissé aux dernières étincelles et cendres.
 
@@ -104,11 +103,7 @@ func _ready() -> void:
 
 	# La vraie carte (et son halo) s'efface sous sa photo.
 	_target.create_tween().tween_property(_target, "modulate:a", 0.0, 0.25)
-	var sound := AudioStreamPlayer.new()
-	sound.stream = SOUND
-	sound.volume_db = -3.0
-	add_child(sound)
-	sound.play()
+	Sound.play("feu", -3.0)
 	_t = 0.0
 
 

@@ -33,6 +33,7 @@ var _play_button: Button
 var _time_left := 0.0
 var _time_total := 0.0
 var _on_timeout := Callable()
+var _tick := -1  ## Dernière seconde où le tic-tac a sonné.
 var _paused := false
 var _rings: Array = []
 
@@ -76,6 +77,7 @@ func _process(delta: float) -> void:
 	if _on_timeout.is_null() or _paused:
 		return
 	_time_left = maxf(_time_left - delta, 0.0)
+	_tick_tock()
 	for r in _rings:
 		if is_instance_valid(r):
 			r.set_time(_time_left, _time_total)
@@ -95,10 +97,19 @@ func _timer_ring() -> Shapes.TimerRing:
 func _start_timer(seconds: float, on_timeout: Callable) -> void:
 	_time_total = seconds
 	_time_left = seconds
+	_tick = -1
 	_on_timeout = on_timeout
 	for r in _rings:
 		if is_instance_valid(r):
 			r.set_time(_time_left, _time_total)
+
+
+## Tic-tac des 5 dernières secondes.
+func _tick_tock() -> void:
+	var sec := int(ceil(_time_left))
+	if sec >= 1 and sec <= 5 and sec != _tick:
+		_tick = sec
+		Sound.play("tic", -2.0, 1.0 if sec % 2 == 1 else 0.85)
 
 
 func _stop_timer() -> void:
@@ -197,6 +208,7 @@ func _on_starter_answer(starter: StarterRound, player: int, choice: String, reso
 			elif pair[1] == choice and p == player:
 				CardView.tint(b, false)
 	var first := starter.resolve(player, choice)
+	Sound.play("juste" if choice == starter.question.answer else "faux")
 	var msg := "%s a trouvé !" % names[player] if first == player else "Mauvaise réponse de %s." % names[player]
 	_flash("%s\n%s commence." % [msg, names[first]])
 	get_tree().create_timer(2.2).timeout.connect(func():
@@ -492,6 +504,7 @@ func _burn(stamp: Control) -> void:
 
 func _show_end() -> void:
 	step = Step.END
+	Sound.play("victoire")
 	_stop_timer()
 	var col := _new_screen(60, 24, 28)
 	col.alignment = BoxContainer.ALIGNMENT_CENTER

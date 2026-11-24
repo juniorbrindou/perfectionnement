@@ -11,7 +11,6 @@ extends Control
 
 const P := preload("res://scripts/ui/ui_theme.gd")
 const G := preload("res://scripts/ui/glass.gd")
-const THUNDER := preload("res://assets/sons/tonnerre.wav")  ## Synthétisé par tools/son_tonnerre.ps1.
 const ART := preload("res://assets/duel/partie.png")
 const CARD_BACK := preload("res://assets/duel/dos_carte.png")
 const CARD_FACE := preload("res://assets/duel/face_carte.png")
@@ -46,6 +45,7 @@ var _art: Painted
 # Minuteur affiché (le serveur tient le vrai délai).
 var _time_left := 0.0
 var _time_total := 1.0
+var _tick := -1  ## Dernière seconde où le tic-tac a sonné.
 var _timer: Countdown
 
 # Éléments mis à jour sans reconstruire l'écran.
@@ -97,6 +97,10 @@ func _process(delta: float) -> void:
 		return
 	_time_left = maxf(_time_left - delta, 0.0)
 	_timer.set_time(_time_left, _time_total)
+	var sec := int(ceil(_time_left))
+	if _timer.show_number and sec >= 1 and sec <= 5 and sec != _tick:
+		_tick = sec
+		Sound.play("tic", -2.0, 1.0 if sec % 2 == 1 else 0.85)
 
 
 # ---------------------------------------------------------------- Vues du serveur
@@ -149,6 +153,7 @@ func _apply_hand() -> void:
 func _render() -> void:
 	_time_total = maxf(float(view.get("temps", 0)), 1.0)
 	_time_left = float(view.get("temps", 0))
+	_tick = -1
 	var mine: bool = view.get("poseur", "") == "moi"
 	match str(view.get("etape", "")):
 		"attente":
@@ -284,11 +289,11 @@ func _show_versus() -> void:
 	banner.z_index = 1
 	banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var brow := P.hbox(8)
-	brow.add_child(Sparkle.new(P.px(20)))
+	brow.add_child(Ornaments.Sparkle.new(P.px(20)))
 	var bl := G.title("Adversaire trouvé !", 24, Color.WHITE)
 	bl.autowrap_mode = TextServer.AUTOWRAP_OFF
 	brow.add_child(bl)
-	brow.add_child(Sparkle.new(P.px(20)))
+	brow.add_child(Ornaments.Sparkle.new(P.px(20)))
 	banner.add_child(brow)
 	stack.add_child(banner)
 
@@ -313,7 +318,7 @@ func _show_versus() -> void:
 	glow.set_anchors_preset(Control.PRESET_FULL_RECT)
 	glow.show_behind_parent = true
 	vs.add_child(glow)
-	var laurel := Laurel.new()
+	var laurel := Ornaments.Laurel.new()
 	laurel.set_anchors_preset(Control.PRESET_FULL_RECT)
 	laurel.show_behind_parent = true
 	laurel.modulate.a = 0.0
@@ -337,10 +342,7 @@ func _show_versus() -> void:
 
 ## Le « VS » touche : onde de choc dorée, éclats, laurier, secousse, tonnerre et vibration.
 func _versus_impact(layer: Control, slot: Control, vs: Control, laurel: Control) -> void:
-	var sound := AudioStreamPlayer.new()
-	sound.stream = THUNDER
-	layer.add_child(sound)
-	sound.play()
+	Sound.play("tonnerre")
 	Input.vibrate_handheld(120, 0.45)
 	var at := slot.get_global_rect().get_center()
 	var wave := Shockwave.new(at)
@@ -704,6 +706,7 @@ func _show_announce() -> void:
 	var c = view.get("coup")
 	var coup: Dictionary = c if c is Dictionary else {}
 	var me_first: bool = coup.get("jeCommence", false)
+	Sound.play("juste" if me_first else "faux")
 	_base("moi" if me_first else "adversaire")
 	_ribbon("Question de départ")
 	var right := str(coup.get("bonne", ""))
@@ -844,6 +847,7 @@ func _show_result() -> void:
 	else:
 		headline = "Bonne réponse !" if correct else ("Temps écoulé !" if coup.get("tempsEcoule", false) else "Raté !")
 	var good_for_me := correct != mine
+	Sound.play("juste" if good_for_me else "faux")
 	_status(headline, false, Color("ffd76a") if good_for_me else Color("ff9b9b"))
 	_ribbon(data.category_label())
 	_question(data.question)
@@ -953,6 +957,7 @@ func _show_end() -> void:
 	var fin_v = view.get("fin")
 	var fin: Dictionary = fin_v if fin_v is Dictionary else {}
 	var won: bool = fin.get("gagne", false)
+	Sound.play("victoire" if won else "defaite")
 	var reason := str(fin.get("raison", "cartes"))
 	_base("", true)
 	_ribbon("Fin de la partie")
@@ -1315,59 +1320,6 @@ class Shockwave extends Control:
 			draw_set_transform(o, 0, Vector2(1.0, 0.7))
 			draw_arc(Vector2.ZERO, r, 0, TAU, 96, Color(1.0, 0.84, 0.42, a), lerpf(12.0, 2.0, p) - k * 2.0, true)
 			draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
-
-
-## Couronne de laurier dorée autour du « VS ».
-class Laurel extends Control:
-	func _init() -> void:
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-	func _draw() -> void:
-		var c := size / 2 + Vector2(0, size.y * 0.04)
-		var r := size.y * 0.3  # Elle déborde de son support, jusqu'aux avatars.
-		for side in [-1.0, 1.0]:
-			var stem := PackedVector2Array()
-			for k in 13:
-				var a := deg_to_rad(110.0 + k * 11.0)
-				stem.append(c + Vector2(-side * r * cos(a), r * 0.85 * sin(a)))
-			draw_polyline(stem, Color("c98a24"), maxf(2.0, r * 0.035), true)
-			for k in range(1, 12):
-				var a := deg_to_rad(110.0 + k * 11.0)
-				var p := c + Vector2(-side * r * cos(a), r * 0.85 * sin(a))
-				var tangent := atan2(r * 0.85 * cos(a), side * r * sin(a))
-				var length := r * (0.27 - k * 0.01)
-				_leaf(p + Vector2(side * r * 0.08, 0), tangent - side * 0.6, length)
-				_leaf(p - Vector2(side * r * 0.08, 0), tangent + side * 0.6, length)
-
-	func _leaf(at: Vector2, angle: float, length: float) -> void:
-		draw_set_transform(at, angle, Vector2(1.0, 0.4))
-		draw_circle(Vector2.ZERO, length / 2, Color("c98a24"))
-		draw_circle(Vector2(0, -length * 0.08), length * 0.42, Color("ffe08a"))
-		draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
-
-
-## Étincelle dorée à quatre branches, qui scintille.
-class Sparkle extends Control:
-	var _t := randf() * TAU
-
-	func _init(side: float) -> void:
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
-		custom_minimum_size = Vector2(side, side)
-		size_flags_vertical = Control.SIZE_SHRINK_CENTER
-
-	func _process(delta: float) -> void:
-		_t += delta * 4.0
-		queue_redraw()
-
-	func _draw() -> void:
-		var c := size / 2
-		var r := minf(size.x, size.y) / 2 * (0.8 + 0.2 * sin(_t))
-		var pts := PackedVector2Array()
-		for k in 8:
-			var rr := r if k % 2 == 0 else r * 0.28
-			var a := k * PI / 4 - PI / 2
-			pts.append(c + Vector2(cos(a), sin(a)) * rr)
-		draw_colored_polygon(pts, Color("fff3c4"))
 
 
 ## Fine ligne lumineuse qui sépare les deux joueurs.

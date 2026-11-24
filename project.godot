@@ -24,6 +24,7 @@ Online="*res://scripts/online.gd"
 Session="*res://scripts/session.gd"
 DevTools="*res://scripts/dev_tools.gd"
 Keyboard="*res://scripts/keyboard_avoider.gd"
+Sound="*res://scripts/sound.gd"
 
 [display]
 

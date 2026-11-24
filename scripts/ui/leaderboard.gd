@@ -1,13 +1,13 @@
 extends Control
-## Classement général par XP (maquette validée le 2026-11-24) : le podium des trois premiers,
-## la liste jusqu'au 50e, et ta place épinglée en bas. Les 10 premiers portent le Rang S.
+## Classement général par XP (maquette de l'utilisateur, 2026-11-24) : titre entre deux
+## branches de laurier, podium des trois premiers sur des médailles d'or, d'argent et de
+## bronze, la liste jusqu'au 50e, et ta place épinglée en bas avec ta progression vers le Rang S. Les 10 premiers portent le Rang S.
 ## Le serveur tient le classement (leaderboard « xp », docs/SERVEUR.md) ; on ne fait que le lire.
 
 const P := preload("res://scripts/ui/ui_theme.gd")
 const LIMIT := 50
 ## Avatars : une couleur tirée du pseudo, pour qu'un joueur garde toujours la même.
 const COLORS := [Color("1fa9a3"), Color("3a6fd8"), Color("7a52e0"), Color("c4501f"), Color("2fae68"), Color("b8185a")]
-const PODIUM_RINGS := {1: Color("ffc84a"), 2: Color("c8d3e6"), 3: Color("d9925a")}
 
 var _content: VBoxContainer  ## Zone entre le titre et ta place : chargement, message ou liste.
 var _me_slot: Control
@@ -15,7 +15,7 @@ var _me_slot: Control
 
 func _ready() -> void:
 	theme = P.get_theme()
-	Glass.background(self, 0.6)
+	Glass.background(self, 0.8)
 	var bar := TopBar.attach(self)
 	var m := P.margins(16, 8, 16, 16)
 	m.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -23,8 +23,7 @@ func _ready() -> void:
 	add_child(m)
 	var v := P.vbox(8)
 	m.add_child(v)
-	v.add_child(Glass.title("Classement", 32))
-	v.add_child(P.label("Les %d premiers portent le Rang S" % Progression.RANK_S_PLACES, 14, Glass.PALE))
+	v.add_child(_heading())
 	_content = P.vbox(8)
 	_content.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	v.add_child(_content)
@@ -72,65 +71,91 @@ func show_data(data: Dictionary) -> void:
 	_me_slot.add_child(_my_row(me, top))
 
 
-# ---------------------------------------------------------------- Podium
+# ---------------------------------------------------------------- Titre et podium
+
+## « Classement » entre deux branches de laurier, la règle du Rang S, une étincelle.
+func _heading() -> Control:
+	var v := P.vbox(2)
+	var row := P.hbox(6)
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_child(_branch(-1.0))
+	var titles := P.vbox(0)
+	for l: Label in [Glass.title("Classement", 34), P.label("Les %d premiers portent le Rang S" % Progression.RANK_S_PLACES, 14, P.CREAM, 800)]:
+		l.autowrap_mode = TextServer.AUTOWRAP_OFF
+		titles.add_child(l)
+	row.add_child(titles)
+	row.add_child(_branch(1.0))
+	v.add_child(row)
+	var spark := Ornaments.Sparkle.new(P.px(14))
+	spark.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	v.add_child(spark)
+	return v
+
+
+func _branch(side: float) -> Control:
+	var l := Ornaments.Laurel.new()
+	l.custom_minimum_size = Vector2(P.px(34), P.px(62))
+	l.sides = [side]
+	l.center = Vector2(1.0 if side < 0 else 0.0, 0.42)
+	l.radius = 0.62
+	return l
+
 
 func _podium(rows: Array) -> Control:
-	var h := P.hbox(4)
+	var h := P.hbox(8)
 	h.alignment = BoxContainer.ALIGNMENT_CENTER
-	# 2e à gauche, 1er au centre (plus grand), 3e à droite.
+	# 2e à gauche, 1er au centre (plus haut), 3e à droite, alignés par le bas.
 	for place in [2, 1, 3]:
 		if place > rows.size():
 			var gap := Control.new()
-			gap.custom_minimum_size = Vector2(P.px(104), 0)
+			gap.custom_minimum_size = Vector2(P.px(100), 0)
 			h.add_child(gap)
 			continue
-		h.add_child(_podium_step(rows[place - 1]))
+		var step := _podium_step(rows[place - 1])
+		step.size_flags_vertical = Control.SIZE_SHRINK_END
+		h.add_child(step)
 	return h
 
 
+## Une marche du podium : la médaille posée sur le haut d'un panneau, le pseudo, l'XP.
 func _podium_step(row: Dictionary) -> Control:
 	var place: int = row["place"]
 	var first := place == 1
-	var v := P.vbox(4)
-	v.custom_minimum_size = Vector2(P.px(112), 0)
-	v.alignment = BoxContainer.ALIGNMENT_END
+	var v := P.vbox(0)
+	v.add_theme_constant_override("separation", -P.px(26))  # La médaille chevauche le panneau.
+	var medal := Ornaments.Medal.new(place, P.px(76 if first else 62))
+	medal.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	medal.z_index = 1
+	v.add_child(medal)
+	var panel := PanelContainer.new()
+	var s := P.box(Color(0.09, 0.2, 0.47, 0.94), P.px(14), P.px(8), P.px(8))
+	s.content_margin_top = P.px(30)
 	if first:
-		var crown := Glass.icon(Glass.CROWN, 36, 30)
-		crown.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		v.add_child(crown)
+		s.bg_color = Color(0.12, 0.25, 0.56, 0.96)
+		s.border_color = Color("f0c05a")
+		s.set_border_width_all(P.px(3))
+		s.shadow_color = Color(1.0, 0.84, 0.42, 0.45)
+		s.shadow_size = P.px(10)
 	else:
-		v.add_child(P.spacer(24 if place == 2 else 40))
-	var d := 84.0 if first else 66.0
-	var ring: Color = PODIUM_RINGS[place]
-	var holder := Control.new()
-	holder.custom_minimum_size = Vector2(P.px(d), P.px(d))
-	holder.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var halo := RingHalo.new(ring)
-	halo.set_anchors_preset(Control.PRESET_FULL_RECT)
-	holder.add_child(halo)
-	var face := Glass.avatar(row["name"], _color_of(row["name"]), d, ring)
-	face.set_anchors_preset(Control.PRESET_FULL_RECT)
-	holder.add_child(face)
-	var badge := Glass.s_badge(22)
-	badge.position = Vector2(-P.px(4), -P.px(4))
-	badge.size = badge.custom_minimum_size
-	holder.add_child(badge)
-	var num := P.circle(ring, 24)
-	num.position = Vector2(P.px(d - 22), P.px(d - 22))
-	num.size = num.custom_minimum_size
-	var nl := P.title(str(place), 14, Glass.INK)
-	nl.set_anchors_preset(Control.PRESET_FULL_RECT)
-	nl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	num.add_child(nl)
-	holder.add_child(num)
-	v.add_child(holder)
-	var n := P.title("Toi" if row.get("me", false) else str(row["name"]), 15, P.CREAM)
+		s.border_color = Color(1, 1, 1, 0.3)
+		s.set_border_width_all(P.px(2))
+	panel.add_theme_stylebox_override("panel", s)
+	panel.custom_minimum_size = Vector2(P.px(122 if first else 104), P.px(92 if first else 78))
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var inner := P.vbox(4)
+	inner.alignment = BoxContainer.ALIGNMENT_CENTER
+	panel.add_child(inner)
+	var pill := PanelContainer.new()
+	pill.add_theme_stylebox_override("panel", P.box(Color("fff1d6"), P.px(10), P.px(8), P.px(2)))
+	pill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var n := P.title("Toi" if row.get("me", false) else str(row["name"]), 16 if first else 13, Glass.INK)
 	n.autowrap_mode = TextServer.AUTOWRAP_OFF
 	n.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	n.clip_text = true
-	v.add_child(n)
-	v.add_child(P.label(_xp(row["xp"]), 13, Glass.GOLD, 900))
+	pill.add_child(n)
+	inner.add_child(pill)
+	inner.add_child(P.title(_xp(row["xp"]), 18 if first else 15, Glass.GOLD))
+	v.add_child(panel)
 	return v
 
 
@@ -138,33 +163,27 @@ func _podium_step(row: Dictionary) -> Control:
 
 func _row(row: Dictionary) -> Control:
 	var mine: bool = row.get("me", false)
-	var p := Glass.panel(Glass.PANEL, 14, Color(Glass.RING, 0.8) if mine else Glass.EDGE, 10, 6)
+	var p := Glass.panel(Color(0.07, 0.15, 0.36, 0.9), 12, Color(Glass.RING, 0.8) if mine else Color(1, 1, 1, 0.14), 12, 6)
 	var h := P.hbox(10)
 	p.add_child(h)
-	var place := P.title(str(row["place"]), 18, Glass.GOLD)
-	place.custom_minimum_size = Vector2(P.px(30), 0)
+	var place := P.title(str(row["place"]), 18, P.CREAM)
+	place.custom_minimum_size = Vector2(P.px(26), 0)
 	place.autowrap_mode = TextServer.AUTOWRAP_OFF
 	place.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	h.add_child(place)
-	h.add_child(Glass.avatar(row["name"], _color_of(row["name"]), 36))
-	var who := P.vbox(0)
-	who.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	who.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	h.add_child(Glass.avatar(row["name"], _color_of(row["name"]), 32, Color(1, 1, 1, 0.85)))
 	var n := P.title("Toi" if mine else str(row["name"]), 16, P.CREAM, HORIZONTAL_ALIGNMENT_LEFT)
+	n.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	n.autowrap_mode = TextServer.AUTOWRAP_OFF
 	n.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	n.clip_text = true
-	who.add_child(n)
-	who.add_child(P.label(_rank_name(row["xp"]), 12, Glass.SOFT, 800, HORIZONTAL_ALIGNMENT_LEFT))
-	h.add_child(who)
-	if Progression.has_rank_s(row["place"]):
-		h.add_child(Glass.s_badge(22))
-	var xp := P.title(_xp(row["xp"]), 15, Glass.GOLD, HORIZONTAL_ALIGNMENT_RIGHT)
+	n.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	h.add_child(n)
+	var xp := P.title(_xp(row["xp"]), 16, Glass.GOLD, HORIZONTAL_ALIGNMENT_RIGHT)
 	xp.autowrap_mode = TextServer.AUTOWRAP_OFF
 	xp.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	h.add_child(xp)
 	return p
-
 
 ## Ta ligne, épinglée sous la liste : ta place et ce qu'il te manque pour le Rang S.
 func _my_row(me: Dictionary, top: Array) -> Control:
@@ -197,8 +216,32 @@ func _my_row(me: Dictionary, top: Array) -> Control:
 	top_line.add_child(xl)
 	who.add_child(top_line)
 	who.add_child(P.label(_my_status(place, my_xp, top), 12, Glass.SOFT, 800, HORIZONTAL_ALIGNMENT_LEFT))
+	who.add_child(_progress_bar(_rank_s_ratio(place, my_xp, top)))
 	h.add_child(who)
 	return p
+
+
+## Part du chemin parcouru vers le Rang S (l'XP du 10e).
+func _rank_s_ratio(place: int, my_xp: int, top: Array) -> float:
+	if Progression.has_rank_s(place) or top.size() < Progression.RANK_S_PLACES:
+		return 1.0 if place > 0 else 0.0
+	var target := int(top[Progression.RANK_S_PLACES - 1]["xp"]) + 1
+	return clampf(float(my_xp) / float(maxi(target, 1)), 0.0, 1.0)
+
+
+func _progress_bar(ratio: float) -> Control:
+	var bar := Panel.new()
+	bar.add_theme_stylebox_override("panel", P.box(Color(1, 1, 1, 0.16), P.px(4)))
+	bar.custom_minimum_size = Vector2(0, P.px(7))
+	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var fill := Panel.new()
+	fill.add_theme_stylebox_override("panel", P.box(Color("f6b93b"), P.px(4)))
+	fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	fill.anchor_bottom = 1.0
+	fill.anchor_right = ratio
+	fill.visible = ratio > 0.0
+	bar.add_child(fill)
+	return bar
 
 
 func _my_status(place: int, my_xp: int, top: Array) -> String:
@@ -266,18 +309,3 @@ func _to_menu() -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_GO_BACK_REQUEST:
 		_to_menu()
-
-
-## Halo de la couleur du podium autour d'un avatar.
-class RingHalo extends Control:
-	var _color: Color
-
-	func _init(color: Color) -> void:
-		_color = color
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-	func _draw() -> void:
-		var c := size / 2
-		var r := minf(size.x, size.y) / 2
-		for i in 6:
-			draw_circle(c, r + UiTheme.px(2 + i * 2.5), Color(_color, 0.07))

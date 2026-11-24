@@ -199,6 +199,7 @@ func show_reveal(data: CardData, story_title: String) -> void:
 
 ## Retourne la carte (animation), en changeant de face au milieu.
 func flip(change_face: Callable) -> void:
+	Sound.play("carte", -4.0)
 	var t := create_tween()
 	t.tween_property(self, "scale:x", 0.0, 0.15).set_ease(Tween.EASE_IN)
 	t.tween_callback(change_face)
@@ -207,6 +208,7 @@ func flip(change_face: Callable) -> void:
 
 ## Colore la proposition choisie (verte si juste, rouge sinon) et bloque les autres.
 func mark_answer(choice: String, correct: bool) -> void:
+	Sound.play("juste" if correct else "faux")
 	for text in _answer_buttons:
 		var b: Button = _answer_buttons[text]
 		b.disabled = true

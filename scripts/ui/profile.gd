@@ -84,6 +84,7 @@ func _build_profile(col: VBoxContainer) -> void:
 	col.add_child(chips)
 	if Online.is_online():
 		col.add_child(_progress())
+	col.add_child(_sound_settings())
 
 	if Online.is_online():
 		if _renaming:
@@ -207,6 +208,30 @@ func _progress() -> Control:
 	v.add_child(bar)
 	v.add_child(P.label("%d / %d XP pour le niveau %d" % [p["in_level"], p["to_next"], p["level"] + 1], 13, P.LILAC, 800, HORIZONTAL_ALIGNMENT_LEFT))
 	return box
+
+
+## Effets sonores et musique, à couper séparément (PRD §9).
+func _sound_settings() -> Control:
+	var row := P.hbox(10)
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	for kind in ["effets", "musique"]:
+		var on: bool = Sound.effects_on if kind == "effets" else Sound.music_on
+		var b := P.button("", func(): pass, 15, "ChipToggle")
+		b.toggle_mode = true
+		b.button_pressed = on
+		b.custom_minimum_size = Vector2(P.px(150), P.px(42))
+		var label := func(state: bool) -> String:
+			return ("Effets sonores" if kind == "effets" else "Musique") + (" : oui" if state else " : non")
+		b.text = label.call(on)
+		b.toggled.connect(func(state: bool):
+			b.text = label.call(state)
+			if kind == "effets":
+				Sound.set_effects(state)
+				Sound.play("juste")
+			else:
+				Sound.set_music(state))
+		row.add_child(b)
+	return row
 
 
 func _chip(text: String) -> Control:
