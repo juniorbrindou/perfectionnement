@@ -64,6 +64,8 @@ func _ready() -> void:
 	if not Splash.shown and DisplayServer.get_name() != "headless":
 		Splash.shown = true
 		add_child(Splash.new())
+	# Nouvelle version publiée sur GitHub ? (docs/RELEASES.md) La fenêtre passe sous l'animation.
+	UpdateNotice.check_from(self)
 	# L'image est réduite à l'écran : les mipmaps évitent le crénelage.
 	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	var screen := get_viewport_rect().size
