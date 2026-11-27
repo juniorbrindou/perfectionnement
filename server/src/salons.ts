@@ -161,7 +161,9 @@ function ficheSalon(s: Salon, userId: string, lien: LienSalon): any {
 
 function lireSalon(nk: nkruntime.Nakama, id: string): { salon: Salon | null; version: string } {
   const lus = nk.storageRead([{ collection: COLLECTION_SALONS, key: id, userId: SYSTEME }]);
-  return lus.length > 0 ? { salon: lus[0].value as any, version: lus[0].version } : { salon: null, version: "*" };
+  // Copie profonde : la valeur lue est un objet Go vu depuis JavaScript, et un push() sur ses tableaux
+  // (demandes, membres) modifie une copie jetable, perdue à l'écriture. Vu en production le 2026-11-28.
+  return lus.length > 0 ? { salon: JSON.parse(JSON.stringify(lus[0].value)), version: lus[0].version } : { salon: null, version: "*" };
 }
 
 function ecritureSalon(s: Salon, version: string): nkruntime.StorageWriteRequest {
@@ -185,7 +187,7 @@ function tousLesSalons(nk: nkruntime.Nakama, logger: nkruntime.Logger, maintenan
   for (let page = 0; page < 20; page++) {
     const r: nkruntime.StorageObjectList = nk.storageList(SYSTEME, COLLECTION_SALONS, 100, curseur);
     (r.objects || []).forEach(function (o) {
-      const s = o.value as any as Salon;
+      const s = JSON.parse(JSON.stringify(o.value)) as Salon;
       if (salonInactif(s, maintenant)) supprimerSalon(nk, logger, s);
       else salons.push(s);
     });

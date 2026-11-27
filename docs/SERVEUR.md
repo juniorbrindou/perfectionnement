@@ -288,3 +288,26 @@ et `DUEL_*` 30/30/45 s pour les duels en ligne. Vérifié en public : 20 s pour 
   l'application Web. Les deux clients Android, `…-n2b5kq2s3r7vei7b6a9eeo4grkq23nd3` pour l'APK de test et
   `…-6pvrha92lpr8ct0n16o46ld9rsbtnla2` pour l'APK publiée, sont maintenant déclarés avec le client Web. Toute
   nouvelle clé de signature demande un nouveau client Android dans Google Cloud, **et** son ajout ici.
+
+## Salons (RPC `salon`) : déployés le 2026-11-28
+
+Module de la branche `flutter` (commit `881ecc8` + correctif), 35 tests serveur verts. Le changement ne fait
+qu'ajouter des fonctions : l'APK Godot de `master` continue de fonctionner. Vérifié depuis l'adresse publique avec des
+comptes de test, supprimés depuis : options, nom trop court ou déjà pris refusé, création (Berger), liste, demande,
+demande visible du seul Berger, réponse refusée à un non-Berger, acceptation (2 membres), départ du Berger (le membre
+restant devient Berger), départ du dernier membre (salon supprimé).
+
+**Correctif déployé** : la demande d'adhésion n'arrivait jamais au Berger. Une valeur lue dans le stockage Nakama
+est un objet Go vu depuis JavaScript : `push()` sur ses tableaux modifie une copie jetable. `lireSalon` et
+`tousLesSalons` font maintenant une copie profonde (`JSON.parse(JSON.stringify(...))`). Les tests Node ne voient pas
+ce piège, car leur faux Nakama renvoie des objets ordinaires. **Règle** : toute valeur lue dans le stockage et
+modifiée avant réécriture passe par cette copie.
+
+À corriger :
+
+- **Un invité peut créer un salon** et en demander un. Le PRD (§5, §6.2) les réserve aux comptes e-mail ou Google,
+  comme l'arcade : ajouter le même contrôle que `commencer` dans `creer` et `demander`.
+- **`repondre` avec `accepte: true`** envoie la notification « Bienvenue au salon » même quand le joueur est déjà
+  membre d'un autre salon et n'est donc pas ajouté.
+- **Le score de salon** (`scoreApresPartie`, +10/−5) n'est encore appelé nulle part : les duels ne le mettent pas
+  à jour.
