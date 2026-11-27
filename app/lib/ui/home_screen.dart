@@ -88,7 +88,9 @@ class _HomeScreenState extends State<HomeScreen> {
     // L'image entière (barre d'onglets comprise) est calée en bas de l'écran. Un écran plus
     // allongé qu'elle gagne du ciel en haut, où passent des nuages.
     final artH = _artH * s;
-    final top = max(size.height - artH, 0.0);
+    // Au-dessus de la barre de navigation d'Android (boutons ou geste) : rien ne passe dessous.
+    final inset = MediaQuery.viewPaddingOf(context).bottom;
+    final top = max(size.height - inset - artH, 0.0);
     final skyTop = TopBar.bottom(context);
     final artY = top + _artCut * s;
 
@@ -158,6 +160,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: artH - _artCut * s,
                 child: Crop(art, const Rect.fromLTWH(0, _artCut, _artW, _artH - _artCut)),
               ),
+              // Sous l'image, la bande de la barre de navigation prolongée jusqu'en bas.
+              if (inset > 0)
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  top: top + artH - 1,
+                  height: inset + 1,
+                  child: Crop(art, const Rect.fromLTWH(0, _artH - 3, _artW, 2)),
+                ),
               Positioned(
                 left: 0,
                 right: 0,

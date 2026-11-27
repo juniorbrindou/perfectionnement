@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Carte détruite : trois pistes</title>
+<link rel="stylesheet" href="carte.css">
+<style>
+@font-face { font-family: "Lilita"; src: url("../../assets/fonts/LilitaOne-Regular.ttf"); }
+@font-face { font-family: "Nunito"; src: url("../../assets/fonts/Nunito.ttf"); font-weight: 200 1000; }
+@property --y { syntax: "<percentage>"; inherits: true; initial-value: 110%; }
+:root { --nuit: #06122f; --or: #f2c14e; --or-clair: #ffe39a; --encre: #3a2412; --vert: #2f9e4a; --T: 5s; }
+* { margin: 0; box-sizing: border-box; }
+body { background: #1c1c22; font-family: "Nunito", sans-serif; color: #fff4dc; padding: 28px 24px 50px; }
+h1 { font: 28px "Lilita"; color: #fff; }
+.intro { color: #b9bccb; margin: 6px 0 24px; max-width: 1180px; line-height: 1.45; font-size: 14px; }
+.pistes { display: flex; gap: 40px; flex-wrap: wrap; align-items: flex-start; }
+.piste { width: 380px; }
+.piste h2 { font: 22px "Lilita"; color: var(--or); }
+.piste > p { color: #b9bccb; font-size: 13px; line-height: 1.4; margin: 4px 0 14px; min-height: 56px; }
+.planche { display: flex; gap: 8px; margin-top: 18px; }
+.planche figure { width: 90px; }
+.planche .cadre { width: 90px; height: 195px; overflow: hidden; border-radius: 10px; position: relative; }
+.planche .cadre .tel { transform: scale(.25); transform-origin: 0 0; box-shadow: none; border-radius: 0; }
+.planche figcaption { font-size: 11px; color: #b9bccb; text-align: center; margin-top: 4px; }
+
+/* Téléphone */
+.tel { position: relative; width: 360px; height: 780px; border-radius: 32px; overflow: hidden; background: var(--nuit);
+  box-shadow: 0 0 0 9px #0a0a0d, 0 0 0 10px #333, 0 26px 50px rgba(0,0,0,.6); }
+.fond { position: absolute; inset: -20px; background: url("../../assets/illustrations/exode.jpg") center/cover; filter: blur(10px) brightness(.5); }
+.fond::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse 90% 60% at 50% 40%, rgba(11,31,77,.25), rgba(6,18,47,.9) 75%); }
+.haut { position: absolute; top: 40px; left: 14px; right: 14px; display: flex; align-items: center; gap: 9px; z-index: 6; }
+.avatar { width: 40px; height: 40px; border-radius: 50%; padding: 2.5px; flex: none;
+  background: linear-gradient(160deg, #fff1b8, #f2c14e 22%, #a8741c 50%, #f7d277 75%, #8a5a12); }
+.avatar span { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; font: 19px "Lilita"; color: #fff;
+  background: radial-gradient(circle at 35% 30%, #4b6fd6, #1d3a8f); }
+.nom { font: 15px "Lilita"; } .sous { font-size: 11px; font-weight: 800; color: var(--or-clair); }
+.scene { position: absolute; left: 0; right: 0; top: 96px; height: 400px; }
+.porte { position: absolute; left: 70px; top: 6px; width: 220px; }
+.porte .carte { font-size: 2.588px; }
+
+/* Panneau commun, qui monte à la fin */
+.panneau { position: absolute; left: 18px; right: 18px; bottom: 26px; border-radius: 18px; padding: 16px 18px 18px; color: var(--encre); z-index: 8;
+  background: radial-gradient(ellipse at 50% 20%, #fdf3d8, #f6e2b3 60%, #ecd09a); box-shadow: 0 0 0 3px #b8862e, 0 0 0 5px #6b4310, 0 18px 30px rgba(0,0,0,.6);
+  animation: panneau var(--T) linear infinite; }
+.panneau .v { font: 26px "Lilita"; color: var(--vert); text-align: center; }
+.panneau .r { font: 22px "Lilita"; text-align: center; color: #4a2a0e; }
+.panneau .ref { text-align: center; font-size: 12px; font-weight: 900; color: #8a5a12; margin: 2px 0 8px; }
+.panneau .e { font: italic 700 13.5px/1.4 "Nunito"; text-align: center; padding: 8px 4px; border-top: 1.5px solid rgba(138,90,18,.35); border-bottom: 1.5px solid rgba(138,90,18,.35); }
+.panneau .b { margin-top: 12px; height: 44px; border-radius: 22px; display: grid; place-items: center; font: 19px "Lilita"; color: #3a2412;
+  background: linear-gradient(#ffe48a, #f6b92f 55%, #e0961a); box-shadow: 0 3px 0 #9a5d0e; }
+@keyframes panneau { 0%, 58% { transform: translateY(130%); } 68%, 100% { transform: translateY(0); } }
+
+/* Images figées de la planche : tout le monde au même instant --t. */
+.fige * { animation-play-state: paused !important; animation-delay: calc(var(--t) + var(--d, 0s)) !important; }
+
+/* ---------- A · Feu doré : la carte brûle de bas en haut ---------- */
+.feu .porte { animation: feu-carte var(--T) linear infinite; }
+@keyframes feu-carte { 0% { --y: 112%; transform: scale(1); } 10% { --y: 112%; transform: scale(1.04); } 16% { --y: 112%; transform: scale(1); }
+  52% { --y: -12%; } 100% { --y: -12%; } }
+.braise, .suie { position: absolute; inset: 0; pointer-events: none; }
+.braise { filter: blur(1.6px) drop-shadow(0 0 6px #ffb340); mix-blend-mode: screen;
+  background: linear-gradient(90deg, #ffe6a0, #ffb33c, #fff1b8, #ff9a2a, #ffd36a); }
+.suie { filter: blur(3px); background: rgba(40,18,4,.85); }
+.braises i { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: #ffe9a8; box-shadow: 0 0 6px 2px rgba(255,170,60,.9); opacity: 0;
+  animation: monte var(--T) linear infinite; animation-delay: var(--d); }
+@keyframes monte { 0% { opacity: 0; transform: translate(0, 0); } 14% { opacity: 0; transform: translate(0, 0); } 18% { opacity: 1; }
+  40% { opacity: 0; transform: translate(var(--dx), -120px); } 100% { opacity: 0; transform: translate(var(--dx), -120px); } }
+
+/* ---------- B · Sceau et déchirure : la carte est scellée, puis déchirée en deux ---------- */
+.sceau { position: absolute; left: 50%; top: 150px; width: 92px; height: 92px; margin-left: -46px; border-radius: 50%; z-index: 4;
+  display: grid; place-items: center; text-align: center; font: 14px/1 "Lilita"; color: #ffe3b0; letter-spacing: .5px;
+  background: radial-gradient(circle at 38% 32%, #d0453a, #8e1c16 62%, #5e100c);
+  box-shadow: 0 0 0 5px #a3241c, 0 0 0 7px rgba(255,210,150,.25), 0 10px 18px rgba(0,0,0,.6), inset 0 -6px 10px rgba(0,0,0,.35), inset 0 4px 8px rgba(255,160,140,.35);
+  animation: sceau var(--T) linear infinite; opacity: 0; }
+.sceau::before { content: ""; position: absolute; inset: 12px; border-radius: 50%; border: 2px dashed rgba(255,215,170,.55); }
+.sceau b { display: block; font-size: 26px; line-height: .9; }
+@keyframes sceau { 0%, 12% { opacity: 0; transform: scale(2.6) rotate(-30deg); } 18% { opacity: 1; transform: scale(.88) rotate(-10deg); }
+  21% { transform: scale(1.05) rotate(-12deg); } 24%, 32% { opacity: 1; transform: scale(1) rotate(-12deg); } 34%, 100% { opacity: 0; transform: scale(1) rotate(-12deg); } }
+.dechire .moitie { position: absolute; left: 0; top: 0; width: 220px; }
+.dechire .g { clip-path: polygon(0 0, 52% 0, 47% 12%, 55% 25%, 46% 38%, 53% 50%, 45% 63%, 54% 76%, 47% 88%, 51% 100%, 0 100%);
+  animation: moitie-g var(--T) cubic-bezier(.5,0,.8,.4) infinite; transform-origin: 30% 100%; }
+.dechire .d { clip-path: polygon(52% 0, 100% 0, 100% 100%, 51% 100%, 47% 88%, 54% 76%, 45% 63%, 53% 50%, 46% 38%, 55% 25%, 47% 12%);
+  animation: moitie-d var(--T) cubic-bezier(.5,0,.8,.4) infinite; transform-origin: 70% 100%; }
+@keyframes moitie-g { 0%, 33% { transform: none; opacity: 1; } 37% { transform: translate(-6px, 0) rotate(-3deg); } 54% { transform: translate(-70px, 380px) rotate(-28deg); opacity: 1; }
+  56%, 100% { transform: translate(-70px, 380px) rotate(-28deg); opacity: 0; } }
+@keyframes moitie-d { 0%, 33% { transform: none; opacity: 1; } 37% { transform: translate(6px, 0) rotate(3deg); } 54% { transform: translate(80px, 400px) rotate(31deg); opacity: 1; }
+  56%, 100% { transform: translate(80px, 400px) rotate(31deg); opacity: 0; } }
+.dechire .porte { animation: secousse var(--T) linear infinite; }
+@keyframes secousse { 0%, 17% { transform: none; } 18% { transform: translateY(5px) scale(.985); } 21%, 100% { transform: none; } }
+
+/* ---------- C · Poussière de lumière : la carte devient lumière et s'envole ---------- */
+.lumiere .porte { animation: lum-carte var(--T) linear infinite; }
+@keyframes lum-carte { 0%, 12% { filter: none; opacity: 1; transform: scale(1); }
+  26% { filter: brightness(1.6) sepia(.5) saturate(1.6); transform: scale(1.04); opacity: 1; }
+  44% { filter: brightness(3.2) sepia(1) saturate(2); transform: scale(1.08); opacity: 0; } 100% { opacity: 0; } }
+.rayons { position: absolute; left: 50%; top: 210px; width: 520px; height: 520px; margin: -260px 0 0 -260px; border-radius: 50%; pointer-events: none;
+  background: repeating-conic-gradient(rgba(255,226,150,.28) 0 6deg, transparent 6deg 18deg);
+  -webkit-mask: radial-gradient(circle, #000 20%, transparent 62%); animation: rayons var(--T) linear infinite; opacity: 0; }
+@keyframes rayons { 0%, 14% { opacity: 0; transform: rotate(0) scale(.6); } 30% { opacity: 1; } 46% { opacity: .9; transform: rotate(40deg) scale(1.1); }
+  58%, 100% { opacity: 0; transform: rotate(60deg) scale(1.2); } }
+.poussiere i { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: #fff2c2; box-shadow: 0 0 8px 2px rgba(255,200,90,.85); opacity: 0;
+  animation: envol var(--T) cubic-bezier(.2,.6,.4,1) infinite; animation-delay: var(--d); }
+@keyframes envol { 0%, 30% { opacity: 0; transform: translate(0, 0) scale(1); } 34% { opacity: 1; }
+  56% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(.4); } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)); } }
+</style>
+</head>
+<body>
+<h1>Carte détruite : trois pistes</h1>
+<p class="intro">Le moment fort d'une bonne réponse. Aujourd'hui la carte s'efface trop vite et on ne la voit plus : ici elle reste
+au centre et c'est elle qui disparaît, sous les yeux. Chaque piste dure environ 2,5 s, puis le panneau de la réponse monte.
+Les téléphones bougent en boucle ; sous chacun, quatre instants figés.</p>
+<div class="pistes" id="pistes"></div>
+
+<script>
+const reps = [['A', 'Caleb', ''], ['B', 'Aaron', 'juste'], ['C', 'Josué', ''], ['D', 'Hur', '']];
+const OK = '<svg viewBox="0 0 24 24" style="width:3em;height:3em;fill:none;stroke:#fff;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round"><path d="M5 12.5 l4.5 4.5 L19 7.5"/></svg>';
+const carte = () => `<div class="carte"><div class="contenu">
+  <div class="illu" style="background-image:url('../../assets/duel/dos_illustration.jpg')"></div>
+  <svg class="filet" viewBox="0 0 1 1" preserveAspectRatio="none"><path d="M0,0.925 H0.29 C0.35,0.925 0.37,1 0.44,1 H0.56 C0.63,1 0.65,0.925 0.71,0.925 H1" fill="none" stroke="#c9a35a" stroke-width="1.2" vector-effect="non-scaling-stroke"/></svg>
+  <div class="question"><span class="q long">Quel frère de Moïse Dieu désigna-t-il pour parler à sa place&nbsp;?</span></div>
+  <div class="separateur"></div>
+  <div class="reponses">${reps.map(([l, t, e]) => `<div class="rep ${e}"><div class="lettre">${e ? OK : `<b>${l}</b>`}</div><span>${t}</span></div>`).join('')}</div>
+  <div class="pied"><span>Personnages</span><span>Carte de Joueur 2</span></div></div></div>`;
+
+// Hasard reproductible pour les braises et la poussière.
+let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+// Bord de la brûlure : 30 points irréguliers, amplitude faible.
+const bord = Array.from({length: 31}, (_, i) => [i / 30 * 100, (rnd() - .5) * 3 + Math.sin(i * 1.7) * .8]);
+const pt = (x, dy) => `${x.toFixed(1)}% calc(var(--y) + ${dy.toFixed(2)}%)`;
+const clipCarte = `polygon(0 0, 100% 0, ${bord.slice().reverse().map(([x, d]) => pt(x, d)).join(", ")})`;
+const bande = (haut, bas) => `polygon(${bord.map(([x, d]) => pt(x, d + haut)).join(", ")}, ${bord.slice().reverse().map(([x, d]) => pt(x, d + bas)).join(", ")})`;
+const braises = () => Array.from({length: 16}, (_, i) => {
+  const y = 400 - (i / 16) * 400; // de bas en haut, au rythme du feu
+  return `<i style="left:${10 + rnd() * 200}px; top:${y}px; --d:${(i / 16 * 1.8).toFixed(2)}s; --dx:${(rnd() * 40 - 20).toFixed(0)}px"></i>`;
+}).join('');
+const poussiere = () => Array.from({length: 34}, () =>
+  `<i style="left:${20 + rnd() * 180}px; top:${30 + rnd() * 340}px; --d:${(rnd() * .5).toFixed(2)}s; --dx:${(rnd() * 160 - 80).toFixed(0)}px; --dy:${(-120 - rnd() * 220).toFixed(0)}px"></i>`).join('');
+
+const pistes = [
+  { cls: 'feu', titre: 'A · Feu doré',
+    texte: "La carte s'embrase par le bas : un bord de braise dorée la consume jusqu'en haut, des étincelles s'envolent. C'est l'effet « feu doré » de l'ancienne version, en plus lisible.",
+    scene: () => `<div class="porte"><div style="clip-path:${clipCarte}">${carte()}</div><div class="suie" style="clip-path:${bande(-5, -0.3)}"></div><div class="braise" style="clip-path:${bande(-1.1, 0.9)}"></div><div class="braises">${braises()}</div></div>` },
+  { cls: 'dechire', titre: 'B · Sceau et déchirure',
+    texte: "Un sceau de cire « Trouvée » s'abat sur la carte, puis elle se déchire en deux et les moitiés tombent. Bruit sec, geste net : la carte est hors jeu.",
+    scene: () => `<div class="porte"><div class="moitie g">${carte()}</div><div class="moitie d">${carte()}</div></div><div class="sceau"><span><b>✓</b>TROUVÉE</span></div>` },
+  { cls: 'lumiere', titre: 'C · Poussière de lumière',
+    texte: "La carte se met à briller, des rayons tournent derrière elle, puis elle se dissout en poussière d'or qui monte vers le haut. Plus doux, plus solennel.",
+    scene: () => `<div class="rayons"></div><div class="porte">${carte()}</div><div class="poussiere" style="position:absolute;left:70px;top:6px">${poussiere()}</div>` },
+];
+const instants = [['0,5 s', .5], ['1,2 s', 1.2], ['2 s', 2], ['3,6 s', 3.6]];
+const tel = (p, fige) => `<div class="tel ${p.cls}${fige ? ' fige' : ''}" ${fige ? `style="--t:-${fige}s"` : ''}>
+  <div class="fond"></div>
+  <div class="haut"><div class="avatar"><span>J</span></div><div><div class="nom">Joueur 2</div><div class="sous">3 cartes</div></div></div>
+  <div class="scene">${p.scene()}</div>
+  <div class="panneau"><div class="v">Bonne réponse !</div><div class="r">Aaron</div><div class="ref">EXODE 4:14-16</div>
+    <div class="e">Moïse se dit lent de parole ; Dieu lui donne Aaron comme porte-parole.</div><div class="b">Continuer</div></div>
+</div>`;
+document.getElementById('pistes').innerHTML = pistes.map(p => `<section class="piste"><h2>${p.titre}</h2><p>${p.texte}</p>${tel(p)}
+  <div class="planche">${instants.map(([l, t]) => `<figure><div class="cadre">${tel(p, t)}</div><figcaption>${l}</figcaption></figure>`).join('')}</div></section>`).join('');
+</script>
+</body>
+</html>

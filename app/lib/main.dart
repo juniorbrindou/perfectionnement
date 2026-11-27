@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'state/online.dart';
 import 'ui/home_screen.dart';
 import 'ui/theme.dart';
 
@@ -15,6 +16,8 @@ void main() {
     systemNavigationBarColor: Palette.night,
   ));
   runApp(const PerfectionnementApp());
+  // Compte gardé sur le téléphone, puis connexion au serveur en invité.
+  Online.instance.start();
 }
 
 class PerfectionnementApp extends StatelessWidget {

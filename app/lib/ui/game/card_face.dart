@@ -8,7 +8,11 @@ import '../theme.dart';
 import 'pictos.dart';
 
 /// Rapport hauteur / largeur des cartes, celui du dos (1 : 1,87).
-const cardRatio = 1.87;
+/// Rapport hauteur / largeur du dos (1 : 1,87, celui de la photo).
+const backRatio = 1.87;
+
+/// Face : plus courte que le dos, sans vide sous la dernière réponse (146,4 unités de haut).
+const cardRatio = 146.4 / 85;
 const cardBackAsset = 'assets/duel/dos_carte_bleu.jpg';
 const cardIllustrationAsset = 'assets/duel/dos_illustration.jpg';
 const letters = ['A', 'B', 'C', 'D', 'E'];
@@ -24,13 +28,13 @@ const _cream = Color(0xFFF3EAD6);
 const _encre = Color(0xFF1D2A4A);
 const _brun = Color(0xFF3B2A1D);
 
-TextStyle _serif(double size, Color color, {double height = 1.22}) => TextStyle(
+TextStyle _serif(double size, Color color, {double height = 1.22, int weight = 500}) => TextStyle(
   fontFamily: 'Garamond',
   fontSize: size,
   color: color,
   height: height,
-  fontWeight: FontWeight.w500,
-  fontVariations: const [FontVariation('wght', 500)],
+  fontWeight: FontWeight.values[weight ~/ 100 - 1],
+  fontVariations: [FontVariation('wght', weight.toDouble())],
 );
 
 /// Plus grande taille de la liste qui fait tenir le texte dans la boîte (la dernière sinon).
@@ -105,44 +109,57 @@ class CardFace extends StatelessWidget {
   Widget build(BuildContext context) {
     final u = width / 85;
     final art = hideBook ? null : Session.instance.illustration(data.books);
-    return SizedBox(
-      width: width,
-      height: width * cardRatio,
-      child: Stack(
-        children: [
-          Positioned.fill(child: _Frame(u)),
-          Positioned.fill(
-            left: 3.7 * u,
-            top: 3.7 * u,
-            right: 3.7 * u,
-            bottom: 3.7 * u,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(2.4 * u),
-                border: Border.all(color: _gold, width: max(0.2 * u, 0.5)),
-                gradient: const RadialGradient(
-                  center: Alignment(0, -0.4),
-                  radius: 1.1,
-                  colors: [Color(0xFFF8F2E6), Color(0xFFEFE6D4)],
+    // Mise en page fixe : la taille du texte réglée dans Android ne doit pas la déborder
+    // (les tailles sont calculées pour tenir dans la carte).
+    return MediaQuery.withNoTextScaling(
+      child: SizedBox(
+        width: width,
+        height: width * cardRatio,
+        child: Stack(
+          children: [
+            Positioned.fill(child: _Frame(u)),
+            Positioned.fill(
+              left: 3.7 * u,
+              top: 3.7 * u,
+              right: 3.7 * u,
+              bottom: 3.7 * u,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(2.4 * u),
+                  border: Border.all(color: _gold, width: max(0.2 * u, 0.5)),
+                  gradient: const RadialGradient(
+                    center: Alignment(0, -0.4),
+                    radius: 1.1,
+                    colors: [Color(0xFFF8F2E6), Color(0xFFEFE6D4)],
+                  ),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(2.2 * u),
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: _content(
+                      u,
+                      art,
+                      width < 150 ? (width * 1.2 * MediaQuery.devicePixelRatioOf(context)).round() : null,
+                    ),
+                  ),
                 ),
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(2.2 * u),
-                child: Stack(clipBehavior: Clip.none, children: _content(u, art)),
-              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  List<Widget> _content(double u, String? art) {
-    final illuHeight = 54 * u;
+  /// [cache] : largeur de décodage des images, pour les petites cartes (moins de travail à l'écran).
+  List<Widget> _content(double u, String? art, int? cache) {
+    // Illustration basse : la question a plus de place.
+    final illuHeight = 44 * u;
     final question = data.question;
-    final qStyle = _serif(5.2 * u, _encre);
-    final qSize = fitSize(question, qStyle, 63.6 * u, 16 * u, [
-      for (final s in [5.2, 4.7, 4.2, 3.7, 3.3]) s * u,
+    final qStyle = _serif(6.6 * u, _encre, height: 1.16, weight: 700);
+    final qSize = fitSize(question, qStyle, 67.6 * u, 25.5 * u, [
+      for (final s in [6.6, 6.0, 5.4, 4.8, 4.3]) s * u,
     ]);
     final shown = [...options];
     return [
@@ -159,13 +176,20 @@ class CardFace extends StatelessWidget {
               if (art != null)
                 Image.asset(
                   art,
+                  cacheWidth: cache,
                   fit: BoxFit.cover,
                   alignment: const Alignment(0, -0.3),
                   filterQuality: FilterQuality.medium,
                 )
               else
                 // Le logo du dos, sans son filet, sur la même toile prolongée.
-                Image.asset(cardIllustrationAsset, fit: BoxFit.cover, filterQuality: FilterQuality.medium),
+                Image.asset(
+                  cardIllustrationAsset,
+                  cacheWidth: cache,
+                  fit: BoxFit.cover,
+                  alignment: const Alignment(0, 0.3), // logo remonté
+                  filterQuality: FilterQuality.medium,
+                ),
               const DecoratedBox(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -220,7 +244,7 @@ class CardFace extends StatelessWidget {
         Positioned(
           left: 0,
           right: 0,
-          top: 46.4 * u,
+          top: 36.4 * u,
           child: Center(
             child: Container(
               height: 5.8 * u,
@@ -240,10 +264,10 @@ class CardFace extends StatelessWidget {
           ),
         ),
       Positioned(
-        left: 7 * u,
-        right: 7 * u,
-        top: 56 * u,
-        height: 16 * u,
+        left: 5 * u,
+        right: 5 * u,
+        top: 46.5 * u,
+        height: 25.5 * u,
         child: Center(
           child: Text(
             question,
@@ -283,7 +307,7 @@ class CardFace extends StatelessWidget {
         Positioned(
           left: 6 * u,
           right: 6 * u,
-          top: 133.5 * u,
+          top: 30 * u, // Sur l’illustration : celui qui répond ne voit pas le livre.
           height: 8.6 * u,
           child: Container(
             decoration: BoxDecoration(
@@ -309,7 +333,7 @@ class CardFace extends StatelessWidget {
       Positioned(
         left: 3.8 * u,
         right: 3.8 * u,
-        top: 145 * u,
+        top: 135.4 * u,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -331,7 +355,7 @@ class CardBack extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     width: width,
-    height: width * cardRatio,
+    height: width * backRatio,
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(width * 0.04),
       boxShadow: [BoxShadow(color: const Color(0x99000000), offset: Offset(0, width * 0.02), blurRadius: width * 0.05)],

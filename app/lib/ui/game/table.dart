@@ -352,19 +352,23 @@ class HandFan extends StatelessWidget {
   final double k;
   final double height;
 
+  /// Taille des cartes (1 : la main où l’on choisit ; plus petit quand on la regarde seulement).
+  final double scale;
+
   const HandFan({
     super.key,
     required this.count,
     required this.card,
     required this.k,
     required this.height,
+    this.scale = 1,
     this.selected = -1,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final w = 54 * k;
+    final w = 54 * k * scale;
     return SizedBox(
       height: height,
       child: LayoutBuilder(
@@ -381,8 +385,8 @@ class HandFan extends StatelessWidget {
                     key: ValueKey(i),
                     duration: const Duration(milliseconds: 160),
                     curve: Curves.easeOut,
-                    left: mid + off * 52 * k - w / 2,
-                    top: 14 * k + off.abs() * 5 * k - (lifted ? 20 * k : 0),
+                    left: mid + off * 52 * k * scale - w / 2,
+                    top: (14 * k + off.abs() * 5 * k - (lifted ? 20 * k : 0)) * scale,
                     child: AnimatedRotation(
                       turns: lifted ? 0 : off * 7 / 360,
                       duration: const Duration(milliseconds: 160),
@@ -399,7 +403,7 @@ class HandFan extends StatelessWidget {
                                   ]
                                 : const [],
                           ),
-                          child: card(i, w),
+                          child: RepaintBoundary(child: card(i, w)),
                         ),
                       ),
                     ),

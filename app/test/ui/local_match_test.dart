@@ -69,14 +69,17 @@ void main() {
     expect(find.byType(HandFan), findsOneWidget);
     final hand = find.descendant(of: find.byType(HandFan), matching: find.byType(CardFace));
     expect(hand, findsNWidgets(5));
-    await tester.tap(hand.at(2));
+    // La dernière carte : une fois posée, son indice dépasse la main (régression).
+    await tester.tap(hand.at(4));
     await settle(tester);
     // La carte touchée s'affiche en grand, avec la bonne réponse marquée.
     expect(find.byType(CardFace), findsNWidgets(6));
     await shot(tester, 'partie_choix');
 
     await tester.tap(find.text('Poser cette carte'));
-    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(tester.takeException(), isNull);
+    await tester.pump(const Duration(milliseconds: 300));
     await tester.tap(find.textContaining('Je suis'));
     await settle(tester);
 

@@ -9,8 +9,11 @@ environment:
   sdk: ^3.12.2
 
 dependencies:
+  dio: ^5.11.1
   flutter:
     sdk: flutter
+  nakama: ^1.4.0
+  path_provider: ^2.1.6
 
 dev_dependencies:
   flutter_test:
@@ -33,6 +36,9 @@ flutter:
     - data/cartes.json
     - data/questions_depart.json
     - data/recits.json
+
+  shaders:
+    - shaders/feu_dore.frag
 
   fonts:
     - family: Lilita
