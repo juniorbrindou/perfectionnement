@@ -1,0 +1,45 @@
+name: perfectionnement
+description: "Perfectionnement : le duel des cartes bibliques."
+publish_to: 'none'
+
+# Code de version au-dessus de celui de Godot (600) : la version Flutter s'installe par-dessus.
+version: 0.7.0+700
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  # assets/ et data/ sont des jonctions vers les dossiers de la racine, partagés avec la
+  # version Godot pendant la réécriture (voir .gitignore).
+  assets:
+    - assets/accueil/accueil.png
+    - assets/duel/pieces.png
+    - assets/duel/couronne.png
+    - assets/duel/dos_carte_bleu.jpg
+    - assets/illustrations/
+    - data/aventure.json
+    - data/cartes.json
+    - data/questions_depart.json
+    - data/recits.json
+
+  fonts:
+    - family: Lilita
+      fonts:
+        - asset: assets/fonts/LilitaOne-Regular.ttf
+    - family: Nunito
+      fonts:
+        - asset: assets/fonts/Nunito.ttf
+    - family: Garamond
+      fonts:
+        - asset: assets/fonts/EBGaramond.ttf

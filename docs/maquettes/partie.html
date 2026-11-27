@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Écrans de partie : deux pistes</title>
+<link rel="stylesheet" href="carte.css">
+<style>
+@font-face { font-family: "Lilita"; src: url("../../assets/fonts/LilitaOne-Regular.ttf"); }
+@font-face { font-family: "Nunito"; src: url("../../assets/fonts/Nunito.ttf"); font-weight: 200 1000; }
+:root {
+  --nuit: #06122f; --nuit-2: #0b1f4d; --or: #f2c14e; --or-clair: #ffe39a; --creme: #fff4dc;
+  --parchemin: #f6e2b3; --parchemin-2: #ecd09a; --encre: #3a2412; --vert: #2f9e4a; --rouge: #b8352a;
+  --cadre: linear-gradient(160deg, #fff1b8 0%, #f2c14e 22%, #a8741c 50%, #f7d277 75%, #8a5a12 100%);
+}
+* { margin: 0; box-sizing: border-box; }
+body { background: #1c1c22; font-family: "Nunito", sans-serif; color: var(--creme); padding: 28px 24px 60px; }
+h1 { font: 28px "Lilita"; color: #fff; }
+.intro { color: #b9bccb; margin: 6px 0 22px; max-width: 1180px; line-height: 1.45; }
+.piste { margin-bottom: 46px; }
+.piste > h2 { font: 24px "Lilita"; color: var(--or); }
+.piste > p { color: #b9bccb; font-size: 14px; max-width: 1180px; margin: 4px 0 16px; line-height: 1.45; }
+.rangee { display: flex; gap: 34px; flex-wrap: wrap; }
+.etat > h3 { font: 15px "Lilita"; color: #fff; margin-bottom: 10px; letter-spacing: .3px; }
+
+.tel { position: relative; width: 360px; height: 780px; border-radius: 32px; overflow: hidden; background: var(--nuit);
+  box-shadow: 0 0 0 9px #0a0a0d, 0 0 0 10px #333, 0 26px 50px rgba(0,0,0,.6); }
+.fond { position: absolute; inset: -20px; background-size: cover; background-position: center; filter: blur(10px) brightness(.55) saturate(1.1); }
+.fond::after { content: ""; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 90% 60% at 50% 45%, rgba(11,31,77,.2), rgba(6,18,47,.85) 75%), linear-gradient(rgba(6,18,47,.5), rgba(6,18,47,.2) 40%, rgba(6,18,47,.75)); }
+.statut { position: absolute; top: 0; left: 0; right: 0; height: 28px; display: flex; justify-content: space-between; padding: 8px 22px 0;
+  font-size: 12px; font-weight: 800; z-index: 30; }
+
+/* Commun */
+.avatar { width: 40px; height: 40px; border-radius: 50%; padding: 2.5px; background: var(--cadre); flex: none; box-shadow: 0 3px 8px rgba(0,0,0,.5); }
+.avatar span { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; font: 19px "Lilita"; color: #fff; }
+.avatar.toi span { background: radial-gradient(circle at 35% 30%, #2fb3ae, #12706d); }
+.avatar.lui span { background: radial-gradient(circle at 35% 30%, #4b6fd6, #1d3a8f); }
+.nom { font: 15px "Lilita"; line-height: 1.05; text-shadow: 0 1px 3px #000; }
+.sous { font-size: 11px; font-weight: 800; color: var(--or-clair); }
+.minuteur { position: relative; width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center; flex: none;
+  background: radial-gradient(circle at 40% 35%, #183a86, #08173d); box-shadow: 0 0 0 3px #a8741c, 0 0 18px rgba(242,193,78,.45), 0 4px 10px rgba(0,0,0,.5); }
+.minuteur::before { content: ""; position: absolute; inset: -3px; border-radius: 50%;
+  background: conic-gradient(var(--or-clair) 0 var(--p, 70%), transparent 0); -webkit-mask: radial-gradient(circle, transparent 27px, #000 28px); }
+.minuteur b { font: 24px "Lilita"; color: #fff; text-shadow: 0 2px 3px #000; }
+.minuteur.petit { width: 44px; height: 44px; }
+.minuteur.petit::before { -webkit-mask: radial-gradient(circle, transparent 20px, #000 21px); }
+.minuteur.petit b { font-size: 18px; }
+.dos { position: relative; overflow: hidden; width: 22px; height: 41px; border-radius: 3px; box-shadow: 0 2px 4px rgba(0,0,0,.6); flex: none; }
+/* Dos des cartes : l’image paysage tournée d’un quart de tour (carte de rapport 1 : 1,87). */
+.dos::before { content: ""; position: absolute; left: 50%; top: 50%; width: 187%; height: 53.5%; transform: translate(-50%, -50%) rotate(90deg);
+  background: url("../../assets/duel/dos_carte_bleu.jpg") center/100% 100%; }
+.bouton { display: flex; align-items: center; justify-content: center; height: 48px; border-radius: 24px; font: 20px "Lilita"; color: #3a2412;
+  background: linear-gradient(#ffe48a, #f6b92f 55%, #e0961a); box-shadow: 0 3px 0 #9a5d0e, 0 6px 14px rgba(0,0,0,.45), inset 0 1px 0 #fff6cf; }
+.pastille { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 900; padding: 2px 9px; border-radius: 10px; }
+.p-cat { background: #4a2a0e; color: var(--or-clair); }
+.p-diff { background: linear-gradient(#ffe48a, #e8a92a); color: #4a2a0e; }
+.jauge-prop { display: inline-flex; gap: 3px; align-items: center; }
+.jauge-prop i { width: 8px; height: 8px; border-radius: 50%; background: var(--or); box-shadow: 0 0 0 1px #8a5a12; }
+.jauge-prop i.off { background: rgba(0,0,0,.25); box-shadow: 0 0 0 1px rgba(138,90,18,.5); }
+.consigne { position: absolute; left: 0; right: 0; text-align: center; font: 17px "Lilita"; text-shadow: 0 2px 6px #000; z-index: 5; }
+.consigne small { display: block; font: 800 12px "Nunito"; color: #c9d2ee; text-shadow: none; margin-top: 1px; }
+
+/* Carte de jeu (piste A) */
+.main-k { position: absolute; left: 0; right: 0; height: 105px; z-index: 5; }
+.carte.mini-k { position: absolute; bottom: 0; font-size: .66px; transform-origin: 50% 160%; box-shadow: 0 6px 12px rgba(0,0,0,.6), inset 0 0 0 .3em #0a1430; }
+.carte.mini-k.choisie { box-shadow: 0 0 0 2px #fff5c8, 0 0 22px rgba(255,214,110,.95), 0 6px 12px rgba(0,0,0,.6); }
+.carte .retour { z-index: 3; }
+.choix { display: flex; flex-direction: column; gap: 7px; padding: 2px 12px; }
+.choix div { display: flex; align-items: center; gap: 9px; height: 38px; padding: 0 10px 0 5px; border-radius: 19px; font-weight: 900; font-size: 14px;
+  background: linear-gradient(#fff8e6, #f3dca8); box-shadow: 0 0 0 1.5px #b8862e, 0 2px 0 #b8862e; }
+.choix b { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #4a2a0e; color: var(--or-clair); font: 15px "Lilita"; flex: none; }
+.choix .bonne { background: linear-gradient(#e7f8df, #bfe6a9); box-shadow: 0 0 0 2px var(--vert), 0 2px 0 #1f7a35; }
+.choix .bonne b { background: var(--vert); color: #fff; }
+.choix .fausse { opacity: .62; }
+
+.main { position: absolute; left: 0; right: 0; height: 110px; }
+.mini { position: absolute; bottom: 0; width: 66px; height: 92px; border-radius: 8px; padding: 2px; background: var(--cadre); box-shadow: 0 6px 12px rgba(0,0,0,.6); transform-origin: 50% 140%; }
+.mini div { height: 100%; border-radius: 6px; background-size: cover; background-position: center; position: relative; overflow: hidden; }
+.mini div::after { content: attr(data-n); position: absolute; left: 0; right: 0; bottom: 0; height: 22px; display: grid; place-items: center;
+  background: linear-gradient(rgba(6,18,47,0), rgba(6,18,47,.92)); font: 900 9.5px "Nunito"; color: var(--or-clair); }
+.mini.choisie { box-shadow: 0 0 0 2px #fff5c8, 0 0 22px rgba(255,214,110,.9), 0 6px 12px rgba(0,0,0,.6); }
+.mini.terne { filter: brightness(.55) saturate(.6); }
+
+.joueur-ligne { position: absolute; left: 14px; right: 14px; display: flex; align-items: center; gap: 9px; z-index: 6; }
+.joueur-ligne .dos-rang { display: flex; margin-left: auto; }
+.joueur-ligne .dos-rang .dos { width: 26px; height: 49px; margin-left: -9px; }
+.joueur-ligne .dos-rang .dos:first-child { margin-left: 0; }
+
+/* Révélation */
+.eclat { position: absolute; border-radius: 50%; background: radial-gradient(circle, rgba(255,236,170,.95), rgba(255,190,70,.4) 35%, rgba(255,170,40,0) 70%); }
+.etincelle { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: #ffe9a8; box-shadow: 0 0 6px 2px rgba(255,200,90,.9); }
+.panneau { position: absolute; left: 18px; right: 18px; border-radius: 18px; padding: 16px 18px 18px; color: var(--encre);
+  background: radial-gradient(ellipse at 50% 20%, #fdf3d8, var(--parchemin) 60%, var(--parchemin-2)); box-shadow: 0 0 0 3px #b8862e, 0 0 0 5px #6b4310, 0 18px 30px rgba(0,0,0,.6); }
+.panneau .verdict { font: 26px "Lilita"; color: var(--vert); text-align: center; }
+.panneau .rep-txt { font: 22px "Lilita"; text-align: center; color: #4a2a0e; margin-top: 2px; }
+.panneau .ref { text-align: center; font-size: 12px; font-weight: 900; color: #8a5a12; letter-spacing: .5px; margin: 2px 0 10px; }
+.panneau .expl { font: italic 700 14px/1.4 "Nunito"; text-align: center; padding: 10px 6px; border-top: 1.5px solid rgba(138,90,18,.35); border-bottom: 1.5px solid rgba(138,90,18,.35); }
+.panneau .bouton { margin-top: 14px; }
+.tampon { position: absolute; font: 22px "Lilita"; color: #fff3c4; padding: 4px 14px; border-radius: 8px; border: 3px solid #ffe39a; transform: rotate(-12deg);
+  background: rgba(184,120,20,.55); text-shadow: 0 2px 4px rgba(0,0,0,.6); box-shadow: 0 0 24px rgba(255,214,110,.7); letter-spacing: 1px; }
+
+/* Piste B : parchemin */
+.entete { position: absolute; top: 30px; left: 0; right: 0; height: 104px; z-index: 6;
+  background: linear-gradient(#13306f, #0b1f4d 70%, rgba(11,31,77,0)); }
+.entete .cote { position: absolute; top: 10px; display: flex; align-items: center; gap: 8px; }
+.entete .gauche { left: 12px; } .entete .droite { right: 12px; flex-direction: row-reverse; text-align: right; }
+.entete .compte { position: absolute; top: 60px; display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px 0 8px; border-radius: 15px;
+  background: rgba(6,18,47,.85); box-shadow: inset 0 0 0 1.5px rgba(242,193,78,.6); font: 17px "Lilita"; color: var(--or-clair); }
+.entete .compte .dos { width: 13px; height: 24px; }
+.entete .compte.g { left: 14px; } .entete .compte.d { right: 14px; }
+.entete .minuteur { position: absolute; left: 50%; top: 14px; margin-left: -34px; width: 68px; height: 68px; }
+.entete .minuteur::before { -webkit-mask: radial-gradient(circle, transparent 32px, #000 33px); }
+.entete .minuteur b { font-size: 28px; }
+.entete .actif { box-shadow: 0 0 0 2px #fff5c8, 0 0 16px rgba(255,214,110,.9); }
+.rouleau { position: absolute; left: 12px; right: 12px; border-radius: 14px; color: var(--encre); padding: 46px 16px 16px;
+  background: radial-gradient(ellipse at 50% 30%, #fdf3d8, var(--parchemin) 55%, #e4c180); box-shadow: 0 0 0 3px #c9963a, 0 0 0 6px #7a4e14, 0 18px 34px rgba(0,0,0,.6); }
+.rouleau::before, .rouleau::after { content: ""; position: absolute; left: 10px; right: 10px; height: 2px; background: linear-gradient(90deg, transparent, #b8862e, transparent); }
+.rouleau::before { top: 8px; } .rouleau::after { bottom: 8px; }
+.banniere { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); white-space: nowrap; padding: 6px 22px; border-radius: 8px;
+  font: 17px "Lilita"; color: var(--or-clair); background: linear-gradient(#6b3d12, #4a2a0e); box-shadow: 0 0 0 2px #d9a541, 0 4px 8px rgba(0,0,0,.45); }
+.rouleau .meta { display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 8px; }
+.rouleau .q { font: 800 17px/1.32 "Nunito"; text-align: center; margin-bottom: 14px; }
+.rouleau .choix { padding: 0; gap: 9px; }
+.rouleau .choix div { height: 44px; font-size: 15px; }
+.paysage { position: absolute; left: 0; right: 0; bottom: 0; height: 120px; background: url("../../assets/duel/partie.png") center bottom/100% auto no-repeat; opacity: .95; }
+.paysage::before { content: ""; position: absolute; inset: 0; background: linear-gradient(var(--nuit), rgba(6,18,47,0) 45%); }
+.rang-main { position: absolute; left: 10px; right: 10px; display: flex; justify-content: center; gap: 6px; z-index: 6; }
+.rang-main .mini { position: relative; transform: none; }
+.rang-main .mini.choisie { transform: translateY(-12px); }
+.illu-rouleau { height: 130px; margin: -30px -6px 12px; border-radius: 8px; background-size: cover; background-position: center 40%; box-shadow: 0 0 0 2px #b8862e; position: relative; }
+
+.notes { margin-top: 10px; max-width: 1180px; color: #b9bccb; font-size: 14px; line-height: 1.55; }
+.notes b { color: #fff; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <clipPath id="bord-illu" clipPathUnits="objectBoundingBox">
+      <path d="M0,0 H1 V0.925 H0.71 C0.65,0.925 0.63,1 0.56,1 H0.44 C0.37,1 0.35,0.925 0.29,0.925 H0 Z"/>
+    </clipPath>
+    <!-- Difficultés -->
+    <symbol id="lait" viewBox="0 0 24 24"><path d="M12 3 C12 3 6.5 10 6.5 14 a5.5 5.5 0 0 0 11 0 C17.5 10 12 3 12 3Z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="manne" viewBox="0 0 24 24"><g fill="currentColor" stroke="none"><ellipse cx="8" cy="9" rx="2.6" ry="2.2"/><ellipse cx="15.5" cy="7.5" rx="2.3" ry="2"/><ellipse cx="12" cy="14" rx="2.8" ry="2.4"/><ellipse cx="6.5" cy="16.5" rx="2" ry="1.8"/><ellipse cx="17.5" cy="15" rx="2.2" ry="1.9"/></g></symbol>
+    <symbol id="solide" viewBox="0 0 24 24"><path d="M4 15.5 C3 9 8 6.5 12 6.5 S21 9 20 15.5 C19.7 17.3 18.5 18 17 18 H7 C5.5 18 4.3 17.3 4 15.5Z" fill="currentColor" stroke="none"/><path d="M9 9.5 l-1.3 3 M12.5 9 l-1.3 3.2 M16 9.5 l-1.3 3" stroke="#13234a" stroke-width="1.3"/></symbol>
+    <!-- Catégories -->
+    <symbol id="personnages" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20.5 c0-4.3 3.4-7 7.5-7 s7.5 2.7 7.5 7"/></symbol>
+    <symbol id="miracles" viewBox="0 0 24 24"><path d="M12 3 C12.6 8.5 15.5 11.4 21 12 C15.5 12.6 12.6 15.5 12 21 C11.4 15.5 8.5 12.6 3 12 C8.5 11.4 11.4 8.5 12 3Z"/><path d="M18.5 3.5 v3 M17 5 h3"/></symbol>
+    <symbol id="paraboles" viewBox="0 0 24 24"><path d="M12 21 V11"/><path d="M12 13 C12 8.5 8.5 6 4.5 6.5 C4.5 10.5 7.5 13 12 13Z"/><path d="M12 11 C12 6.5 15 4 19.5 4 C19.5 8 16.5 11 12 11Z"/></symbol>
+    <symbol id="lieux_evenements" viewBox="0 0 24 24"><path d="M12 21 C12 21 5.5 14.5 5.5 9.5 a6.5 6.5 0 0 1 13 0 C18.5 14.5 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.4"/></symbol>
+    <symbol id="ok" viewBox="0 0 24 24"><path d="M5 12.5 l4.5 4.5 L19 7.5"/></symbol>
+    <symbol id="non" viewBox="0 0 24 24"><path d="M6.5 6.5 l11 11 M17.5 6.5 l-11 11"/></symbol>
+  </defs>
+</svg>
+
+<h1>Écrans de partie : deux pistes</h1>
+<p class="intro">Les moments d’un tour : <b>choisir sa carte</b>, <b>répondre</b>, <b>bonne réponse</b> et, pour la piste A retenue, <b>mauvaise réponse</b>.
+Le fond est l'illustration du livre de la carte jouée, floutée et assombrie : il change à chaque carte. Contenu réel (réserve
+« téléphone »). Même écran pour l'arcade, le duel en ligne et le mode à deux ; seuls changent le nom de l'adversaire et, à deux,
+l'écran « Passe le téléphone ».</p>
+
+<!-- ======================= PISTE A ======================= -->
+<section class="piste">
+  <h2>A · Table de jeu</h2>
+  <p>Ta main est ouverte devant toi, en éventail en bas : ce sont tes cartes, tu les vois toujours, avec la bonne réponse en vert.
+  Touche une carte : elle s’affiche en grand pour que tu la lises ; tu la poses, ou tu en touches une autre pour changer.
+  L’adversaire en haut, ses cartes face cachée. Quand tu réponds, sa carte est au centre et ta main reste visible au bas de l’écran.</p>
+  <div class="rangee">
+
+    <div class="etat"><h3>1. Ton tour : choisis une carte</h3>
+    <div class="tel">
+      <div class="fond" style="background-image:url('../../assets/illustrations/ruth.jpg')"></div>
+      <div class="statut"><span>9:41</span><span>5G ▮▮▮</span></div>
+      <div class="joueur-ligne" style="top:40px">
+        <div class="avatar lui"><span>E</span></div>
+        <div><div class="nom">Esdras42</div><div class="sous">5 cartes</div></div>
+        <div class="dos-rang"><i class="dos"></i><i class="dos"></i><i class="dos"></i><i class="dos"></i><i class="dos"></i></div>
+      </div>
+      <div class="consigne" style="top:94px">Choisis la carte à poser <small>Touche une carte pour la voir en grand</small></div>
+      <div class="carte " style="position:absolute; left:52px; top:134px; font-size:3px; z-index:4"><div class="contenu">
+  <div class="illu" style="background-image:url('../../assets/illustrations/ruth.jpg')"></div><svg class="filet" viewBox="0 0 1 1" preserveAspectRatio="none"><path d="M0,0.925 H0.29 C0.35,0.925 0.37,1 0.44,1 H0.56 C0.63,1 0.65,0.925 0.71,0.925 H1" fill="none" stroke="#c9a35a" stroke-width="1.2" vector-effect="non-scaling-stroke"/></svg>
+  <div class="rond difficulte"><svg><use href="#manne"/></svg><b>Manne</b></div>
+  <div class="rond categorie"><svg><use href="#personnages"/></svg></div>
+  <div class="livre"><span>Ruth</span></div>
+  <div class="question"><span class="q long">Quelle femme moabite a refusé de quitter sa belle-mère Naomi&nbsp;?</span></div>
+  <div class="separateur"></div>
+  <div class="reponses"><div class="rep "><div class="lettre"><b>A</b></div><span>Orpa</span></div><div class="rep juste"><div class="lettre"><b>B</b></div><span>Ruth</span></div><div class="rep "><div class="lettre"><b>C</b></div><span>Débora</span></div><div class="rep "><div class="lettre"><b>D</b></div><span>Esther</span></div></div>
+  <div class="pied"><span>Personnages</span><span>Ta carte</span></div>
+</div></div>
+      <div class="minuteur" style="position:absolute; left:300px; top:110px; --p:72%; z-index:7"><b>14</b></div>
+      <div style="position:absolute; left:90px; right:90px; top:620px; z-index:6"><div class="bouton">Poser cette carte</div></div>
+      <div class="main-k" style="bottom:-20px"><div class="carte mini-k" style="left:44px; transform: rotate(-14deg) translateY(10px)"><div class="contenu">
+  <div class="illu" style="background-image:url('../../assets/illustrations/exode.jpg')"></div><svg class="filet" viewBox="0 0 1 1" preserveAspectRatio="none"><path d="M0,0.925 H0.29 C0.35,0.925 0.37,1 0.44,1 H0.56 C0.63,1 0.65,0.925 0.71,0.925 H1" fill="none" stroke="#c9a35a" stroke-width="1.2" vector-effect="non-scaling-stroke"/></svg>
+  <div class="rond difficulte"><svg><use href="#lait"/></svg><b>Lait</b></div>
+  <div class="rond categorie"><svg><use href="#miracles"/></svg></div>
+  <div class="livre"><span>Exode</span></div>
+  <div class="question"><span class="q long">Quelle mer s’est ouverte devant Moïse et le peuple sortant d’Égypte&nbsp;?</span></div>
+  <div class="separateur"></div>
+  <div class="reponses"><div class="rep "><div class="lettre"><b>A</b></div><span>La mer Morte</span></div><div class="rep juste"><div class="lettre"><b>B</b></div><span>La mer Rouge</span></div><div class="rep "><div class="lettre"><b>C</b></div><span>La mer de Galilée</span></div><div class="rep "><div class="lettre"><b>D</b></div><span>La mer Méditerranée</span></div></div>
+  <div class="pied"><span>Miracles</span><span>Ta carte</span></div>
+</div></div>
+<div class="carte mini-k" style="left:96px; transform: rotate(-7deg) translateY(3px)"><div class="contenu">
+  <div class="illu" style="background-image:url('../../assets/illustrations/1_rois.jpg')"></div><svg class="filet" viewBox="0 0 1 1" preserveAspectRatio="none"><path d="M0,0.925 H0.29 C0.35,0.925 0.37,1 0.44,1 H0.56 C0.63,1 0.65,0.925 0.71,0.925 H1" fill="none" stroke="#c9a35a" stroke-width="1.2" vector-effect="non-scaling-stroke"/></svg>
+  <div class="rond difficulte"><svg><use href="#manne"/></svg><b>Manne</b></div>
+  <div class="rond categorie"><svg><use href="#personnages"/></svg></div>
+  <div class="livre"><span>1 Rois</span></div>
+  <div class="question"><span class="q long">Quel roi demanda à Dieu un cœur intelligent pour juger son peuple&nbsp;?</span></div>
+  <div class="separateur"></div>
+  <div class="reponses"><div class="rep "><div class="lettre"><b>A</b></div><span>David</span></div><div class="rep "><div class="lettre"><b>B</b></div><span>Saül</span></div><div class="rep juste"><div class="lettre"><b>C</b></div><span>Salomon</span></div><div class="rep "><div class="lettre"><b>D</b></div><span>Ézéchias</span></div></div>
+  <div class="pied"><span>Personnages</span><span>Ta carte</span></div>
+</div></div>
+<div class="carte mini-k choisie" style="left:152px; transform: rotate(0deg) translateY(0px) translateY(-22px)"><div class="contenu">
+  <div class="illu" style="background-image:url('../../assets/illustrations/ruth.jpg')"></div><svg class="filet" viewBox="0 0 1 1" preserveAspectRatio="none"><path d="M0,0.925 H0.29 C0.35,0.925 0.37,1 0.44,1 H0.56 C0.63,1 0.65,0.925 0.71,0.925 H1" fill="none" stroke="#c9a35a" stroke-width="1.2" vector-effect="non-scaling-stroke"/></svg>
+  <div class="rond difficulte"><svg><use href="#manne"/></svg><b>Manne</b></div>
+  <div class="rond categorie"><svg><use href="#personnages"/></svg></div>
+  <div class="livre"><span>Ruth</span></div>
+  <div class="question"><span class="q long">Quelle femme moabite a refusé de quitter sa belle-mère Naomi&nbsp;?</span></div>
+  <div class="separateur"></div>
+  <div class="reponses"><div class="rep "><div class="lettre"><b>A</b></div><span>Orpa</span></div><div class="rep juste"><div class="lettre"><b>B</b></div><span>Ruth</span></div><div class="rep "><div class="lettre"><b>C</b></div><span>Débora</span></div><div class="rep "><div class="lettre"><b>D</b></div><span>Esther</span></div></div>
+  <div class="pied"><span>Personnages</span><span>Ta carte</span></div>
+</div></div>
+<div class="carte mini-k" style="left:208px; transform: rotate(7deg) translateY(3px)"><div class="contenu">
+  <div class="illu" style="background-image:url('../../assets/illustrations/esther.jpg')"></div><svg class="filet" viewBox="0 0 1 1" preserveAspectRatio="none"><path d="M0,0.925 H0.29 C0.35,0.925 0.37,1 0.44,1 H0.56 C0.63,1 0.65,0.925 0.71,0.925 H1" fill="none" stroke="#c9a35a" stroke-width="1.2" vector-effect="non-scaling-stroke"/></svg>
+  <div class="rond difficulte"><svg><use href="#manne"/></svg><b>Manne</b></div>
+  <div class="rond categorie"><svg><use href="#personnages"/></svg></div>
+  <div class="livre"><span>Esther</span></div>
+  <div class="question"><span class="q long">Quelle reine intercéda auprès du roi Assuérus pour sauver son peuple&nbsp;?</span></div>
+  <div class="separateur"></div>
+  <div class="reponses"><div class="rep juste"><div class="lettre"><b>A</b></div><span>Esther</span></div><div class="rep "><div class="lettre"><b>B</b></div><span>Vasthi</span></div><div class="rep "><div class="lettre"><b>C</b></div><span>Jézabel</span></div><div class="rep "><div class="lettre"><b>D</b></div><span>La reine de Séba</span></div></div>
+  <div class="pied"><span>Personnages</span><span>Ta carte</span></div>
+</div></div>
+<div class="carte mini-k" style="left:260px; transform: rotate(14deg) translateY(10px)"><div class="contenu">
+  <div class="illu" style="background-image:url('../../assets/illustrations/luc.jpg')"></div><svg class="filet" viewBox="0 0 1 1" preserveAspectRatio="none"><path d="M0,0.925 H0.29 C0.35,0.925 0.37,1 0.44,1 H0.56 C0.63,1 0.65,0.925 0.71,0.925 H1" fill="none" stroke="#c9a35a" stroke-width="1.2" vector-effect="non-scaling-stroke"/></svg>
+  <div class="rond difficulte"><svg><use href="#solide"/></svg><b>Solide</b></div>
+  <div class="rond categorie"><svg><use href="#personnages"/></svg></div>
+  <div class="livre"><span>Luc</span></div>
+  <div class="question"><span class="q ">Comment s’appelait le père de Jean-Baptiste&nbsp;?</span></div>
+  <div class="separateur"></div>
+  <div class="reponses"><div class="rep "><div class="lettre"><b>A</b></div><span>Joseph</span></div><div class="rep "><div class="lettre"><b>B</b></div><span>Siméon</span></div><div class="rep juste"><div class="lettre"><b>C</b></div><span>Zacharie</span></div><div class="rep "><div class="lettre"><b>D</b></div><span>Jaïrus</span></div></div>
+  <div class="pied"><span>Personnages</span><span>Ta carte</span></div>
+</div></div></div>
+    </div>
+    </div>
+
+    <div class="etat"><h3>2. Tu réponds à la carte d’Esdras42</h3>
+    <div class="tel">
+      <div class="fond" style="background-image:url('../../assets/illustrations/exode.jpg')"></div>
+      <div class="statut"><span>9:41</span><span>5G ▮▮▮</span></div>
+      <div class="joueur-ligne" style="top:40px">
+        <div class="avatar lui"><span>E</span></div>
+        <div><div class="nom">Esdras42</div><div class="sous">a posé une carte</div></div>
+        <div class="dos-rang"><i class="dos"></i><i class="dos"></i><i class="dos"></i><i class="dos"></i></div>
+      </div>
+      <div class="carte " style="position:absolute; left:40px; top:98px; font-size:3.3px; z-index:4"><div class="contenu">
+  <div class="illu" style="background-image:url('../../assets/illustrations/exode.jpg')"></div><svg class="filet" viewBox="0 0 1 1" preserveAspectRatio="none"><path d="M0,0.925 H0.29 C0.35,0.925 0.37,1 0.44,1 H0.56 C0.63,1 0.65,0.925 0.71,0.925 H1" fill="none" stroke="#c9a35a" stroke-width="1.2" vector-effect="non-scaling-stroke"/></svg>
+  <div class="rond difficulte"><svg><use href="#manne"/></svg><b>Manne</b></div>
+  <div class="rond categorie"><svg><use href="#personnages"/></svg></div>
+  <div class="livre"><span>Exode</span></div>
+  <div class="question"><span class="q long">Quel frère de Moïse Dieu désigna-t-il pour parler à sa place&nbsp;?</span></div>
+  <div class="separateur"></div>
+  <div class="reponses"><div class="rep "><div class="lettre"><b>A</b></div><span>Caleb</span></div><div class="rep "><div class="lettre"><b>B</b></div><span>Aaron</span></div><div class="rep "><div class="lettre"><b>C</b></div><span>Josué</span></div><div class="rep "><div class="lettre"><b>D</b></div><span>Hur</span></div></div>
+  <div class="pied"><span>Personnages</span><span>Carte d’Esdras42</span></div>
+</div></div>
+      <div class="minuteur" style="position:absolute; left:296px; top:80px; --p:85%; z-index:7"><b>26</b></div>
+      <div class="consigne" style="top:634px">Touche la bonne réponse</div>
+      <div class="main-k" style="bottom:-46px"><div class="carte mini-k" style="left:44px; transform: rotate(-14deg) translateY(10px)"><div class="contenu">
+  <div class="illu" style="background-image:url('../../assets/illustrations/exode.jpg')"></div><svg class="filet" viewBox="0 0 1 1" preserveAspectRatio="none"><path d="M0,0.925 H0.29 C0.35,0.925 0.37,1 0.44,1 H0.56 C0.63,1 0.65,0.925 0.71,0.925 H1" fill="none" stroke="#c9a35a" stroke-width="1.2" vector-effect="non-scaling-stroke"/></svg>
+  <div class="rond difficulte"><svg><use href="#lait"/></svg><b>Lait</b></div>
+  <div class="rond categorie"><svg><use href="#miracles"/></svg></div>
+  <div class="livre"><span>Exode</span></div>
+  <div class="question"><span class="q long">Quelle mer s’est ouverte devant Moïse et le peuple sortant d’Égypte&nbsp;?</span></div>
+  <div class="separateur"></div>
+  <div class="reponses"><div class="rep "><div class="lettre"><b>A</b></div><span>La mer Morte</span></div><div class="rep juste"><div class="lettre"><b>B</b></div><span>La mer Rouge</span></div><div class="rep "><div class="lettre"><b>C</b></div><span>La mer de Galilée</span></div><div class="rep "><div class="lettre"><b>D</b></div><span>La mer Méditerranée</span></div></div>
+  <div class="pied"><span>Miracles</span><span>Ta carte</span></div>
+</div></div>
+<div class="carte mini-k" style="left:96px; transform: rotate(-7deg) translateY(3px)"><div class="contenu">
+  <div class="illu" style="background-image:url('../../assets/illustrations/1_rois.jpg')"></div><svg class="filet" viewBox="0 0 1 1" preserveAspectRatio="none"><path d="M0,0.925 H0.29 C0.35,0.925 0.37,1 0.44,1 H0.56 C0.63,1 0.65,0.925 0.71,0.925 H1" fill="none" stroke="#c9a35a" stroke-width="1.2" vector-effect="non-scaling-stroke"/></svg>
+  <div class="rond difficulte"><svg><use href="#manne"/></svg><b>Manne</b></div>
+  <div class="rond categorie"><svg><use href="#personnages"/></svg></div>
+  <div class="livre"><span>1 Rois</span></div>
+  <div class="question"><span class="q long">Quel roi demanda à Dieu un cœur intelligent pour juger son peuple&nbsp;?</span></div>
+  <div class="separateur"></div>
+  <div class="reponses"><div class="rep "><div class="lettre"><b>A</b></div><span>David</span></div><div class="rep "><div class="lettre"><b>B</b></div><span>Saül</span></div><div class="rep juste"><div class="lettre"><b>C</b></div><span>Salomon</span></div><div class="rep "><div class="lettre"><b>D</b></div><span>Ézéchias</span></div></div>
+  <div class="pied"><span>Personnages</span><span>Ta carte</span></div>
+</div></div>
+<div class="carte mini-k" style="left:152px; transform: rotate(0deg) translateY(0px)"><div class="contenu">
+  <div class="illu" style="background-image:url('../../assets/illustrations/esther.jpg')"></div><svg class="filet" viewBox="0 0 1 1" preserveAspectRatio="none"><path d="M0,0.925 H0.29 C0.35,0.925 0.37,1 0.44,1 H0.56 C0.63,1 0.65,0.925 0.71,0.925 H1" fill="none" stroke="#c9a35a" stroke-width="1.2" vector-effect="non-scaling-stroke"/></svg>
+  <div class="rond difficulte"><svg><use href="#manne"/></svg><b>Manne</b></div>
+  <div class="rond categorie"><svg><use href="#personnages"/></svg></div>
+  <div class="livre"><span>Esther</span></div>
+  <div class="question"><span class="q long">Quelle reine intercéda auprès du roi Assuérus pour sauver son peuple&nbsp;?</span></div>
+  <div class="separateur"></div>
+  <div class="reponses"><div class="rep juste"><div class="lettre"><b>A</b></div><span>Esther</span></div><div class="rep "><div class="lettre"><b>B</b></div><span>Vasthi</span></div><div class="rep "><div class="lettre"><b>C</b></div><span>Jézabel</span></div><div class="rep "><div class="lettre"><b>D</b></div><span>La reine de Séba</span></div></div>
+  <div class="pied"><span>Personnages</span><span>Ta carte</span></div>
+</div></div>
+<div class="carte mini-k" style="left:208px; transform: rotate(7deg) translateY(3px)"><div class="contenu">
+  <div class="illu" style="background-image:url('../../assets/illustrations/luc.jpg')"></div><svg class="filet" viewBox="0 0 1 1" preserveAspectRatio="none"><path d="M0,0.925 H0.29 C0.35,0.925 0.37,1 0.44,1 H0.56 C0.63,1 0.65,0.925 0.71,0.925 H1" fill="none" stroke="#c9a35a" stroke-width="1.2" vector-effect="non-scaling-stroke"/></svg>
+  <div class="rond difficulte"><svg><use href="#solide"/></svg><b>Solide</b></div>
+  <div class="rond categorie"><svg><use href="#personnages"/></svg></div>
+  <div class="livre"><span>Luc</span></div>
+  <div class="question"><span class="q ">Comment s’appelait le père de Jean-Baptiste&nbsp;?</span></div>
+  <div class="separateur"></div>
+  <div class="reponses"><div class="rep "><div class="lettre"><b>A</b></div><span>Joseph</span></div><div class="rep "><div class="lettre"><b>B</b></div><span>Siméon</span></div><div class="rep juste"><div class="lettre"><b>C</b></div><span>Zacharie</span></div><div class="rep "><div class="lettre"><b>D</b></div><span>Jaïrus</span></div></div>
+  <div class="pied"><span>Personnages</span><span>Ta carte</span></div>
+</div></div>
+<div class="carte mini-k" style="left:260px; transform: rotate(14deg) translateY(10px)"><div class="contenu">
+  <div class="illu" style="background-image:url('../../assets/illustrations/actes.jpg')"></div><svg class="filet" viewBox="0 0 1 1" preserveAspectRatio="none"><path d="M0,0.925 H0.29 C0.35,0.925 0.37,1 0.44,1 H0.56 C0.63,1 0.65,0.925 0.71,0.925 H1" fill="none" stroke="#c9a35a" stroke-width="1.2" vector-effect="non-scaling-stroke"/></svg>
+  <div class="rond difficulte"><svg><use href="#manne"/></svg><b>Manne</b></div>
+  <div class="rond categorie"><svg><use href="#lieux_evenements"/></svg></div>
+  <div class="livre"><span>Actes</span></div>
+  <div class="question"><span class="q long">Sur quel chemin Saul fut-il enveloppé d’une lumière venant du ciel&nbsp;?</span></div>
+  <div class="separateur"></div>
+  <div class="reponses"><div class="rep juste"><div class="lettre"><b>A</b></div><span>Le chemin de Damas</span></div><div class="rep "><div class="lettre"><b>B</b></div><span>Le chemin d’Emmaüs</span></div><div class="rep "><div class="lettre"><b>C</b></div><span>Le chemin de Gaza</span></div><div class="rep "><div class="lettre"><b>D</b></div><span>Le chemin de Jéricho</span></div></div>
+  <div class="pied"><span>Lieux et événements</span><span>Ta carte</span></div>
+</div></div></div>
+    </div>
+    </div>
+
+    <div class="etat"><h3>3. Bonne réponse : la carte brûle</h3>
+    <div class="tel">
+      <div class="fond" style="background-image:url('../../assets/illustrations/exode.jpg')"></div>
+      <div class="statut"><span>9:41</span><span>5G ▮▮▮</span></div>
+      <div class="joueur-ligne" style="top:40px">
+        <div class="avatar lui"><span>E</span></div>
+        <div><div class="nom">Esdras42</div><div class="sous">4 cartes</div></div>
+        <div class="dos-rang"><i class="dos"></i><i class="dos"></i><i class="dos"></i><i class="dos"></i></div>
+      </div>
+      <div class="eclat" style="left:30px; top:84px; width:300px; height:320px"></div>
+      <div class="carte " style="position:absolute; left:104px; top:94px; font-size:1.8px; transform: rotate(-4deg); -webkit-mask: radial-gradient(ellipse 80% 70% at 50% 45%, #000 60%, transparent 85%); z-index:4"><div class="contenu">
+  <div class="illu" style="background-image:url('../../assets/illustrations/exode.jpg')"></div><svg class="filet" viewBox="0 0 1 1" preserveAspectRatio="none"><path d="M0,0.925 H0.29 C0.35,0.925 0.37,1 0.44,1 H0.56 C0.63,1 0.65,0.925 0.71,0.925 H1" fill="none" stroke="#c9a35a" stroke-width="1.2" vector-effect="non-scaling-stroke"/></svg>
+  <div class="rond difficulte"><svg><use href="#manne"/></svg><b>Manne</b></div>
+  <div class="rond categorie"><svg><use href="#personnages"/></svg></div>
+  <div class="livre"><span>Exode</span></div>
+  <div class="question"><span class="q long">Quel frère de Moïse Dieu désigna-t-il pour parler à sa place&nbsp;?</span></div>
+  <div class="separateur"></div>
+  <div class="reponses"><div class="rep "><div class="lettre"><b>A</b></div><span>Caleb</span></div><div class="rep juste"><div class="lettre"><svg viewBox="0 0 24 24"><use href="#ok"/></svg></div><span>Aaron</span></div><div class="rep "><div class="lettre"><b>C</b></div><span>Josué</span></div><div class="rep "><div class="lettre"><b>D</b></div><span>Hur</span></div></div>
+  <div class="pied"><span>Personnages</span><span>Carte d’Esdras42</span></div>
+</div></div>
+      <i class="etincelle" style="left:84px; top:140px"></i><i class="etincelle" style="left:270px; top:120px"></i>
+      <i class="etincelle" style="left:250px; top:330px"></i><i class="etincelle" style="left:100px; top:310px"></i>
+      <i class="etincelle" style="left:180px; top:100px"></i><i class="etincelle" style="left:60px; top:230px"></i>
+      <i class="etincelle" style="left:300px; top:240px"></i><i class="etincelle" style="left:210px; top:370px"></i>
+      <div class="tampon" style="left:112px; top:220px; z-index:5">DÉTRUITE</div>
+      <div class="panneau" style="top:410px; z-index:6">
+        <div class="verdict">Bonne réponse !</div>
+        <div class="rep-txt">Aaron</div>
+        <div class="ref">EXODE 4:14-16</div>
+        <div class="expl">Moïse se dit lent de parole ; Dieu lui donne Aaron comme porte-parole.</div>
+        <div class="bouton">Continuer</div>
+      </div>
+    </div>
+    </div>
+
+    <div class="etat"><h3>4. Mauvaise réponse : la carte repart</h3>
+    <div class="tel">
+      <div class="fond" style="background-image:url('../../assets/illustrations/exode.jpg')"></div>
+      <div class="statut"><span>9:41</span><span>5G ▮▮▮</span></div>
+      <div class="joueur-ligne" style="top:40px">
+        <div class="avatar lui"><span>E</span></div>
+        <div><div class="nom">Esdras42</div><div class="sous">récupère sa carte</div></div>
+        <div class="dos-rang"><i class="dos"></i><i class="dos"></i><i class="dos"></i><i class="dos"></i></div>
+      </div>
+      <div class="carte " style="position:absolute; left:40px; top:98px; font-size:3.3px; z-index:4"><div class="contenu">
+  <div class="illu" style="background-image:url('../../assets/illustrations/exode.jpg')"></div><svg class="filet" viewBox="0 0 1 1" preserveAspectRatio="none"><path d="M0,0.925 H0.29 C0.35,0.925 0.37,1 0.44,1 H0.56 C0.63,1 0.65,0.925 0.71,0.925 H1" fill="none" stroke="#c9a35a" stroke-width="1.2" vector-effect="non-scaling-stroke"/></svg>
+  <div class="rond difficulte"><svg><use href="#manne"/></svg><b>Manne</b></div>
+  <div class="rond categorie"><svg><use href="#personnages"/></svg></div>
+  <div class="livre"><span>Exode</span></div>
+  <div class="question"><span class="q long">Quel frère de Moïse Dieu désigna-t-il pour parler à sa place&nbsp;?</span></div>
+  <div class="separateur"></div>
+  <div class="reponses"><div class="rep fausse"><div class="lettre"><svg viewBox="0 0 24 24"><use href="#non"/></svg></div><span>Caleb</span></div><div class="rep eteinte"><div class="lettre"><b>B</b></div><span>Aaron</span></div><div class="rep eteinte"><div class="lettre"><b>C</b></div><span>Josué</span></div><div class="rep eteinte"><div class="lettre"><b>D</b></div><span>Hur</span></div></div><div class="retour"><b>Raté&nbsp;!</b><span>La carte retourne chez Esdras42</span></div>
+  <div class="pied"><span>Personnages</span><span>Carte d’Esdras42</span></div>
+</div></div>
+      <div class="consigne" style="top:634px">Esdras42 pourra te la renvoyer <small>avec 3 propositions</small></div>
+      <div class="main-k" style="bottom:-46px"><div class="carte mini-k" style="left:44px; transform: rotate(-14deg) translateY(10px)"><div class="contenu">
+  <div class="illu" style="background-image:url('../../assets/illustrations/exode.jpg')"></div><svg class="filet" viewBox="0 0 1 1" preserveAspectRatio="none"><path d="M0,0.925 H0.29 C0.35,0.925 0.37,1 0.44,1 H0.56 C0.63,1 0.65,0.925 0.71,0.925 H1" fill="none" stroke="#c9a35a" stroke-width="1.2" vector-effect="non-scaling-stroke"/></svg>
+  <div class="rond difficulte"><svg><use href="#lait"/></svg><b>Lait</b></div>
+  <div class="rond categorie"><svg><use href="#miracles"/></svg></div>
+  <div class="livre"><span>Exode</span></div>
+  <div class="question"><span class="q long">Quelle mer s’est ouverte devant Moïse et le peuple sortant d’Égypte&nbsp;?</span></div>
+  <div class="separateur"></div>
+  <div class="reponses"><div class="rep "><div class="lettre"><b>A</b></div><span>La mer Morte</span></div><div class="rep juste"><div class="lettre"><b>B</b></div><span>La mer Rouge</span></div><div class="rep "><div class="lettre"><b>C</b></div><span>La mer de Galilée</span></div><div class="rep "><div class="lettre"><b>D</b></div><span>La mer Méditerranée</span></div></div>
+  <div class="pied"><span>Miracles</span><span>Ta carte</span></div>
+</div></div>
+<div class="carte mini-k" style="left:96px; transform: rotate(-7deg) translateY(3px)"><div class="contenu">
+  <div class="illu" style="background-image:url('../../assets/illustrations/1_rois.jpg')"></div><svg class="filet" viewBox="0 0 1 1" preserveAspectRatio="none"><path d="M0,0.925 H0.29 C0.35,0.925 0.37,1 0.44,1 H0.56 C0.63,1 0.65,0.925 0.71,0.925 H1" fill="none" stroke="#c9a35a" stroke-width="1.2" vector-effect="non-scaling-stroke"/></svg>
+  <div class="rond difficulte"><svg><use href="#manne"/></svg><b>Manne</b></div>
+  <div class="rond categorie"><svg><use href="#personnages"/></svg></div>
+  <div class="livre"><span>1 Rois</span></div>
+  <div class="question"><span class="q long">Quel roi demanda à Dieu un cœur intelligent pour juger son peuple&nbsp;?</span></div>
+  <div class="separateur"></div>
+  <div class="reponses"><div class="rep "><div class="lettre"><b>A</b></div><span>David</span></div><div class="rep "><div class="lettre"><b>B</b></div><span>Saül</span></div><div class="rep juste"><div class="lettre"><b>C</b></div><span>Salomon</span></div><div class="rep "><div class="lettre"><b>D</b></div><span>Ézéchias</span></div></div>
+  <div class="pied"><span>Personnages</span><span>Ta carte</span></div>
+</div></div>
+<div class="carte mini-k" style="left:152px; transform: rotate(0deg) translateY(0px)"><div class="contenu">
+  <div class="illu" style="background-image:url('../../assets/illustrations/esther.jpg')"></div><svg class="filet" viewBox="0 0 1 1" preserveAspectRatio="none"><path d="M0,0.925 H0.29 C0.35,0.925 0.37,1 0.44,1 H0.56 C0.63,1 0.65,0.925 0.71,0.925 H1" fill="none" stroke="#c9a35a" stroke-width="1.2" vector-effect="non-scaling-stroke"/></svg>
+  <div class="rond difficulte"><svg><use href="#manne"/></svg><b>Manne</b></div>
+  <div class="rond categorie"><svg><use href="#personnages"/></svg></div>
+  <div class="livre"><span>Esther</span></div>
+  <div class="question"><span class="q long">Quelle reine intercéda auprès du roi Assuérus pour sauver son peuple&nbsp;?</span></div>
+  <div class="separateur"></div>
+  <div class="reponses"><div class="rep juste"><div class="lettre"><b>A</b></div><span>Esther</span></div><div class="rep "><div class="lettre"><b>B</b></div><span>Vasthi</span></div><div class="rep "><div class="lettre"><b>C</b></div><span>Jézabel</span></div><div class="rep "><div class="lettre"><b>D</b></div><span>La reine de Séba</span></div></div>
+  <div class="pied"><span>Personnages</span><span>Ta carte</span></div>
+</div></div>
+<div class="carte mini-k" style="left:208px; transform: rotate(7deg) translateY(3px)"><div class="contenu">
+  <div class="illu" style="background-image:url('../../assets/illustrations/luc.jpg')"></div><svg class="filet" viewBox="0 0 1 1" preserveAspectRatio="none"><path d="M0,0.925 H0.29 C0.35,0.925 0.37,1 0.44,1 H0.56 C0.63,1 0.65,0.925 0.71,0.925 H1" fill="none" stroke="#c9a35a" stroke-width="1.2" vector-effect="non-scaling-stroke"/></svg>
+  <div class="rond difficulte"><svg><use href="#solide"/></svg><b>Solide</b></div>
+  <div class="rond categorie"><svg><use href="#personnages"/></svg></div>
+  <div class="livre"><span>Luc</span></div>
+  <div class="question"><span class="q ">Comment s’appelait le père de Jean-Baptiste&nbsp;?</span></div>
+  <div class="separateur"></div>
+  <div class="reponses"><div class="rep "><div class="lettre"><b>A</b></div><span>Joseph</span></div><div class="rep "><div class="lettre"><b>B</b></div><span>Siméon</span></div><div class="rep juste"><div class="lettre"><b>C</b></div><span>Zacharie</span></div><div class="rep "><div class="lettre"><b>D</b></div><span>Jaïrus</span></div></div>
+  <div class="pied"><span>Personnages</span><span>Ta carte</span></div>
+</div></div>
+<div class="carte mini-k" style="left:260px; transform: rotate(14deg) translateY(10px)"><div class="contenu">
+  <div class="illu" style="background-image:url('../../assets/illustrations/actes.jpg')"></div><svg class="filet" viewBox="0 0 1 1" preserveAspectRatio="none"><path d="M0,0.925 H0.29 C0.35,0.925 0.37,1 0.44,1 H0.56 C0.63,1 0.65,0.925 0.71,0.925 H1" fill="none" stroke="#c9a35a" stroke-width="1.2" vector-effect="non-scaling-stroke"/></svg>
+  <div class="rond difficulte"><svg><use href="#manne"/></svg><b>Manne</b></div>
+  <div class="rond categorie"><svg><use href="#lieux_evenements"/></svg></div>
+  <div class="livre"><span>Actes</span></div>
+  <div class="question"><span class="q long">Sur quel chemin Saul fut-il enveloppé d’une lumière venant du ciel&nbsp;?</span></div>
+  <div class="separateur"></div>
+  <div class="reponses"><div class="rep juste"><div class="lettre"><b>A</b></div><span>Le chemin de Damas</span></div><div class="rep "><div class="lettre"><b>B</b></div><span>Le chemin d’Emmaüs</span></div><div class="rep "><div class="lettre"><b>C</b></div><span>Le chemin de Gaza</span></div><div class="rep "><div class="lettre"><b>D</b></div><span>Le chemin de Jéricho</span></div></div>
+  <div class="pied"><span>Lieux et événements</span><span>Ta carte</span></div>
+</div></div></div>
+    </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ======================= PISTE B ======================= -->
+<section class="piste">
+  <h2>B · Parchemin</h2>
+  <p>D'après l'écran de duel déjà validé : un bandeau avec les deux joueurs, leurs cartes restantes et le minuteur au centre, puis
+  un grand parchemin qui porte la question et les propositions. Ta main apparaît en rangée quand c'est à toi de poser.</p>
+  <div class="rangee">
+
+    <!-- B1 -->
+    <div class="etat"><h3>1. Ton tour : choisis une carte</h3>
+    <div class="tel">
+      <div class="fond" style="background-image:url('../../assets/illustrations/ruth.jpg')"></div>
+      <div class="statut"><span>9:41</span><span>5G ▮▮▮</span></div>
+      <div class="entete">
+        <div class="cote gauche"><div class="avatar toi actif"><span>J</span></div><div><div class="nom">Toi</div><div class="sous">Tu poses</div></div></div>
+        <div class="cote droite"><div class="avatar lui"><span>E</span></div><div><div class="nom">Esdras42</div><div class="sous">Niveau 4</div></div></div>
+        <div class="compte g"><i class="dos"></i>5</div><div class="compte d"><i class="dos"></i>5</div>
+        <div class="minuteur" style="--p:72%"><b>14</b></div>
+      </div>
+
+      <div class="rouleau" style="top:162px">
+        <div class="banniere">Ta carte</div>
+        <div class="illu-rouleau" style="background-image:url('../../assets/illustrations/ruth.jpg')"></div>
+        <div class="meta"><span class="pastille p-diff">Manne</span><span class="pastille p-cat">Personnages</span></div>
+        <div class="q">Quelle femme moabite a refusé de quitter sa belle-mère Naomi ?</div>
+        <div class="choix"><div class="bonne"><b>✓</b>Ruth</div></div>
+        <div style="text-align:center; font-size:12px; font-weight:800; margin-top:8px; color:#6b4310">Esdras42 verra 4 propositions</div>
+      </div>
+
+      <div style="position:absolute; left:60px; right:60px; top:590px; z-index:6"><div class="bouton">Poser cette carte</div></div>
+      <div class="rang-main" style="top:660px">
+        <div class="mini" style="width:58px; height:80px"><div data-n="Exode" style="background-image:url('../../assets/illustrations/exode.jpg')"></div></div>
+        <div class="mini" style="width:58px; height:80px"><div data-n="1 Rois" style="background-image:url('../../assets/illustrations/1_rois.jpg')"></div></div>
+        <div class="mini choisie" style="width:58px; height:80px"><div data-n="Ruth" style="background-image:url('../../assets/illustrations/ruth.jpg')"></div></div>
+        <div class="mini" style="width:58px; height:80px"><div data-n="Esther" style="background-image:url('../../assets/illustrations/esther.jpg')"></div></div>
+        <div class="mini" style="width:58px; height:80px"><div data-n="Luc" style="background-image:url('../../assets/illustrations/luc.jpg')"></div></div>
+      </div>
+    </div></div>
+
+    <!-- B2 -->
+    <div class="etat"><h3>2. Tu réponds à la carte d'Esdras42</h3>
+    <div class="tel">
+      <div class="fond" style="background-image:url('../../assets/illustrations/exode.jpg')"></div>
+      <div class="statut"><span>9:41</span><span>5G ▮▮▮</span></div>
+      <div class="entete">
+        <div class="cote gauche"><div class="avatar toi actif"><span>J</span></div><div><div class="nom">Toi</div><div class="sous">Tu réponds</div></div></div>
+        <div class="cote droite"><div class="avatar lui"><span>E</span></div><div><div class="nom">Esdras42</div><div class="sous">Niveau 4</div></div></div>
+        <div class="compte g"><i class="dos"></i>5</div><div class="compte d"><i class="dos"></i>4</div>
+        <div class="minuteur" style="--p:85%"><b>26</b></div>
+      </div>
+
+      <div class="rouleau" style="top:166px">
+        <div class="banniere">Personnages</div>
+        <div class="meta"><span class="pastille p-diff">Manne</span><span class="jauge-prop"><i></i><i></i><i></i><i></i></span></div>
+        <div class="q" style="font-size:19px; margin:6px 0 20px">Quel frère de Moïse Dieu désigna-t-il pour parler à sa place ?</div>
+        <div class="choix">
+          <div><b>A</b>Caleb</div>
+          <div><b>B</b>Aaron</div>
+          <div><b>C</b>Josué</div>
+          <div><b>D</b>Hur</div>
+        </div>
+        <div style="text-align:center; font-size:11px; font-weight:900; color:#8a5a12; letter-spacing:1px; margin-top:12px">EXODE</div>
+      </div>
+      <div class="paysage"></div>
+    </div></div>
+
+    <!-- B3 -->
+    <div class="etat"><h3>3. Bonne réponse</h3>
+    <div class="tel">
+      <div class="fond" style="background-image:url('../../assets/illustrations/exode.jpg')"></div>
+      <div class="statut"><span>9:41</span><span>5G ▮▮▮</span></div>
+      <div class="entete">
+        <div class="cote gauche"><div class="avatar toi"><span>J</span></div><div><div class="nom">Toi</div><div class="sous">Bravo</div></div></div>
+        <div class="cote droite"><div class="avatar lui"><span>E</span></div><div><div class="nom">Esdras42</div><div class="sous">Niveau 4</div></div></div>
+        <div class="compte g"><i class="dos"></i>5</div><div class="compte d"><i class="dos"></i>4</div>
+        <div class="minuteur" style="--p:0%; opacity:.5"><b>–</b></div>
+      </div>
+
+      <div class="rouleau" style="top:166px">
+        <div class="banniere" style="color:#c9f5c2">Bonne réponse !</div>
+        <div class="illu-rouleau" style="height:170px; background-image:url('../../assets/illustrations/exode.jpg')">
+          <i class="etincelle" style="left:20px; top:30px"></i><i class="etincelle" style="left:260px; top:20px"></i>
+          <i class="etincelle" style="left:240px; top:140px"></i><i class="etincelle" style="left:40px; top:130px"></i>
+          <div class="tampon" style="left:78px; top:62px">DÉTRUITE</div>
+        </div>
+        <div class="q" style="margin-bottom:4px">Quel frère de Moïse Dieu désigna-t-il pour parler à sa place ?</div>
+        <div class="choix"><div class="bonne"><b>B</b>Aaron</div></div>
+        <div style="text-align:center; font-size:12px; font-weight:900; color:#8a5a12; letter-spacing:.5px; margin:10px 0 6px">EXODE 4:14-16</div>
+        <div style="font: italic 700 14px/1.4 Nunito; text-align:center">Moïse se dit lent de parole ; Dieu lui donne Aaron comme porte-parole.</div>
+      </div>
+      <div style="position:absolute; left:60px; right:60px; top:690px; z-index:6"><div class="bouton">Continuer</div></div>
+    </div></div>
+
+  </div>
+</section>
+
+<section class="piste">
+  <h2>Dos des cartes</h2>
+  <p>Ton image, tournée d’un quart de tour : les cartes gardent le rapport de la photo (1 : 1,87). En grand, puis la main face cachée du mode à deux.</p>
+  <div style="display:flex; gap:40px; align-items:flex-end">
+    <i class="dos" style="width:150px; height:280px; border-radius:12px; box-shadow:0 14px 30px rgba(0,0,0,.6)"></i>
+    <div style="display:flex; gap:10px; padding:20px; border-radius:18px; background:#06122f">
+      <i class="dos" style="width:56px; height:105px; border-radius:6px"></i><i class="dos" style="width:56px; height:105px; border-radius:6px"></i><i class="dos" style="width:56px; height:105px; border-radius:6px"></i><i class="dos" style="width:56px; height:105px; border-radius:6px"></i><i class="dos" style="width:56px; height:105px; border-radius:6px"></i>
+    </div>
+  </div>
+</section>
+
+<div class="notes">
+  <b>Commun aux deux pistes.</b> Mauvaise réponse : la proposition choisie se barre en rouge, la carte repart chez son propriétaire
+  avec une proposition de moins, et la bonne réponse reste secrète. Pendant le tour de l'adversaire : « Esdras42 réfléchit… » avec son
+  minuteur. Mode à deux : la main du joueur dont c’est le tour est ouverte ; l’écran « Passe le téléphone à… »
+  s'intercale entre les actions. Fin de partie : écran de victoire ou de défaite avec les talents et l'XP gagnés.
+</div>
+</body>
+</html>
