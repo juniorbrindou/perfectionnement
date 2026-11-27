@@ -9,6 +9,7 @@ import '../core/adventure.dart';
 import '../state/player.dart';
 import 'art.dart';
 import 'game/local_match_screen.dart';
+import 'salons/salons_screen.dart';
 import 'sky_clouds.dart';
 import 'theme.dart';
 import 'toast.dart';
@@ -244,9 +245,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   region: _rooms,
                   radius: 26 * s,
                   deal: deal++,
-                  onTap: () => _toast('Les salons arrivent bientôt.'),
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SalonsScreen())),
                   children: [
-                    // Mode pas encore disponible : son bouton devient « Bientôt ».
+                    // Le bouton peint disait « Bientôt » : il devient « Entrer ».
                     onCard(
                       _rooms,
                       _roomsButton,
@@ -256,9 +257,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.lock_outline_rounded, size: 30 * s, color: const Color(0xFF33264F)),
+                            Icon(Icons.play_arrow_rounded, size: 34 * s, color: const Color(0xFF33264F)),
                             SizedBox(width: 6 * s),
-                            Text('Bientôt', style: bodyStyle(28 * s, const Color(0xFF33264F), weight: 900)),
+                            Text('Entrer', style: bodyStyle(28 * s, const Color(0xFF33264F), weight: 900)),
                           ],
                         ),
                       ),

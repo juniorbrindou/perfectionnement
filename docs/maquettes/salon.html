@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>En ligne et Salons</title>
+<style>
+@font-face { font-family: "Lilita"; src: url("../../assets/fonts/LilitaOne-Regular.ttf"); }
+@font-face { font-family: "Nunito"; src: url("../../assets/fonts/Nunito.ttf"); font-weight: 200 1000; }
+@font-face { font-family: "Garamond"; src: url("../../assets/fonts/EBGaramond.ttf"); font-weight: 400 800; }
+:root { --nuit: #06122f; --nuit-2: #0b1f4d; --or: #f2c14e; --or-clair: #ffe39a; --creme: #fff4dc; --pale: #c9d2ee; --encre: #1d2a4a;
+  --cadre: linear-gradient(160deg, #fff1b8 0%, #f2c14e 22%, #a8741c 50%, #f7d277 75%, #8a5a12 100%); }
+* { margin: 0; box-sizing: border-box; }
+body { background: #1c1c22; font-family: "Nunito", sans-serif; color: var(--creme); padding: 28px 24px 50px; }
+h1 { font: 28px "Lilita"; color: #fff; }
+.intro { color: #b9bccb; margin: 6px 0 24px; max-width: 1500px; line-height: 1.45; font-size: 14px; }
+.rangee { display: flex; gap: 30px; flex-wrap: wrap; align-items: flex-start; }
+.etat h3 { font: 15px "Lilita"; color: #fff; margin-bottom: 4px; }
+.etat p { color: #b9bccb; font-size: 12.5px; line-height: 1.35; width: 360px; margin-bottom: 12px; min-height: 34px; }
+
+/* Téléphone et décor commun : ciel de nuit étoilé, paysage peint en bas */
+.tel { position: relative; width: 360px; height: 780px; border-radius: 32px; overflow: hidden;
+  background: radial-gradient(ellipse 120% 70% at 50% 8%, #1b3a86, #0b1f4d 45%, var(--nuit) 80%);
+  box-shadow: 0 0 0 9px #0a0a0d, 0 0 0 10px #333, 0 26px 50px rgba(0,0,0,.6); }
+.tel::before { content: ""; position: absolute; inset: 0; opacity: .7; pointer-events: none;
+  background-image: radial-gradient(1.2px 1.2px at 12% 18%, #fff 50%, transparent), radial-gradient(1px 1px at 78% 9%, #fff 50%, transparent),
+    radial-gradient(1.4px 1.4px at 64% 27%, #ffe9b0 50%, transparent), radial-gradient(1px 1px at 30% 36%, #fff 50%, transparent),
+    radial-gradient(1.2px 1.2px at 88% 40%, #fff 50%, transparent), radial-gradient(1px 1px at 45% 6%, #fff 50%, transparent),
+    radial-gradient(1px 1px at 6% 48%, #ffe9b0 50%, transparent), radial-gradient(1.3px 1.3px at 92% 22%, #fff 50%, transparent); }
+.paysage { position: absolute; left: 0; right: 0; bottom: 0; height: 150px; background: url("../../assets/duel/partie.png") center bottom/100% auto no-repeat; }
+.paysage::before { content: ""; position: absolute; inset: 0; background: linear-gradient(var(--nuit), rgba(6,18,47,0) 55%); }
+.statut { position: absolute; top: 0; left: 0; right: 0; height: 28px; display: flex; justify-content: space-between; padding: 8px 22px 0; font-size: 12px; font-weight: 800; z-index: 9; }
+.barre { position: absolute; top: 34px; left: 14px; right: 14px; height: 44px; display: flex; align-items: center; gap: 10px; z-index: 8; }
+.retour { width: 40px; height: 40px; border-radius: 50%; padding: 2.5px; background: var(--cadre); flex: none; box-shadow: 0 3px 8px rgba(0,0,0,.5); }
+.retour span { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #1d3266, #0c1838); font: 20px "Lilita"; color: var(--or-clair); }
+.barre .titre { font: 21px "Lilita"; flex: 1; text-shadow: 0 2px 4px #000; }
+.bourse { display: flex; align-items: center; gap: 5px; height: 32px; padding: 0 12px 0 6px; border-radius: 16px; background: rgba(6,18,47,.8);
+  box-shadow: inset 0 0 0 1.5px rgba(242,193,78,.6); font: 17px "Lilita"; color: var(--or-clair); }
+.piece { width: 22px; height: 22px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff1b0, #f2c14e 45%, #a8741c);
+  box-shadow: inset 0 0 0 2px #c98f1e, 0 1px 2px rgba(0,0,0,.5); }
+.piece.petite { width: 16px; height: 16px; }
+.contenu { position: absolute; left: 18px; right: 18px; top: 92px; bottom: 26px; display: flex; flex-direction: column; align-items: center; z-index: 5; }
+
+.bouton { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 56px; border-radius: 28px; font: 21px "Lilita"; color: #3a2412;
+  background: linear-gradient(#ffe48a, #f6b92f 55%, #e0961a); box-shadow: 0 3px 0 #9a5d0e, 0 8px 16px rgba(0,0,0,.45), inset 0 1px 0 #fff6cf; }
+.bouton.nuit { height: 50px; font-size: 17px; color: var(--or-clair); background: rgba(6,18,47,.82); box-shadow: inset 0 0 0 1.5px rgba(242,193,78,.65), 0 6px 14px rgba(0,0,0,.4); }
+.deux { display: flex; gap: 10px; width: 100%; }
+.consigne { font: 23px/1.1 "Lilita"; text-align: center; text-shadow: 0 2px 6px #000; }
+.aide { font-size: 13.5px; font-weight: 800; color: var(--pale); text-align: center; line-height: 1.35; }
+.avatar { width: 64px; height: 64px; border-radius: 50%; padding: 3px; background: var(--cadre); flex: none; box-shadow: 0 4px 10px rgba(0,0,0,.5); }
+.avatar span { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; font: 30px "Lilita"; color: #fff; }
+.avatar.toi span { background: radial-gradient(circle at 35% 30%, #2fb3ae, #12706d); }
+.avatar.lui span { background: radial-gradient(circle at 35% 30%, #4b6fd6, #1d3a8f); }
+.nom { font: 17px "Lilita"; text-align: center; margin-top: 6px; text-shadow: 0 1px 3px #000; }
+
+/* 1 · Choix : trois cartes de difficulté */
+.diffs { display: flex; gap: 10px; margin: 16px 0 8px; }
+.diff { position: relative; width: 98px; height: 168px; border-radius: 12px; padding: 4px; background: #13234a;
+  box-shadow: inset 0 0 0 1px #b8924c, 0 8px 16px rgba(0,0,0,.55); display: flex; flex-direction: column; align-items: center; }
+.diff .face { flex: 1; width: 100%; border-radius: 9px; border: 1px solid #c9a35a; overflow: hidden; display: flex; flex-direction: column; align-items: center;
+  background: radial-gradient(ellipse at 50% 70%, #f8f2e6, #efe6d4); }
+.diff .haut { width: 100%; height: 70px; display: grid; place-items: center; background: url("../../assets/duel/dos_illustration.jpg") 0 0/500% auto; }
+.diff .rond { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; color: #f3ead6;
+  background: radial-gradient(circle at 40% 35%, #1d3266, #0c1838); box-shadow: 0 0 0 2px #c9a35a, 0 3px 8px rgba(0,0,0,.5); }
+.diff .rond svg { width: 24px; height: 24px; fill: currentColor; }
+.diff b { font: 600 19px/1 "Garamond"; color: var(--encre); margin-top: 10px; }
+.diff .mise { display: flex; align-items: center; gap: 4px; margin-top: 8px; font: 17px "Lilita"; color: #8a5a12; }
+.diff small { font-size: 10.5px; font-weight: 800; color: #8a7a66; margin-top: 1px; }
+.diff.choisie { transform: translateY(-10px); box-shadow: inset 0 0 0 1px #ffe39a, 0 0 0 2px #ffe39a, 0 0 26px rgba(255,214,110,.75), 0 12px 20px rgba(0,0,0,.55); }
+.diff.choisie::after { content: "✓"; position: absolute; top: -9px; right: -9px; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
+  font: 15px "Lilita"; color: #3a2412; background: linear-gradient(#ffe48a, #e0961a); box-shadow: 0 2px 5px rgba(0,0,0,.5); }
+
+/* 2 · Recherche : anneau doré qui tourne autour de « ? » */
+.duo { display: flex; align-items: center; gap: 16px; margin: 26px 0 18px; }
+.anneau { position: relative; width: 150px; height: 150px; display: grid; place-items: center; }
+.anneau::before { content: ""; position: absolute; inset: 0; border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 0 55%, rgba(255,227,154,.15) 70%, #ffe39a 98%, transparent 100%);
+  -webkit-mask: radial-gradient(circle, transparent 66px, #000 67px, #000 72px, transparent 73px); }
+.anneau::after { content: ""; position: absolute; inset: 7px; border-radius: 50%; box-shadow: 0 0 0 1px rgba(242,193,78,.35), 0 0 40px rgba(242,193,78,.25) inset; }
+.mystere { width: 74px; height: 138px; border-radius: 7px; position: relative; overflow: hidden; box-shadow: 0 8px 18px rgba(0,0,0,.6); }
+.mystere::before { content: ""; position: absolute; left: 50%; top: 50%; width: 187%; height: 53.5%; transform: translate(-50%, -50%) rotate(90deg);
+  background: url("../../assets/duel/dos_carte_bleu.jpg") center/100% 100%; }
+.vs { font: 26px "Lilita"; color: var(--or); text-shadow: 0 0 14px rgba(242,193,78,.6), 0 2px 3px #000; }
+.chrono { display: flex; align-items: center; gap: 8px; margin-top: 14px; padding: 8px 18px; border-radius: 22px; background: rgba(6,18,47,.82);
+  box-shadow: inset 0 0 0 1.5px rgba(242,193,78,.5); font: 22px "Lilita"; color: var(--or-clair); }
+.offre { width: 100%; margin-top: 18px; padding: 14px 14px 12px; border-radius: 16px; background: rgba(6,18,47,.86); box-shadow: inset 0 0 0 1.5px rgba(242,193,78,.45); }
+.offre .aide { margin-bottom: 10px; }
+
+/* 3 · Créer : le code en tuiles de parchemin */
+.code { display: flex; gap: 6px; margin: 14px 0 6px; }
+.code i { width: 42px; height: 56px; border-radius: 9px; display: grid; place-items: center; font: normal 30px "Lilita"; color: var(--encre);
+  background: radial-gradient(ellipse at 50% 30%, #fffaf0, #efe2c6); box-shadow: 0 0 0 1.5px #c9a35a, 0 4px 10px rgba(0,0,0,.45), inset 0 -3px 0 rgba(160,120,60,.25); }
+.code i.vide { background: rgba(6,18,47,.7); box-shadow: inset 0 0 0 1.5px rgba(242,193,78,.45); }
+.code i.curseur { box-shadow: inset 0 0 0 2px #ffe39a, 0 0 14px rgba(255,214,110,.6); background: rgba(6,18,47,.7); color: var(--or-clair); }
+.copier { font-size: 13px; font-weight: 900; color: var(--or-clair); display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
+.siege { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; font: 28px "Lilita"; color: rgba(255,227,154,.7);
+  border: 2px dashed rgba(242,193,78,.6); background: rgba(6,18,47,.5); }
+.attente { display: flex; align-items: center; gap: 14px; margin-top: 16px; }
+.trois { font: 26px "Lilita"; color: var(--or); letter-spacing: 3px; }
+
+/* 4 · Rejoindre : aperçu de la partie, sur parchemin */
+.apercu { width: 100%; margin: 12px 0 14px; padding: 14px 16px; border-radius: 16px; color: var(--encre);
+  background: radial-gradient(ellipse at 50% 20%, #fdf6e6, #f1e5cc); box-shadow: 0 0 0 2px #c9a35a, 0 10px 22px rgba(0,0,0,.5); }
+.apercu .ligne { display: flex; align-items: center; gap: 12px; }
+.apercu .avatar { width: 52px; height: 52px; } .apercu .avatar span { font-size: 24px; }
+.apercu h4 { font: 20px "Lilita"; color: #13234a; } .apercu small { font-size: 12px; font-weight: 800; color: #8a7a66; }
+.apercu .details { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(160,120,60,.35); }
+.apercu .details div { display: flex; align-items: center; gap: 6px; font-weight: 900; font-size: 14px; }
+.apercu .rond { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; color: #f3ead6; background: radial-gradient(circle at 40% 35%, #1d3266, #0c1838); box-shadow: 0 0 0 1.5px #c9a35a; }
+.apercu .rond svg { width: 16px; height: 16px; fill: currentColor; }
+
+/* 5 · Adversaire trouvé */
+.face-a-face { position: absolute; inset: 0; z-index: 5; }
+.face-a-face .bande { position: absolute; left: -40px; right: -40px; height: 210px; transform: rotate(-12deg); }
+.face-a-face .toi-b { top: 140px; background: linear-gradient(90deg, rgba(31,169,163,.0), rgba(31,169,163,.55) 30%, rgba(18,112,109,.75)); }
+.face-a-face .lui-b { top: 410px; background: linear-gradient(270deg, rgba(58,111,216,.0), rgba(58,111,216,.55) 30%, rgba(29,58,143,.75)); }
+.joueur { position: absolute; display: flex; align-items: center; gap: 12px; }
+.joueur .avatar { width: 92px; height: 92px; } .joueur .avatar span { font-size: 42px; }
+.joueur .n { font: 26px "Lilita"; text-shadow: 0 2px 5px #000; } .joueur .s { font-size: 13px; font-weight: 800; color: var(--or-clair); }
+.embleme { position: absolute; left: 50%; top: 355px; width: 96px; height: 96px; margin-left: -48px; border-radius: 50%; display: grid; place-items: center;
+  font: 40px "Lilita"; color: #3a2412; background: radial-gradient(circle at 40% 35%, #fff1b0, #f2c14e 50%, #b8781a);
+  box-shadow: 0 0 0 4px #6b4310, 0 0 0 6px #ffe39a, 0 0 50px rgba(255,214,110,.8); }
+.depart { position: absolute; left: 0; right: 0; bottom: 70px; text-align: center; }
+.depart .p { display: inline-flex; align-items: center; gap: 8px; padding: 7px 16px; border-radius: 18px; background: rgba(6,18,47,.85); box-shadow: inset 0 0 0 1.5px rgba(242,193,78,.5); font-weight: 900; font-size: 14px; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+  <symbol id="lait" viewBox="0 0 24 24"><path d="M12 3 C12 3 6.5 10 6.5 14 a5.5 5.5 0 0 0 11 0 C17.5 10 12 3 12 3Z"/></symbol>
+  <symbol id="manne" viewBox="0 0 24 24"><ellipse cx="8" cy="9" rx="2.6" ry="2.2"/><ellipse cx="15.5" cy="7.5" rx="2.3" ry="2"/><ellipse cx="12" cy="14" rx="2.8" ry="2.4"/><ellipse cx="6.5" cy="16.5" rx="2" ry="1.8"/><ellipse cx="17.5" cy="15" rx="2.2" ry="1.9"/></symbol>
+  <symbol id="solide" viewBox="0 0 24 24"><path d="M4 15.5 C3 9 8 6.5 12 6.5 S21 9 20 15.5 C19.7 17.3 18.5 18 17 18 H7 C5.5 18 4.3 17.3 4 15.5Z"/></symbol>
+</defs></svg>
+
+<h1>En ligne et Salons</h1>
+<p class="intro">Même ciel de nuit que les parties, le paysage peint en bas. La difficulté se choisit comme une carte : trois cartes,
+la choisie se soulève, avec sa mise en talents. Un adversaire au hasard ; pour jouer entre amis, on passe par les salons (plus de code).</p>
+
+<div class="rangee">
+
+  <div class="etat"><h3>1 · Jouer en ligne</h3><p>La difficulté choisie se soulève ; la mise est prise au début de la partie, le gagnant remporte les deux.</p>
+  <div class="tel"><div class="paysage"></div><div class="statut"><span>9:41</span><span>5G ▮▮▮</span></div>
+    <div class="barre"><div class="retour"><span>‹</span></div><div class="titre">Jouer en ligne</div><div class="bourse"><i class="piece"></i>120</div></div>
+    <div class="contenu">
+      <div class="consigne" style="margin-top:6px">Choisis ta difficulté</div>
+      <div class="aide" style="margin-top:4px">Les questions viennent de toute la Bible.</div>
+      <div class="diffs">
+        <div class="diff"><div class="face"><div class="haut"><div class="rond"><svg><use href="#lait"/></svg></div></div><b>Lait</b><div class="mise"><i class="piece petite"></i>5</div><small>pour commencer</small></div></div>
+        <div class="diff choisie"><div class="face"><div class="haut"><div class="rond"><svg><use href="#manne"/></svg></div></div><b>Manne</b><div class="mise"><i class="piece petite"></i>20</div><small>les habitués</small></div></div>
+        <div class="diff"><div class="face"><div class="haut"><div class="rond"><svg><use href="#solide"/></svg></div></div><b>Solide</b><div class="mise"><i class="piece petite"></i>50</div><small>les connaisseurs</small></div></div>
+      </div>
+      <div class="aide" style="margin-top:14px; font-size:12.5px">Chacun mise ses talents au début de la partie.<br>Le gagnant remporte les deux mises.</div>
+      <div style="flex:1"></div>
+      <div class="bouton">Trouver un adversaire</div>
+      <div class="aide" style="margin:16px 0 10px">Pour jouer avec des amis :</div>
+      <div class="bouton nuit">Les salons</div>
+      <div style="height:96px"></div>
+    </div>
+  </div></div>
+
+  <div class="etat"><h3>2 · Recherche</h3><p>L'anneau doré tourne autour d'une carte face cachée : l'adversaire à venir. Après 30 s, on propose le Scribe.</p>
+  <div class="tel"><div class="paysage"></div><div class="statut"><span>9:41</span><span>5G ▮▮▮</span></div>
+    <div class="barre"><div class="retour"><span>‹</span></div><div class="titre">Recherche</div><div class="bourse"><i class="piece"></i>120</div></div>
+    <div class="contenu">
+      <div class="duo">
+        <div><div class="avatar toi"><span>J</span></div><div class="nom">Toi</div></div>
+        <div class="vs">VS</div>
+        <div class="anneau"><div class="mystere"></div></div>
+      </div>
+      <div class="consigne">Recherche d'un adversaire…</div>
+      <div class="aide" style="margin-top:6px">Manne · mise de 20 talents</div>
+      <div class="chrono">⏱ 00:34</div>
+      <div class="offre"><div class="aide">Personne pour l'instant. La recherche continue ; en attendant :</div>
+        <div class="bouton nuit" style="font-size:15px">Jouer contre le Scribe</div></div>
+      <div style="flex:1"></div>
+      <div class="bouton nuit" style="width:220px">Annuler</div>
+      <div style="height:8px"></div>
+    </div>
+  </div></div>
+
+  <div class="etat"><h3>3 · Adversaire trouvé</h3><p>Deux secondes de face-à-face avant la question de départ : les deux joueurs, la difficulté et la mise.</p>
+  <div class="tel"><div class="paysage"></div><div class="statut"><span>9:41</span><span>5G ▮▮▮</span></div>
+    <div class="face-a-face">
+      <div class="bande toi-b"></div><div class="bande lui-b"></div>
+      <div class="joueur" style="left:26px; top:190px"><div class="avatar toi"><span>J</span></div><div><div class="n">Toi</div><div class="s">Niveau 6</div></div></div>
+      <div class="embleme">VS</div>
+      <div class="joueur" style="right:26px; top:470px; flex-direction:row-reverse; text-align:right"><div class="avatar lui"><span>E</span></div><div><div class="n">Esdras42</div><div class="s">Niveau 4</div></div></div>
+      <div class="depart"><div class="consigne" style="margin-bottom:10px">La partie commence !</div><div class="p"><i class="piece petite"></i>Manne · 20 talents chacun</div></div>
+    </div>
+  </div></div>
+
+</div>
+
+<style>
+/* ---------- Salons : une autre ambiance, la grande salle : bois sombre, lampes, parchemin ---------- */
+h2.section { font: 24px "Lilita"; color: #f2c14e; margin: 44px 0 4px; }
+.section-intro { color: #b9bccb; font-size: 14px; max-width: 1500px; line-height: 1.45; margin-bottom: 18px; }
+.salle { position: relative; width: 360px; height: 780px; border-radius: 32px; overflow: hidden; color: #fff1da;
+  background:
+    radial-gradient(ellipse 70% 30% at 50% 0%, rgba(255,190,90,.35), transparent 70%),
+    repeating-linear-gradient(90deg, rgba(0,0,0,.18) 0 2px, transparent 2px 46px),
+    linear-gradient(#5a3216, #3a1f0c 40%, #26130a);
+  box-shadow: 0 0 0 9px #0a0a0d, 0 0 0 10px #333, 0 26px 50px rgba(0,0,0,.6); }
+.salle::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 120px; pointer-events: none;
+  background: radial-gradient(circle at 18% 60%, rgba(255,200,110,.5) 0 3px, rgba(255,170,60,.18) 4px, transparent 38px),
+    radial-gradient(circle at 82% 60%, rgba(255,200,110,.5) 0 3px, rgba(255,170,60,.18) 4px, transparent 38px); }
+.salle .statut { color: #fff1da; }
+.enseigne { position: absolute; top: 36px; left: 50%; transform: translateX(-50%); padding: 7px 26px 8px; border-radius: 8px; z-index: 8;
+  font: 22px "Lilita"; color: #3a1f0c; background: linear-gradient(#f3d08a, #d9a74e); white-space: nowrap;
+  box-shadow: 0 0 0 2px #7a4a1c, 0 0 0 4px #c9963a, 0 8px 14px rgba(0,0,0,.5); }
+.enseigne::before, .enseigne::after { content: ""; position: absolute; top: -14px; width: 2px; height: 14px; background: #c9963a; }
+.enseigne::before { left: 18px; } .enseigne::after { right: 18px; }
+.salle .retour { position: absolute; top: 36px; left: 14px; z-index: 8; }
+.salle .retour span { background: radial-gradient(circle at 40% 35%, #6b3d12, #3a1f0c); }
+.salle .contenu { top: 96px; }
+.cherche { width: 100%; height: 44px; border-radius: 22px; display: flex; align-items: center; gap: 10px; padding: 0 16px;
+  background: #fbf1dc; color: #8a6a4a; font-weight: 800; font-size: 14px; box-shadow: inset 0 2px 4px rgba(90,50,10,.3), 0 0 0 2px #c9963a; }
+.puces { display: flex; gap: 6px; margin: 10px 0 12px; width: 100%; }
+.puces span { padding: 5px 12px; border-radius: 14px; font-size: 12px; font-weight: 900; color: #f3d08a; box-shadow: inset 0 0 0 1.5px rgba(243,208,138,.5); }
+.puces span.on { background: #f3d08a; color: #3a1f0c; }
+.liste { width: 100%; display: flex; flex-direction: column; gap: 9px; }
+.ecu { width: 46px; height: 52px; flex: none; display: grid; place-items: center; font: 22px "Lilita"; color: #fff;
+  clip-path: polygon(0 0, 100% 0, 100% 62%, 50% 100%, 0 62%); background: linear-gradient(#8e2a22, #5e100c); position: relative; }
+.ecu.b { background: linear-gradient(#1d5e7a, #0f3445); } .ecu.c { background: linear-gradient(#3e6b2a, #22401a); } .ecu.d { background: linear-gradient(#6b3d8e, #3e2257); }
+.salon { display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 14px; color: #3a2412;
+  background: radial-gradient(ellipse at 50% 20%, #fdf6e6, #efdcb6); box-shadow: 0 0 0 1.5px #b8862e, 0 4px 10px rgba(0,0,0,.4); }
+.salon h4 { font: 17px "Lilita"; color: #3a1f0c; line-height: 1.05; }
+.salon .meta { font-size: 11.5px; font-weight: 800; color: #8a6a4a; margin-top: 2px; }
+.salon .droite { margin-left: auto; text-align: right; font-size: 11px; font-weight: 900; color: #8a6a4a; }
+.salon .droite b { display: block; font: 16px "Lilita"; color: #5a3216; }
+.salon.mien { box-shadow: 0 0 0 2.5px #f2c14e, 0 0 16px rgba(255,200,90,.5), 0 4px 10px rgba(0,0,0,.4); }
+.etiq { display: inline-block; padding: 1px 7px; border-radius: 8px; font-size: 10px; font-weight: 900; background: #5a3216; color: #f3d08a; margin-left: 4px; vertical-align: 2px; }
+.bouton.bois { color: #f3d08a; background: rgba(38,19,10,.85); box-shadow: inset 0 0 0 1.5px rgba(243,208,138,.6), 0 6px 14px rgba(0,0,0,.4); height: 50px; font-size: 17px; }
+/* Fiche d'un salon : un grand parchemin */
+.fiche { width: 100%; padding: 18px 16px 14px; border-radius: 16px; color: #3a2412; text-align: center;
+  background: radial-gradient(ellipse at 50% 15%, #fdf6e6, #efdcb6); box-shadow: 0 0 0 2px #b8862e, 0 0 0 5px #5a3216, 0 14px 26px rgba(0,0,0,.5); }
+.fiche .ecu { margin: -40px auto 8px; width: 64px; height: 72px; font-size: 32px; box-shadow: 0 6px 10px rgba(0,0,0,.4); }
+.fiche h3 { font: 26px "Lilita"; color: #3a1f0c; }
+.fiche .devise { font: italic 600 15px/1.3 "Garamond"; color: #6b4a2a; margin: 4px 0 12px; }
+.criteres { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.criteres span { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 900; background: #5a3216; color: #f3d08a; }
+.podium { display: flex; flex-direction: column; gap: 6px; text-align: left; border-top: 1px solid rgba(160,110,50,.4); padding-top: 10px; }
+.podium div { display: flex; align-items: center; gap: 9px; font-weight: 900; font-size: 13.5px; }
+.podium .av { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font: 15px "Lilita"; color: #fff; box-shadow: 0 0 0 2px #c9963a; }
+.podium small { margin-left: auto; color: #8a6a4a; font-weight: 800; }
+.podium em { font-style: normal; font-size: 10.5px; color: #8e2a22; display: block; }
+.sceau-attente { width: 118px; height: 118px; border-radius: 50%; display: grid; place-items: center; text-align: center; margin: 26px 0 16px;
+  font: 15px/1.1 "Lilita"; color: #ffe3b0; background: radial-gradient(circle at 38% 32%, #c25a2a, #7a2a10 62%, #4e170a);
+  box-shadow: 0 0 0 6px #8e3a16, 0 0 0 8px rgba(255,210,150,.25), 0 12px 20px rgba(0,0,0,.5); }
+.demande { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; color: #3a2412;
+  background: radial-gradient(ellipse at 50% 20%, #fdf6e6, #efdcb6); box-shadow: 0 0 0 1.5px #b8862e; }
+.demande .av { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font: 19px "Lilita"; color: #fff; box-shadow: 0 0 0 2px #c9963a; flex: none; }
+.demande h4 { font: 16px "Lilita"; } .demande small { font-size: 11.5px; font-weight: 800; color: #8a6a4a; }
+.oui, .non { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font: 18px "Lilita"; flex: none; }
+.oui { margin-left: auto; background: linear-gradient(#6cc56f, #2f8a3a); color: #fff; box-shadow: 0 2px 0 #1d5e24; }
+.non { background: #e8d2ae; color: #8e2a22; box-shadow: inset 0 0 0 1.5px #b8862e; }
+</style>
+
+<h2 class="section">Salons</h2>
+<p class="section-intro">Une autre pièce du jeu, et ça se voit : on quitte le ciel de nuit pour <b>la grande salle</b>, bois sombre et lampes
+chaudes, chaque salon sur son parchemin avec son écu. Tous les salons sont dans la liste ; on cherche, on choisit, on envoie une
+<b>demande d'adhésion</b> que le Berger accepte ou refuse.</p>
+<div class="rangee">
+
+  <div class="etat"><h3>A · La liste des salons</h3><p>Recherche par nom, filtre par difficulté. Ton salon, s'il y en a un, est en tête et cerclé d'or.</p>
+  <div class="salle"><div class="statut"><span>9:41</span><span>5G ▮▮▮</span></div>
+    <div class="retour"><span>‹</span></div><div class="enseigne">Les salons</div>
+    <div class="contenu">
+      <div class="cherche">⌕ Chercher un salon</div>
+      <div class="puces"><span class="on">Tous</span><span>Lait</span><span>Manne</span><span>Solide</span></div>
+      <div class="liste">
+        <div class="salon"><div class="ecu">P</div><div><h4>Les Psalmistes</h4><div class="meta">Manne · Psaumes, Proverbes</div></div><div class="droite"><b>38/50</b>membres</div></div>
+        <div class="salon"><div class="ecu b">B</div><div><h4>Bérée</h4><div class="meta">Solide · Toute la Bible</div></div><div class="droite"><b>12/50</b>membres</div></div>
+        <div class="salon"><div class="ecu c">J</div><div><h4>Jeunesse de Lomé</h4><div class="meta">Lait · Évangiles</div></div><div class="droite"><b>50/50</b>complet</div></div>
+        <div class="salon"><div class="ecu d">S</div><div><h4>Sentinelles</h4><div class="meta">Manne · Ancien Testament</div></div><div class="droite"><b>7/50</b>membres</div></div>
+        <div class="salon"><div class="ecu">A</div><div><h4>Les Amis d'Emmaüs</h4><div class="meta">Lait · Luc</div></div><div class="droite"><b>21/50</b>membres</div></div>
+      </div>
+      <div style="flex:1"></div>
+      <div class="bouton">Créer un salon · 30 talents</div>
+      <div style="height:6px"></div>
+    </div>
+  </div></div>
+
+  <div class="etat"><h3>B · La fiche d'un salon</h3><p>Son écu, sa devise, ses critères, son Berger et le haut du classement. Un seul bouton : demander à rejoindre.</p>
+  <div class="salle"><div class="statut"><span>9:41</span><span>5G ▮▮▮</span></div>
+    <div class="retour"><span>‹</span></div><div class="enseigne">Les Psalmistes</div>
+    <div class="contenu" style="top:140px">
+      <div class="fiche">
+        <div class="ecu">P</div>
+        <h3>Les Psalmistes</h3>
+        <div class="devise">« Que tout ce qui respire loue l'Éternel ! »</div>
+        <div class="criteres"><span>Manne · 20 talents</span><span>Psaumes, Proverbes</span><span>38/50 membres</span></div>
+        <div class="podium">
+          <div><span class="av" style="background:#8e2a22">D</span><span>David_77<em>Berger</em></span><small>Créateur</small></div>
+          <div><span class="av" style="background:#1d3a8f">A</span><span>Asaph<em>Vaillant héros</em></span><small>420 pts</small></div>
+          <div><span class="av" style="background:#12706d">C</span><span>Coré12<em>Sentinelle</em></span><small>385 pts</small></div>
+        </div>
+      </div>
+      <div style="flex:1"></div>
+      <div class="bouton">Demander à rejoindre</div>
+      <div class="aide" style="margin-top:8px; color:#e8cfa4">Tu ne peux être membre que d'un seul salon.</div>
+      <div style="height:6px"></div>
+    </div>
+  </div></div>
+
+  <div class="etat"><h3>C · Demande envoyée</h3><p>Un sceau de cire : la demande attend le Berger. On peut l'annuler ; on est prévenu dès qu'il répond.</p>
+  <div class="salle"><div class="statut"><span>9:41</span><span>5G ▮▮▮</span></div>
+    <div class="retour"><span>‹</span></div><div class="enseigne">Les Psalmistes</div>
+    <div class="contenu">
+      <div class="sceau-attente">Demande<br>envoyée</div>
+      <div class="consigne" style="color:#fff1da">En attente de David_77</div>
+      <div class="aide" style="margin-top:8px; color:#e8cfa4">Le Berger des Psalmistes va lire ta demande.<br>Tu seras prévenu dès qu'il répond.</div>
+      <div style="flex:1"></div>
+      <div class="bouton bois" style="width:240px">Annuler la demande</div>
+      <div style="height:6px"></div>
+    </div>
+  </div></div>
+
+  <div class="etat"><h3>D · Le Berger reçoit les demandes</h3><p>Dans son salon, le Berger voit les demandes avec le niveau de chacun ; il accepte ou refuse d'un geste.</p>
+  <div class="salle"><div class="statut"><span>9:41</span><span>5G ▮▮▮</span></div>
+    <div class="retour"><span>‹</span></div><div class="enseigne">Demandes · 3</div>
+    <div class="contenu">
+      <div class="liste" style="margin-top:6px">
+        <div class="demande"><span class="av" style="background:#12706d">J</span><div><h4>juniorbrindou</h4><small>Niveau 6 · il y a 2 min</small></div><span class="oui">✓</span><span class="non">✕</span></div>
+        <div class="demande"><span class="av" style="background:#1d3a8f">E</span><div><h4>Esdras42</h4><small>Niveau 4 · il y a 1 h</small></div><span class="oui">✓</span><span class="non">✕</span></div>
+        <div class="demande"><span class="av" style="background:#6b3d8e">R</span><div><h4>Rachel.k</h4><small>Niveau 9 · hier</small></div><span class="oui">✓</span><span class="non">✕</span></div>
+      </div>
+      <div class="aide" style="margin-top:14px; color:#e8cfa4">38 membres sur 50.</div>
+    </div>
+  </div></div>
+
+</div>
+</body>
+</html>

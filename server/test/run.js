@@ -642,4 +642,106 @@ test("duel entre amis : création avec code, difficulté inconnue refusée", fun
   refuse(function () { g.rpcDuelAmi({ userId: "a" }, logger, nk, JSON.stringify({ action: "voir", code: "ABC234" })); }, "Aucune partie");
 });
 
+// ---------------------------------------------------------------- Salons
+function fauxNakamaSalons(talents) {
+  const nk = fauxNakamaDuel(talents);
+  nk.notifs = [];
+  nk.uuidv4 = function () { return "salon-" + Object.keys(nk.stock).length; };
+  nk.storageList = function (owner, collection) {
+    const objects = Object.keys(nk.stock).filter(function (k) { return k.indexOf(owner + "/" + collection + "/") === 0; }).map(function (k) { return nk.stock[k]; });
+    return { objects: objects, cursor: "" };
+  };
+  nk.storageDelete = function (ds) { ds.forEach(function (d) { delete nk.stock[d.userId + "/" + d.collection + "/" + d.key]; }); };
+  nk.multiUpdate = function (_a, ecritures, _b, wallets) { nk.walletsUpdate(wallets); nk.storageWrite(ecritures); return {}; };
+  nk.notificationSend = function (userId, sujet, contenu) { nk.notifs.push({ userId: userId, sujet: sujet, contenu: contenu }); };
+  return nk;
+}
+const SYS = "00000000-0000-0000-0000-000000000000";
+function poserSalon(nk, s) { nk.stock[SYS + "/salons/" + s.id] = { value: s, version: "1" }; }
+function lienSalon(nk, id) { const o = nk.stock[id + "/joueur/salon"]; return o ? o.value : { salon: "", demande: "" }; }
+const salonRpc = function (nk, userId, d) { return JSON.parse(g.rpcSalon({ userId: userId }, logger, nk, JSON.stringify(d))); };
+function cartesTest(n, diff, livre) {
+  const r = [];
+  for (let i = 0; i < n; i++) r.push({ id: "C" + i, difficulty: diff, testament: "AT", books: [livre], category: "personnages", answer: "x", wrongs: [] });
+  return r;
+}
+
+test("salons : questions comptées selon la difficulté et le contenu", function () {
+  const cartes = cartesTest(45, "manne", "Psaumes").concat(cartesTest(10, "lait", "Luc"));
+  assert.strictEqual(g.questionsDuSalon(cartes, "manne", { type: "bible", valeurs: [] }), 45);
+  assert.strictEqual(g.questionsDuSalon(cartes, "manne", { type: "livres", valeurs: ["Psaumes", "Job"] }), 45);
+  assert.strictEqual(g.questionsDuSalon(cartes, "lait", { type: "testament", valeurs: ["NT"] }), 0);
+  const o = g.optionsSalon(cartes);
+  assert.strictEqual(o.difficultes.manne.livres.Psaumes, 45);
+  assert.strictEqual(o.minimum, g.SALON_QUESTIONS_MIN);
+});
+
+test("salons : création refusée s'il manque des questions ou si les paramètres sont faux", function () {
+  const cartes = cartesTest(45, "manne", "Psaumes");
+  const ok = { nom: "Les Psalmistes", devise: "", couleur: 0, theme: "fete", difficulte: "manne", contenu: { type: "livres", valeurs: ["Psaumes"] } };
+  assert.strictEqual(g.verifierSalon(ok, cartes), "");
+  assert.ok(g.verifierSalon(Object.assign({}, ok, { difficulte: "lait" }), cartes).indexOf("Pas encore assez") >= 0, "aucune question en lait");
+  assert.ok(g.verifierSalon(Object.assign({}, ok, { contenu: { type: "livres", valeurs: ["Job"] } }), cartes).indexOf("Pas encore assez") >= 0);
+  assert.ok(g.verifierSalon(Object.assign({}, ok, { nom: "ab" }), cartes).indexOf("nom") >= 0);
+  assert.ok(g.verifierSalon(Object.assign({}, ok, { theme: "bois" }), cartes).indexOf("Thème") >= 0);
+  assert.ok(g.verifierSalon(Object.assign({}, ok, { contenu: { type: "livres", valeurs: [] } }), cartes).indexOf("au moins") >= 0);
+});
+
+test("salons : rôles, départ du Berger, score jamais négatif", function () {
+  const s = g.nouveauSalon("s1", { nom: "Bérée", couleur: 1, theme: "jardin", difficulte: "lait", contenu: { type: "bible" } }, "a", "A", 1);
+  s.membres.push({ userId: "b", pseudo: "B", score: 30, depuis: 2 }, { userId: "c", pseudo: "C", score: 20, depuis: 3 });
+  assert.deepStrictEqual(Array.from(g.rolesSalon(s, "a")), ["berger"]);
+  assert.deepStrictEqual(Array.from(g.rolesSalon(s, "b")), ["heros"]);
+  assert.deepStrictEqual(Array.from(g.rolesSalon(s, "c")), ["sentinelle"]);
+  assert.strictEqual(g.retirerMembre(s, "a"), true);
+  assert.strictEqual(s.berger, "b", "le premier du classement devient Berger");
+  assert.strictEqual(g.scoreApresPartie(3, false), 0);
+  assert.strictEqual(g.scoreApresPartie(3, true), 13);
+  g.retirerMembre(s, "b");
+  assert.strictEqual(g.retirerMembre(s, "c"), false, "salon vide");
+});
+
+test("salons : demande d'adhésion, acceptée par le Berger seulement", function () {
+  const nk = fauxNakamaSalons({ a: 100, b: 100, c: 100 });
+  const s = g.nouveauSalon("s1", { nom: "Bérée", couleur: 1, theme: "jardin", difficulte: "lait", contenu: { type: "bible" } }, "a", "joueur-a", Date.now());
+  poserSalon(nk, s);
+  nk.storageWrite([{ userId: "a", collection: "joueur", key: "salon", value: { salon: "s1", demande: "" } }]);
+  const liste = salonRpc(nk, "b", { action: "lister" });
+  assert.strictEqual(liste.salons.length, 1);
+  assert.strictEqual(liste.salons[0].berger, "joueur-a");
+  const f = salonRpc(nk, "b", { action: "demander", id: "s1" });
+  assert.strictEqual(f.demandeEnvoyee, true);
+  assert.strictEqual(lienSalon(nk, "b").demande, "s1");
+  refuse(function () { salonRpc(nk, "c", { action: "repondre", id: "s1", joueur: "b", accepte: true }); }, "Berger");
+  const vueBerger = salonRpc(nk, "a", { action: "voir", id: "s1" });
+  assert.strictEqual(vueBerger.demandes.length, 1);
+  salonRpc(nk, "a", { action: "repondre", id: "s1", joueur: "b", accepte: true });
+  assert.strictEqual(lienSalon(nk, "b").salon, "s1");
+  assert.strictEqual(nk.notifs[0].userId, "b");
+  refuse(function () { salonRpc(nk, "b", { action: "demander", id: "s1" }); }, "déjà membre");
+  salonRpc(nk, "a", { action: "quitter" });
+  assert.strictEqual(nk.stock[SYS + "/salons/s1"].value.berger, "b", "b devient Berger");
+});
+
+test("salons : création avec la réserve en ligne, 30 talents prélevés, un seul salon", function () {
+  const nk = fauxNakamaSalons({ a: 100, b: 20 });
+  const d = { action: "creer", nom: "Les Psalmistes", devise: "Louez !", couleur: 0, theme: "paturages", difficulte: "manne", contenu: { type: "bible" } };
+  const f = salonRpc(nk, "a", d);
+  assert.strictEqual(f.estBerger, true);
+  assert.strictEqual(f.theme, "paturages");
+  assert.strictEqual(nk.comptes.a.talents, 70);
+  assert.strictEqual(lienSalon(nk, "a").salon, f.id);
+  refuse(function () { salonRpc(nk, "a", Object.assign({}, d, { nom: "Autre" })); }, "déjà membre");
+  refuse(function () { salonRpc(nk, "b", Object.assign({}, d, { nom: "Autre" })); }, "30 talents");
+  refuse(function () { salonRpc(nk, "b", d); }, "30 talents");
+  refuse(function () { salonRpc(nk, "a", Object.assign({}, d, { contenu: { type: "livres", valeurs: ["Job"] } })); }, "Pas encore assez");
+});
+
+test("salons : un salon inactif depuis 7 jours disparaît de la liste", function () {
+  const nk = fauxNakamaSalons({ a: 100 });
+  poserSalon(nk, g.nouveauSalon("vieux", { nom: "Ancien", couleur: 0, theme: "fete", difficulte: "lait", contenu: { type: "bible" } }, "a", "A", 0));
+  assert.strictEqual(salonRpc(nk, "a", { action: "lister" }).salons.length, 0);
+  assert.strictEqual(nk.stock[SYS + "/salons/vieux"], undefined);
+});
+
 console.log("\n" + ok + " tests serveur réussis");

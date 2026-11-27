@@ -306,9 +306,14 @@ class Online {
     return false;
   }
 
+  /// Message lisible d’une erreur du serveur.
+  static String describe(Object e) => _message(e);
+
   static String _message(Object e) => switch (e) {
-        ResponseError(:final code, :final message) => 'Erreur du serveur ($code) : $message',
+        ResponseError(:final message) when (message ?? '').isNotEmpty => message!,
+        ResponseError(:final code) => 'Erreur du serveur ($code).',
         DioException() => 'Pas de connexion au serveur.',
+        StateError(:final message) => message,
         _ => '$e',
       };
 

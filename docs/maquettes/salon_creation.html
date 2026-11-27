@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Créer un salon</title>
+<style>
+@font-face { font-family: "Lilita"; src: url("../../assets/fonts/LilitaOne-Regular.ttf"); }
+@font-face { font-family: "Nunito"; src: url("../../assets/fonts/Nunito.ttf"); font-weight: 200 1000; }
+@font-face { font-family: "Garamond"; src: url("../../assets/fonts/EBGaramond.ttf"); font-weight: 400 800; }
+* { margin: 0; box-sizing: border-box; }
+body { background: #1c1c22; font-family: "Nunito", sans-serif; color: #fff; padding: 28px 24px 50px; }
+h1 { font: 28px "Lilita"; }
+.intro { color: #b9bccb; margin: 6px 0 24px; max-width: 1200px; line-height: 1.45; font-size: 14px; }
+.rangee { display: flex; gap: 30px; flex-wrap: wrap; align-items: flex-start; }
+.etat h3 { font: 15px "Lilita"; margin-bottom: 4px; }
+.etat > p { color: #b9bccb; font-size: 12.5px; line-height: 1.35; width: 360px; margin-bottom: 12px; min-height: 34px; }
+
+.tel { position: relative; width: 360px; height: 780px; border-radius: 32px; overflow: hidden; box-shadow: 0 0 0 9px #0a0a0d, 0 0 0 10px #333, 0 26px 50px rgba(0,0,0,.6); }
+.statut { position: absolute; top: 0; left: 0; right: 0; height: 28px; display: flex; justify-content: space-between; padding: 8px 22px 0; font-size: 12px; font-weight: 800; z-index: 9; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
+.decor { position: absolute; left: 0; right: 0; top: 0; height: 230px; }
+.decor::after { content: ""; position: absolute; inset: 0; }
+.retour { position: absolute; top: 38px; left: 16px; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font: 20px "Lilita"; z-index: 9; }
+.contenu { position: absolute; left: 16px; right: 16px; top: 96px; bottom: 20px; display: flex; flex-direction: column; z-index: 4; }
+.titre { font: 28px "Lilita"; text-shadow: 0 2px 8px rgba(0,0,0,.45); }
+.etape { font-size: 12.5px; font-weight: 900; margin: 2px 0 12px; opacity: .85; }
+
+/* Thèmes : le décor de l'écran suit le thème choisi. */
+.fete { background: #2e1a33; color: #fbefdc; }
+.fete .decor { background: url("../../assets/illustrations/jean.jpg") -698px 0/1058px auto no-repeat; }
+.fete .decor::after { background: linear-gradient(rgba(46,26,51,.05), rgba(46,26,51,.3) 50%, #2e1a33 98%); }
+.fete .retour { background: rgba(46,26,51,.75); color: #f2b65a; box-shadow: inset 0 0 0 1.5px rgba(242,182,90,.6); }
+.fete .titre { color: #ffe3b0; }
+.paturages { background: #f6f1df; color: #2f3a2a; }
+.paturages .decor { background: url("../../assets/illustrations/psaumes.jpg") -500px -45px/860px auto no-repeat; }
+.paturages .decor::after { background: linear-gradient(rgba(246,241,223,0) 35%, #f6f1df 97%); }
+.paturages .retour { background: rgba(246,241,223,.9); color: #4f7a4a; }
+.paturages .titre { color: #2f4a2a; text-shadow: 0 1px 0 #fff8e6, 0 0 14px rgba(255,250,230,.9); }
+.jardin { background: linear-gradient(#e9f2ee, #f7f3e6 60%); color: #1d2a4a; }
+.jardin .decor { background: url("../../assets/illustrations/genese.jpg") center 30%/cover; }
+.jardin .decor::after { background: linear-gradient(rgba(240,245,240,0) 35%, #ecf2ee 97%); }
+.jardin .retour { background: rgba(255,255,255,.75); color: #2a5a7a; }
+.jardin .titre { color: #1d3a5a; text-shadow: 0 0 14px rgba(255,255,255,.95); }
+
+/* Le formulaire : un panneau clair, lisible sur les trois thèmes. */
+.panneau { padding: 14px 14px 12px; border-radius: 20px; color: #2b2a33; background: rgba(255,252,244,.94); box-shadow: 0 10px 26px rgba(0,0,0,.25); margin-bottom: 10px; }
+.champ + .champ { margin-top: 12px; }
+.champ label { display: block; font-size: 13px; font-weight: 900; color: #5a4a3a; margin-bottom: 5px; }
+.saisie { height: 42px; border-radius: 12px; padding: 0 12px; display: flex; align-items: center; font-weight: 800; font-size: 15px; background: #fff; box-shadow: inset 0 0 0 1.5px #dccdb0; }
+.saisie.devise { font: italic 500 16px "Garamond"; color: #4a3a2a; }
+.saisie .compte { margin-left: auto; font: 11px "Nunito"; font-weight: 800; color: #a8957a; font-style: normal; }
+.themes { display: flex; gap: 8px; }
+.theme { flex: 1; border-radius: 12px; overflow: hidden; background: #fff; box-shadow: inset 0 0 0 1.5px #dccdb0; text-align: center; padding-bottom: 6px; position: relative; }
+.theme .vignette { height: 62px; margin-bottom: 5px; }
+.theme b { font: 13px "Lilita"; color: #3a2a1a; display: block; line-height: 1.1; }
+.theme.on { box-shadow: 0 0 0 2.5px #e0961a, 0 0 14px rgba(240,170,50,.5); }
+.theme.on::after { content: "✓"; position: absolute; top: 5px; right: 5px; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font: 12px "Lilita"; color: #3a2412; background: linear-gradient(#ffe48a, #e0961a); }
+.v-fete { background: url("../../assets/illustrations/jean.jpg") -205px 0/310px auto no-repeat; }
+.v-pat { background: url("../../assets/illustrations/psaumes.jpg") -147px -16px/253px auto no-repeat; }
+.v-jar { background: url("../../assets/illustrations/genese.jpg") center 30%/cover; }
+.ecu-choix { display: flex; gap: 8px; align-items: center; }
+.pastille { width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; font: 17px "Lilita"; color: #fff; }
+.pastille.on { box-shadow: 0 0 0 2.5px #fff, 0 0 0 4.5px #e0961a; }
+.bouton { height: 52px; border-radius: 26px; display: grid; place-items: center; font: 19px "Lilita"; color: #3a2412;
+  background: linear-gradient(#ffe48a, #f6b92f 55%, #e0961a); box-shadow: 0 3px 0 #9a5d0e, 0 8px 16px rgba(0,0,0,.3); }
+.bouton.second { color: inherit; background: rgba(255,252,244,.2); box-shadow: inset 0 0 0 1.5px currentColor; height: 46px; font-size: 17px; }
+.diffs { display: flex; gap: 8px; }
+.diff { flex: 1; border-radius: 12px; padding: 8px 4px 7px; text-align: center; background: #fff; box-shadow: inset 0 0 0 1.5px #dccdb0; }
+.diff .rond { width: 34px; height: 34px; margin: 0 auto 4px; border-radius: 50%; display: grid; place-items: center; color: #f3ead6; background: radial-gradient(circle at 40% 35%, #1d3266, #0c1838); box-shadow: 0 0 0 1.5px #c9a35a; }
+.diff .rond svg { width: 18px; height: 18px; fill: currentColor; }
+.diff b { font: 600 16px "Garamond"; color: #1d2a4a; display: block; } .diff small { font-size: 11px; font-weight: 900; color: #8a5a12; }
+.diff.on { box-shadow: 0 0 0 2.5px #e0961a, 0 0 14px rgba(240,170,50,.45); }
+.choix { display: flex; flex-direction: column; gap: 6px; }
+.option { display: flex; align-items: center; gap: 10px; height: 40px; padding: 0 12px; border-radius: 12px; background: #fff; box-shadow: inset 0 0 0 1.5px #dccdb0; font-weight: 800; font-size: 14px; }
+.option .rad { width: 18px; height: 18px; border-radius: 50%; box-shadow: inset 0 0 0 2px #c9b89a; flex: none; }
+.option.on { box-shadow: 0 0 0 2px #e0961a; } .option.on .rad { box-shadow: inset 0 0 0 5px #e0961a; }
+.option small { margin-left: auto; font-size: 11.5px; font-weight: 900; color: #4f7a4a; }
+.option.gris { opacity: .5; } .option.gris small { color: #9a5a3a; }
+.sous-choix { display: flex; flex-wrap: wrap; gap: 5px; padding: 4px 2px 2px 30px; }
+.sous-choix span { padding: 4px 9px; border-radius: 10px; font-size: 12px; font-weight: 900; background: #f1e8d6; color: #6a5a40; }
+.sous-choix span.on { background: #4f7a4a; color: #fff; }
+.recap { display: flex; align-items: center; gap: 12px; }
+.recap .grande { width: 56px; height: 56px; border-radius: 17px; display: grid; place-items: center; font: 28px "Lilita"; color: #fff; flex: none; }
+.recap h4 { font: 20px "Lilita"; color: #2b2a33; } .recap p { font: italic 500 14px "Garamond"; color: #5a4a3a; }
+.solde { font-size: 12.5px; font-weight: 800; text-align: center; margin-top: 8px; opacity: .85; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+  <symbol id="lait" viewBox="0 0 24 24"><path d="M12 3 C12 3 6.5 10 6.5 14 a5.5 5.5 0 0 0 11 0 C17.5 10 12 3 12 3Z"/></symbol>
+  <symbol id="manne" viewBox="0 0 24 24"><ellipse cx="8" cy="9" rx="2.6" ry="2.2"/><ellipse cx="15.5" cy="7.5" rx="2.3" ry="2"/><ellipse cx="12" cy="14" rx="2.8" ry="2.4"/><ellipse cx="6.5" cy="16.5" rx="2" ry="1.8"/><ellipse cx="17.5" cy="15" rx="2.2" ry="1.9"/></symbol>
+  <symbol id="solide" viewBox="0 0 24 24"><path d="M4 15.5 C3 9 8 6.5 12 6.5 S21 9 20 15.5 C19.7 17.3 18.5 18 17 18 H7 C5.5 18 4.3 17.3 4 15.5Z"/></symbol>
+</defs></svg>
+
+<h1>Créer un salon</h1>
+<p class="intro">Deux étapes. D'abord le visage du salon : nom, devise, couleur de l'écu et <b>thème</b> ; l'écran prend tout de suite le
+thème choisi, on voit son salon avant de le créer. Puis les règles : difficulté et questions. Les combinaisons qui n'ont pas
+encore 40 questions sont grisées. On paie 30 talents à la fin. Tout le monde entre sur demande, acceptée par le Berger.</p>
+
+<div class="rangee">
+  <div class="etat"><h3>1 · Ton salon, thème « Le repas de fête »</h3><p>Le thème touché change aussitôt le décor de l'écran.</p>
+  <div class="tel fete"><div class="statut"><span>9:41</span><span>5G ▮▮▮</span></div><div class="decor"></div><div class="retour">‹</div>
+    <div class="contenu">
+      <div class="titre">Créer un salon</div><div class="etape">Étape 1 sur 2 · Ton salon</div>
+      <div class="panneau">
+        <div class="champ"><label>Nom</label><div class="saisie">Les Psalmistes<span class="compte">14/24</span></div></div>
+        <div class="champ"><label>Devise</label><div class="saisie devise">Que tout ce qui respire loue l'Éternel !</div></div>
+        <div class="champ"><label>Écu</label><div class="ecu-choix">
+          <span class="pastille on" style="background:#6b8f4e">P</span><span class="pastille" style="background:#3d6f8e">P</span><span class="pastille" style="background:#b0613a">P</span><span class="pastille" style="background:#7a5a9e">P</span><span class="pastille" style="background:#a8742a">P</span><span class="pastille" style="background:#8e2a22">P</span></div></div>
+        <div class="champ"><label>Thème</label><div class="themes">
+          <div class="theme on"><div class="vignette v-fete"></div><b>Repas de fête</b></div>
+          <div class="theme"><div class="vignette v-pat"></div><b>Verts pâturages</b></div>
+          <div class="theme"><div class="vignette v-jar"></div><b>Jardin au matin</b></div></div></div>
+      </div>
+      <div style="flex:1"></div>
+      <div class="bouton">Continuer</div>
+    </div>
+  </div></div>
+
+  <div class="etat"><h3>1 · Le même écran, thème « Les verts pâturages »</h3><p>Même formulaire ; le décor, les couleurs et le titre suivent le thème.</p>
+  <div class="tel paturages"><div class="statut"><span>9:41</span><span>5G ▮▮▮</span></div><div class="decor"></div><div class="retour">‹</div>
+    <div class="contenu">
+      <div class="titre">Créer un salon</div><div class="etape">Étape 1 sur 2 · Ton salon</div>
+      <div class="panneau">
+        <div class="champ"><label>Nom</label><div class="saisie">Les Psalmistes<span class="compte">14/24</span></div></div>
+        <div class="champ"><label>Devise</label><div class="saisie devise">Que tout ce qui respire loue l'Éternel !</div></div>
+        <div class="champ"><label>Écu</label><div class="ecu-choix">
+          <span class="pastille on" style="background:#6b8f4e">P</span><span class="pastille" style="background:#3d6f8e">P</span><span class="pastille" style="background:#b0613a">P</span><span class="pastille" style="background:#7a5a9e">P</span><span class="pastille" style="background:#a8742a">P</span><span class="pastille" style="background:#8e2a22">P</span></div></div>
+        <div class="champ"><label>Thème</label><div class="themes">
+          <div class="theme"><div class="vignette v-fete"></div><b>Repas de fête</b></div>
+          <div class="theme on"><div class="vignette v-pat"></div><b>Verts pâturages</b></div>
+          <div class="theme"><div class="vignette v-jar"></div><b>Jardin au matin</b></div></div></div>
+      </div>
+      <div style="flex:1"></div>
+      <div class="bouton">Continuer</div>
+    </div>
+  </div></div>
+
+  <div class="etat"><h3>2 · Les règles et la création</h3><p>Difficulté (elle fixe la mise), puis les questions. Le nombre de questions disponibles s'affiche ; sous 40, c'est grisé.</p>
+  <div class="tel paturages"><div class="statut"><span>9:41</span><span>5G ▮▮▮</span></div><div class="decor" style="height:170px"></div><div class="retour">‹</div>
+    <div class="contenu">
+      <div class="titre">Les règles</div><div class="etape">Étape 2 sur 2 · Les questions</div>
+      <div class="panneau">
+        <div class="champ"><label>Difficulté</label><div class="diffs">
+          <div class="diff"><div class="rond"><svg><use href="#lait"/></svg></div><b>Lait</b><small>mise 5</small></div>
+          <div class="diff on"><div class="rond"><svg><use href="#manne"/></svg></div><b>Manne</b><small>mise 20</small></div>
+          <div class="diff"><div class="rond"><svg><use href="#solide"/></svg></div><b>Solide</b><small>mise 50</small></div></div></div>
+        <div class="champ"><label>Questions</label><div class="choix">
+          <div class="option"><span class="rad"></span>Toute la Bible<small>214 questions</small></div>
+          <div class="option"><span class="rad"></span>Un Testament<small>AT 120 · NT 94</small></div>
+          <div class="option on"><span class="rad"></span>Des livres<small>46 questions</small></div>
+          <div class="sous-choix"><span class="on">Psaumes</span><span class="on">Proverbes</span><span>Job</span><span>+ Livres…</span></div>
+          <div class="option gris"><span class="rad"></span>Une catégorie<small>Pas encore assez</small></div>
+        </div></div>
+      </div>
+      <div class="panneau recap"><div class="grande" style="background:#6b8f4e">P</div><div><h4>Les Psalmistes</h4><p>Manne · Psaumes, Proverbes</p></div></div>
+      <div style="flex:1"></div>
+      <div class="bouton">Créer le salon · 30 talents</div>
+      <div class="solde">Il te restera 90 talents.</div>
+    </div>
+  </div></div>
+</div>
+</body>
+</html>

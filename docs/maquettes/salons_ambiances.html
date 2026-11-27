@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Salons : trois ambiances</title>
+<style>
+@font-face { font-family: "Lilita"; src: url("../../assets/fonts/LilitaOne-Regular.ttf"); }
+@font-face { font-family: "Nunito"; src: url("../../assets/fonts/Nunito.ttf"); font-weight: 200 1000; }
+@font-face { font-family: "Garamond"; src: url("../../assets/fonts/EBGaramond.ttf"); font-weight: 400 800; }
+* { margin: 0; box-sizing: border-box; }
+body { background: #1c1c22; font-family: "Nunito", sans-serif; color: #fff; padding: 28px 24px 50px; }
+h1 { font: 28px "Lilita"; }
+.intro { color: #b9bccb; margin: 6px 0 26px; max-width: 1300px; line-height: 1.45; font-size: 14px; }
+.piste { margin-bottom: 44px; }
+.piste h2 { font: 24px "Lilita"; color: #f2c14e; }
+.piste > p { color: #b9bccb; font-size: 14px; max-width: 1100px; line-height: 1.45; margin: 4px 0 14px; }
+.rangee { display: flex; gap: 30px; flex-wrap: wrap; }
+.tel { position: relative; width: 360px; height: 780px; border-radius: 32px; overflow: hidden; box-shadow: 0 0 0 9px #0a0a0d, 0 0 0 10px #333, 0 26px 50px rgba(0,0,0,.6); }
+.statut { position: absolute; top: 0; left: 0; right: 0; height: 28px; display: flex; justify-content: space-between; padding: 8px 22px 0; font-size: 12px; font-weight: 800; z-index: 9; }
+.decor { position: absolute; left: 0; right: 0; top: 0; background-size: cover; background-position: center; }
+.contenu { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; z-index: 4; }
+.titre { font: 30px "Lilita"; }
+.retour { position: absolute; top: 38px; left: 16px; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font: 20px "Lilita"; z-index: 9; }
+.cherche { height: 42px; border-radius: 21px; display: flex; align-items: center; gap: 8px; padding: 0 16px; font-weight: 800; font-size: 14px; }
+.puces { display: flex; gap: 6px; }
+.puces span { padding: 5px 12px; border-radius: 14px; font-size: 12px; font-weight: 900; }
+.membres { display: flex; align-items: center; }
+.membres i { width: 18px; height: 18px; border-radius: 50%; margin-left: -6px; border: 2px solid; font: normal 9px/14px "Lilita"; color: #fff; text-align: center; }
+.membres i:first-child { margin-left: 0; }
+.bouton { height: 52px; border-radius: 26px; display: grid; place-items: center; font: 20px "Lilita"; }
+.ligne { display: flex; align-items: center; gap: 12px; }
+.nom { font: 17px "Lilita"; line-height: 1.05; }
+.meta { font-size: 11.5px; font-weight: 800; margin-top: 2px; }
+.compte { margin-left: auto; text-align: right; font-size: 11px; font-weight: 900; }
+.compte b { display: block; font: 16px "Lilita"; }
+.devise { font: italic 500 16px/1.3 "Garamond"; }
+.role { font-size: 10.5px; font-weight: 900; }
+
+/* ---------- 1 · Les verts pâturages ---------- */
+.paturages { background: #f6f1df; color: #2f3a2a; }
+/* Sans visage : la partie droite du tableau, collines au couchant, oliviers et brebis. */
+.paturages .decor { height: 300px; background: url("../../assets/illustrations/psaumes.jpg") -500px -45px/860px auto no-repeat; }
+.paturages .decor::after { content: ""; position: absolute; inset: 0; background: linear-gradient(rgba(246,241,223,0) 40%, #f6f1df 96%); }
+.paturages .retour { background: rgba(246,241,223,.9); color: #4f7a4a; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+.paturages .contenu { top: 196px; padding: 0 18px 22px; }
+.paturages .titre { color: #2f4a2a; text-shadow: 0 1px 0 #fff8e6; }
+.paturages .sous { font: italic 500 15px "Garamond"; color: #5d6f50; margin: 2px 0 12px; }
+.paturages .cherche { background: #fffdf4; color: #8a9a7a; box-shadow: 0 0 0 1.5px #c9d4b4; }
+.paturages .puces { margin: 10px 0 12px; }
+.paturages .puces span { color: #4f7a4a; background: #e8ecd6; } .paturages .puces span.on { background: #4f7a4a; color: #fffbe9; }
+.paturages .carte { padding: 11px 13px; border-radius: 18px; background: #fffdf4; box-shadow: 0 1px 0 #e3dcc2, 0 6px 14px rgba(80,90,50,.12); margin-bottom: 9px; }
+.paturages .sceau { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font: 21px "Lilita"; color: #fffbe9; flex: none; box-shadow: 0 0 0 3px #fffdf4, 0 0 0 4.5px #e9b44c; }
+.paturages .meta, .paturages .compte { color: #7f8a6c; } .paturages .compte b { color: #4f7a4a; }
+.paturages .membres i { border-color: #fffdf4; }
+.paturages .bouton { background: #4f7a4a; color: #fffbe9; box-shadow: 0 3px 0 #33522f, 0 8px 16px rgba(60,80,40,.3); }
+.paturages .bouton.or { background: linear-gradient(#ffe48a, #f6b92f 55%, #e0961a); color: #3a2412; box-shadow: 0 3px 0 #9a5d0e, 0 8px 16px rgba(0,0,0,.25); }
+.paturages .fiche { margin-top: 10px; padding: 18px; border-radius: 22px; background: #fffdf4; box-shadow: 0 8px 22px rgba(80,90,50,.18); text-align: center; }
+.paturages .fiche .sceau { width: 70px; height: 70px; font-size: 32px; margin: -52px auto 10px; }
+.paturages .tags span { background: #e8ecd6; color: #4f7a4a; }
+.paturages .role { color: #b07d1c; }
+
+/* ---------- 2 · Le repas de fête ---------- */
+.fete { background: #2e1a33; color: #fbefdc; }
+/* Sans visage : en haut les lanternes et la treille, en bas la table garnie (morceaux du tableau des noces de Cana). */
+.fete .decor { height: 190px; background: url("../../assets/illustrations/jean.jpg") -698px 0/1058px auto no-repeat; }
+.fete .decor::after { content: ""; position: absolute; inset: 0; background: linear-gradient(rgba(46,26,51,.05), rgba(46,26,51,.25) 55%, #2e1a33 98%); }
+.fete .table { position: absolute; left: 0; right: 0; bottom: 0; height: 130px; background: url("../../assets/illustrations/jean.jpg") 0 -379px/741px auto no-repeat; }
+.fete .table::before { content: ""; position: absolute; inset: 0; background: linear-gradient(#2e1a33, rgba(46,26,51,.35) 45%, rgba(46,26,51,.1)); }
+.fete .contenu { top: 112px; }
+.fete .bouton { position: relative; z-index: 2; }
+.guirlande { position: absolute; left: -10px; right: -10px; top: 76px; height: 40px; z-index: 5; }
+.guirlande svg { width: 100%; height: 100%; overflow: visible; }
+.fete .retour { background: rgba(46,26,51,.75); color: #f2b65a; box-shadow: inset 0 0 0 1.5px rgba(242,182,90,.6); }
+.fete .contenu { padding: 0 16px 22px; }
+.fete .titre { color: #ffe3b0; text-shadow: 0 2px 10px rgba(0,0,0,.6); }
+.fete .sous { font: italic 500 15px "Garamond"; color: #f1cfa0; margin: 2px 0 12px; }
+.fete .cherche { background: rgba(255,240,215,.12); color: #e9c99e; box-shadow: inset 0 0 0 1.5px rgba(242,182,90,.45); }
+.fete .puces { margin: 10px 0 12px; }
+.fete .puces span { color: #f2b65a; box-shadow: inset 0 0 0 1.5px rgba(242,182,90,.5); } .fete .puces span.on { background: #f2b65a; color: #2e1a33; }
+.fete .carte { padding: 11px 13px; border-radius: 16px; margin-bottom: 9px; background: linear-gradient(90deg, rgba(255,214,150,.16), rgba(255,214,150,.06)); box-shadow: inset 0 0 0 1px rgba(242,182,90,.28); }
+.fete .sceau { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; font: 21px "Lilita"; color: #fff; flex: none; box-shadow: 0 0 18px rgba(242,182,90,.35), inset 0 0 0 2px rgba(255,230,180,.6); }
+.fete .meta, .fete .compte { color: #d8b88f; } .fete .compte b { color: #ffd690; }
+.fete .membres i { border-color: #3a2340; }
+.fete .bouton { background: linear-gradient(#ffd690, #f2b65a 55%, #d98f2a); color: #2e1a33; box-shadow: 0 3px 0 #8e5a18, 0 0 26px rgba(242,182,90,.35); }
+.fete .fiche { margin-top: 8px; padding: 18px; border-radius: 22px; text-align: center; background: rgba(255,214,150,.1); box-shadow: inset 0 0 0 1px rgba(242,182,90,.35), 0 0 40px rgba(242,182,90,.12); }
+.fete .fiche .sceau { width: 68px; height: 68px; font-size: 32px; border-radius: 20px; margin: 0 auto 10px; }
+.fete .tags span { background: rgba(242,182,90,.18); color: #ffd690; }
+.fete .role { color: #f2b65a; }
+
+/* ---------- 3 · Le jardin au matin ---------- */
+.jardin { background: linear-gradient(#e9f2ee, #f7f3e6 60%); color: #1d2a4a; }
+.jardin .decor { height: 260px; background-image: url("../../assets/illustrations/genese.jpg"); background-position: center 30%; border-radius: 0 0 50% 50% / 0 0 28px 28px; }
+.jardin .decor::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(rgba(255,250,235,0) 50%, rgba(255,250,235,.55)); }
+.jardin .retour { background: rgba(255,255,255,.75); color: #2a5a7a; backdrop-filter: blur(4px); }
+.jardin .contenu { top: 220px; padding: 0 18px 22px; }
+.jardin .entete { padding: 14px 16px 12px; border-radius: 22px; background: rgba(255,255,255,.72); backdrop-filter: blur(8px); box-shadow: 0 8px 22px rgba(40,70,90,.14); margin-bottom: 12px; }
+.jardin .titre { color: #1d3a5a; font-size: 27px; }
+.jardin .sous { font: italic 500 15px "Garamond"; color: #5a7080; margin: 0 0 10px; }
+.jardin .cherche { background: #f3f7f6; color: #8a9aa6; box-shadow: inset 0 0 0 1.5px #d6e2e4; height: 38px; }
+.jardin .puces { margin: 0 0 12px; }
+.jardin .puces span { color: #2a5a7a; background: rgba(255,255,255,.7); box-shadow: inset 0 0 0 1px #cfdde2; } .jardin .puces span.on { background: #2a5a7a; color: #fff; }
+.jardin .carte { padding: 11px 13px; border-radius: 18px; margin-bottom: 9px; background: rgba(255,255,255,.78); box-shadow: 0 4px 14px rgba(40,70,90,.1); }
+.jardin .sceau { width: 44px; height: 44px; border-radius: 50% 50% 50% 8px; display: grid; place-items: center; font: 21px "Lilita"; color: #fff; flex: none; }
+.jardin .meta, .jardin .compte { color: #6f8290; } .jardin .compte b { color: #2a5a7a; }
+.jardin .membres i { border-color: #fff; }
+.jardin .bouton { background: linear-gradient(#ffe48a, #f6b92f 55%, #e0961a); color: #3a2412; box-shadow: 0 3px 0 #9a5d0e, 0 8px 16px rgba(40,70,90,.25); }
+.jardin .fiche { margin-top: 4px; padding: 18px; border-radius: 24px; text-align: center; background: rgba(255,255,255,.82); backdrop-filter: blur(8px); box-shadow: 0 10px 26px rgba(40,70,90,.16); }
+.jardin .fiche .sceau { width: 70px; height: 70px; font-size: 32px; margin: -50px auto 10px; box-shadow: 0 6px 14px rgba(40,70,90,.25), 0 0 0 4px #fff; }
+.jardin .tags span { background: #e6eff1; color: #2a5a7a; }
+.jardin .role { color: #b07d1c; }
+
+.tags { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; margin: 10px 0 12px; }
+.tags span { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 900; }
+.podium { display: flex; flex-direction: column; gap: 8px; text-align: left; margin-top: 4px; }
+.podium .ligne { gap: 10px; font-weight: 900; font-size: 13.5px; }
+.podium .av { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font: 15px "Lilita"; color: #fff; flex: none; }
+.podium small { margin-left: auto; font-weight: 800; opacity: .7; }
+</style>
+</head>
+<body>
+<h1>Salons : trois ambiances</h1>
+<p class="intro">Trois propositions plus douces que le bois. Chacune part d'un tableau du jeu, qui donne sa lumière à toute la pièce,
+et montre la liste des salons puis la fiche d'un salon. Le contenu et les gestes sont les mêmes : chercher, choisir, demander à rejoindre.</p>
+<div id="pistes"></div>
+
+<script>
+const salons = [
+  ['P', 'Les Psalmistes', 'Manne · Psaumes, Proverbes', 38, '#6b8f4e', '#c7a14a'],
+  ['B', 'Bérée', 'Solide · Toute la Bible', 12, '#3d6f8e', '#8e5a8e'],
+  ['J', 'Jeunesse de Lomé', 'Lait · Évangiles', 50, '#b0613a', '#4f7a4a'],
+  ['S', 'Sentinelles', 'Manne · Ancien Testament', 7, '#7a5a9e', '#3d6f8e'],
+  ['A', "Les Amis d'Emmaüs", 'Lait · Luc', 21, '#a8742a', '#6b8f4e'],
+];
+const membres = (c1, c2) => `<span class="membres"><i style="background:${c1}">D</i><i style="background:${c2}">A</i><i style="background:#8a7a66">+</i></span>`;
+const carte = ([l, n, m, k, c1, c2]) => `<div class="carte ligne"><div class="sceau" style="background:${c1}">${l}</div>
+  <div style="min-width:0"><div class="nom">${n}</div><div class="meta">${m}</div></div>
+  <div class="compte">${membres(c1, c2)}<b style="margin-top:3px">${k === 50 ? 'Complet' : k + '/50'}</b></div></div>`;
+const guirlande = `<div class="guirlande"><svg viewBox="0 0 380 40" preserveAspectRatio="none">
+  <path d="M0,6 Q95,38 190,10 Q285,38 380,6" fill="none" stroke="rgba(60,30,20,.7)" stroke-width="1.2"/>
+  ${[18,52,86,120,154,226,260,294,328,362].map((x,i)=>{const y=i<5? 6+ (x/95)*(32*(1-x/190))*1.2 : 10 + ((x-190)/95)*(32*(1-(x-190)/190))*1.2;
+    return `<circle cx="${x}" cy="${Math.min(y,30)+4}" r="4" fill="#ffd690"/><circle cx="${x}" cy="${Math.min(y,30)+4}" r="11" fill="rgba(255,200,110,.25)"/>`}).join('')}
+</svg></div>`;
+const fiche = (avs) => `<div class="fiche">
+  <div class="sceau" style="background:#6b8f4e">P</div>
+  <div class="titre" style="font-size:26px">Les Psalmistes</div>
+  <div class="devise">« Que tout ce qui respire loue l'Éternel ! »</div>
+  <div class="tags"><span>Manne · 20 talents</span><span>Psaumes, Proverbes</span><span>38/50 membres</span></div>
+  <div class="podium">
+    <div class="ligne"><span class="av" style="background:${avs[0]}">D</span><span>David_77<div class="role">Berger</div></span><small>Créateur</small></div>
+    <div class="ligne"><span class="av" style="background:${avs[1]}">A</span><span>Asaph<div class="role">Vaillant héros</div></span><small>420 pts</small></div>
+    <div class="ligne"><span class="av" style="background:${avs[2]}">C</span><span>Coré12<div class="role">Sentinelle</div></span><small>385 pts</small></div>
+  </div></div>`;
+
+const pistes = [
+  { cls: 'paturages', titre: '1 · Les verts pâturages',
+    texte: "« L'Éternel est mon berger » : les collines au soleil couchant, les oliviers et les brebis, qui se fond dans un crème doux. Vert sauge, blanc chaud, touches d'or. Le plus reposant ; et le Berger du salon y prend tout son sens.",
+    sous: 'Trouve ta bergerie', avs: ['#6b8f4e', '#3d6f8e', '#a8742a'], bouton: 'Créer un salon · 30 talents', ficheTop: 236 },
+  { cls: 'fete', titre: '2 · Le repas de fête',
+    texte: "Les noces de Cana, sans personne : en haut les lanternes et la treille, en bas la table garnie (pain, raisins, cruches, bougies). Prune profond et lumière ambrée. Le plus convivial : on vient s'asseoir à une table.",
+    sous: 'Choisis ta table', avs: ['#b0613a', '#7a5a9e', '#3d6f8e'], bouton: 'Dresser une table · 30 talents', ficheTop: 150 },
+  { cls: 'jardin', titre: '3 · Le jardin au matin',
+    texte: "Le jardin de la Genèse au lever du jour : lumière claire, verre dépoli, bleu-vert d'eau et or. Le plus aéré, presque un écran de jour, qui tranche avec le ciel de nuit des parties.",
+    sous: 'Un salon pour chaque jardin', avs: ['#3d6f8e', '#6b8f4e', '#a8742a'], bouton: 'Créer un salon · 30 talents', ficheTop: 236 },
+];
+
+const liste = p => `<div class="tel ${p.cls}"><div class="statut"><span>9:41</span><span>5G ▮▮▮</span></div>
+  <div class="decor"></div>${p.cls === 'fete' ? '<div class="table"></div>' : ''}<div class="retour">‹</div>
+  <div class="contenu">
+    ${p.cls === 'jardin' ? `<div class="entete"><div class="titre">Les salons</div><div class="sous">${p.sous}</div><div class="cherche">⌕ Chercher un salon</div></div>`
+      : `<div class="titre">Les salons</div><div class="sous">${p.sous}</div><div class="cherche">⌕ Chercher un salon</div>`}
+    <div class="puces"><span class="on">Tous</span><span>Lait</span><span>Manne</span><span>Solide</span></div>
+    ${salons.slice(0, p.cls === 'jardin' ? 4 : 4).map(carte).join('')}
+    <div style="flex:1"></div>
+    <div class="bouton">${p.bouton}</div>
+  </div></div>`;
+const vueFiche = p => `<div class="tel ${p.cls}"><div class="statut"><span>9:41</span><span>5G ▮▮▮</span></div>
+  <div class="decor"></div>${p.cls === 'fete' ? '<div class="table"></div>' : ''}<div class="retour">‹</div>
+  <div class="contenu" style="top:${p.ficheTop}px">
+    ${fiche(p.avs)}
+    <div style="flex:1"></div>
+    <div class="bouton ${p.cls === 'paturages' ? 'or' : ''}">Demander à rejoindre</div>
+  </div></div>`;
+document.getElementById('pistes').innerHTML = pistes.map(p =>
+  `<section class="piste"><h2>${p.titre}</h2><p>${p.texte}</p><div class="rangee">${liste(p)}${vueFiche(p)}</div></section>`).join('');
+</script>
+</body>
+</html>
