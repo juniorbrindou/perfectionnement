@@ -4,17 +4,17 @@ import 'package:flutter/material.dart';
 enum Picto { lait, manne, solide, personnages, miracles, paraboles, lieuxEvenements, ok, non }
 
 Picto pictoForDifficulty(String d) => switch (d) {
-      'manne' => Picto.manne,
-      'solide' => Picto.solide,
-      _ => Picto.lait,
-    };
+  'manne' => Picto.manne,
+  'solide' => Picto.solide,
+  _ => Picto.lait,
+};
 
 Picto pictoForCategory(String c) => switch (c) {
-      'miracles' => Picto.miracles,
-      'paraboles' => Picto.paraboles,
-      'lieux_evenements' => Picto.lieuxEvenements,
-      _ => Picto.personnages,
-    };
+  'miracles' => Picto.miracles,
+  'paraboles' => Picto.paraboles,
+  'lieux_evenements' => Picto.lieuxEvenements,
+  _ => Picto.personnages,
+};
 
 class PictoIcon extends StatelessWidget {
   final Picto picto;

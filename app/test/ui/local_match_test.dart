@@ -24,6 +24,7 @@ final capture = Platform.environment['CAPTURE'] == '1';
 /// Décode les images à l'écran (hors du temps simulé), puis avance un peu.
 Future<void> settle(WidgetTester tester, {int frames = 6}) async {
   await tester.runAsync(() async {
+    await Future.delayed(const Duration(milliseconds: 300));
     for (final e in find.byType(Image).evaluate()) {
       await precacheImage((e.widget as Image).image, e);
     }
@@ -31,6 +32,8 @@ Future<void> settle(WidgetTester tester, {int frames = 6}) async {
   for (var i = 0; i < frames; i++) {
     await tester.pump(const Duration(milliseconds: 100));
   }
+  await tester.runAsync(() => Future.delayed(const Duration(milliseconds: 500)));
+  await tester.pump();
 }
 
 Future<void> shot(WidgetTester tester, String name) async {

@@ -27,6 +27,7 @@ flutter:
     - assets/duel/pieces.png
     - assets/duel/couronne.png
     - assets/duel/dos_carte_bleu.jpg
+    - assets/duel/dos_illustration.jpg
     - assets/illustrations/
     - data/aventure.json
     - data/cartes.json

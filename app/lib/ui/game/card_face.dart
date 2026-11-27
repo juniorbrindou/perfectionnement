@@ -10,6 +10,7 @@ import 'pictos.dart';
 /// Rapport hauteur / largeur des cartes, celui du dos (1 : 1,87).
 const cardRatio = 1.87;
 const cardBackAsset = 'assets/duel/dos_carte_bleu.jpg';
+const cardIllustrationAsset = 'assets/duel/dos_illustration.jpg';
 const letters = ['A', 'B', 'C', 'D', 'E'];
 
 /// État d'une proposition sur la carte.
@@ -24,25 +25,41 @@ const _encre = Color(0xFF1D2A4A);
 const _brun = Color(0xFF3B2A1D);
 
 TextStyle _serif(double size, Color color, {double height = 1.22}) => TextStyle(
-      fontFamily: 'Garamond',
-      fontSize: size,
-      color: color,
-      height: height,
-      fontWeight: FontWeight.w500,
-      fontVariations: const [FontVariation('wght', 500)],
-    );
+  fontFamily: 'Garamond',
+  fontSize: size,
+  color: color,
+  height: height,
+  fontWeight: FontWeight.w500,
+  fontVariations: const [FontVariation('wght', 500)],
+);
 
 /// Plus grande taille de la liste qui fait tenir le texte dans la boîte (la dernière sinon).
-double fitSize(String text, TextStyle style, double maxWidth, double maxHeight, List<double> sizes,
-        {int? maxLines, TextAlign align = TextAlign.center}) =>
-    tryFit(text, style, maxWidth, maxHeight, sizes, maxLines: maxLines, align: align) ?? sizes.last;
+double fitSize(
+  String text,
+  TextStyle style,
+  double maxWidth,
+  double maxHeight,
+  List<double> sizes, {
+  int? maxLines,
+  TextAlign align = TextAlign.center,
+}) => tryFit(text, style, maxWidth, maxHeight, sizes, maxLines: maxLines, align: align) ?? sizes.last;
 
 /// Plus grande taille de la liste qui fait tenir le texte dans la boîte, ou null.
-double? tryFit(String text, TextStyle style, double maxWidth, double maxHeight, List<double> sizes,
-    {int? maxLines, TextAlign align = TextAlign.center}) {
+double? tryFit(
+  String text,
+  TextStyle style,
+  double maxWidth,
+  double maxHeight,
+  List<double> sizes, {
+  int? maxLines,
+  TextAlign align = TextAlign.center,
+}) {
   for (final s in sizes) {
     final tp = TextPainter(
-      text: TextSpan(text: text, style: style.copyWith(fontSize: s)),
+      text: TextSpan(
+        text: text,
+        style: style.copyWith(fontSize: s),
+      ),
       textDirection: TextDirection.ltr,
       textAlign: align,
       maxLines: maxLines,
@@ -91,30 +108,32 @@ class CardFace extends StatelessWidget {
     return SizedBox(
       width: width,
       height: width * cardRatio,
-      child: Stack(children: [
-        Positioned.fill(child: _Frame(u)),
-        Positioned.fill(
-          left: 3.7 * u,
-          top: 3.7 * u,
-          right: 3.7 * u,
-          bottom: 3.7 * u,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(2.4 * u),
-              border: Border.all(color: _gold, width: max(0.2 * u, 0.5)),
-              gradient: const RadialGradient(
-                center: Alignment(0, -0.4),
-                radius: 1.1,
-                colors: [Color(0xFFF8F2E6), Color(0xFFEFE6D4)],
+      child: Stack(
+        children: [
+          Positioned.fill(child: _Frame(u)),
+          Positioned.fill(
+            left: 3.7 * u,
+            top: 3.7 * u,
+            right: 3.7 * u,
+            bottom: 3.7 * u,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(2.4 * u),
+                border: Border.all(color: _gold, width: max(0.2 * u, 0.5)),
+                gradient: const RadialGradient(
+                  center: Alignment(0, -0.4),
+                  radius: 1.1,
+                  colors: [Color(0xFFF8F2E6), Color(0xFFEFE6D4)],
+                ),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(2.2 * u),
+                child: Stack(clipBehavior: Clip.none, children: _content(u, art)),
               ),
             ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(2.2 * u),
-              child: Stack(clipBehavior: Clip.none, children: _content(u, art)),
-            ),
           ),
-        ),
-      ]),
+        ],
+      ),
     );
   }
 
@@ -122,7 +141,9 @@ class CardFace extends StatelessWidget {
     final illuHeight = 54 * u;
     final question = data.question;
     final qStyle = _serif(5.2 * u, _encre);
-    final qSize = fitSize(question, qStyle, 63.6 * u, 16 * u, [for (final s in [5.2, 4.7, 4.2, 3.7, 3.3]) s * u]);
+    final qSize = fitSize(question, qStyle, 63.6 * u, 16 * u, [
+      for (final s in [5.2, 4.7, 4.2, 3.7, 3.3]) s * u,
+    ]);
     final shown = [...options];
     return [
       Positioned(
@@ -132,37 +153,57 @@ class CardFace extends StatelessWidget {
         height: illuHeight,
         child: ClipPath(
           clipper: _IlluClipper(),
-          child: Stack(fit: StackFit.expand, children: [
-            if (art != null)
-              Image.asset(art, fit: BoxFit.cover, alignment: const Alignment(0, -0.3), filterQuality: FilterQuality.medium)
-            else
-              Image.asset(cardBackAsset, fit: BoxFit.cover, filterQuality: FilterQuality.medium),
-            const DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  stops: [0, 0.3, 0.75, 1],
-                  colors: [Color(0x59060E28), Color(0x00060E28), Color(0x00060E28), Color(0x40060E28)],
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              if (art != null)
+                Image.asset(
+                  art,
+                  fit: BoxFit.cover,
+                  alignment: const Alignment(0, -0.3),
+                  filterQuality: FilterQuality.medium,
+                )
+              else
+                // Le logo du dos, sans son filet, sur la même toile prolongée.
+                Image.asset(cardIllustrationAsset, fit: BoxFit.cover, filterQuality: FilterQuality.medium),
+              const DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    stops: [0, 0.3, 0.75, 1],
+                    colors: [Color(0x59060E28), Color(0x00060E28), Color(0x00060E28), Color(0x40060E28)],
+                  ),
                 ),
               ),
-            ),
-          ]),
+            ],
+          ),
         ),
       ),
-      Positioned(left: 0, right: 0, top: 0, height: illuHeight, child: CustomPaint(painter: _IlluEdgePainter(u))),
+      Positioned(
+        left: 0,
+        right: 0,
+        top: 0,
+        height: illuHeight,
+        child: CustomPaint(painter: _IlluEdgePainter(u)),
+      ),
       Positioned(
         left: 1.8 * u,
         top: 1.3 * u,
         child: _Round(
           size: 11.4 * u,
           u: u,
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            PictoIcon(pictoForDifficulty(data.difficulty), size: 4.2 * u),
-            SizedBox(height: 0.4 * u),
-            Text(CardData.difficultyLabels[data.difficulty] == 'Nourriture solide' ? 'Solide' : data.difficultyLabel,
-                style: bodyStyle(2.6 * u, _cream, weight: 700).copyWith(height: 1)),
-          ]),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              PictoIcon(pictoForDifficulty(data.difficulty), size: 4.2 * u),
+              SizedBox(height: 0.4 * u),
+              Text(
+                CardData.difficultyLabels[data.difficulty] == 'Nourriture solide' ? 'Solide' : data.difficultyLabel,
+                style: bodyStyle(2.6 * u, _cream, weight: 700).copyWith(height: 1),
+              ),
+            ],
+          ),
         ),
       ),
       Positioned(
@@ -204,27 +245,39 @@ class CardFace extends StatelessWidget {
         top: 56 * u,
         height: 16 * u,
         child: Center(
-          child: Text(question, textAlign: TextAlign.center, style: qStyle.copyWith(fontSize: qSize)),
+          child: Text(
+            question,
+            textAlign: TextAlign.center,
+            style: qStyle.copyWith(fontSize: qSize),
+          ),
         ),
       ),
-      Positioned(left: 0, right: 0, top: 73.8 * u - 0.6 * u, height: 1.2 * u, child: CustomPaint(painter: _SeparatorPainter(u))),
+      Positioned(
+        left: 0,
+        right: 0,
+        top: 73.8 * u - 0.6 * u,
+        height: 1.2 * u,
+        child: CustomPaint(painter: _SeparatorPainter(u)),
+      ),
       Positioned(
         left: 3.8 * u,
         right: 3.8 * u,
         top: 79.5 * u,
-        child: Column(children: [
-          for (var i = 0; i < shown.length; i++) ...[
-            if (i > 0) SizedBox(height: 2.8 * u),
-            AnswerPill(
-              u: u,
-              letter: letters[i],
-              text: shown[i],
-              mark: marks[shown[i]] ?? (owner && shown[i] == data.answer ? Mark.right : Mark.none),
-              keepLetter: owner,
-              onTap: onAnswer == null ? null : () => onAnswer!(shown[i]),
-            ),
+        child: Column(
+          children: [
+            for (var i = 0; i < shown.length; i++) ...[
+              if (i > 0) SizedBox(height: 2.8 * u),
+              AnswerPill(
+                u: u,
+                letter: letters[i],
+                text: shown[i],
+                mark: marks[shown[i]] ?? (owner && shown[i] == data.answer ? Mark.right : Mark.none),
+                keepLetter: owner,
+                onTap: onAnswer == null ? null : () => onAnswer!(shown[i]),
+              ),
+            ],
           ],
-        ]),
+        ),
       ),
       if (bannerTitle != null)
         Positioned(
@@ -242,11 +295,14 @@ class CardFace extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 2 * u),
             child: FittedBox(
               fit: BoxFit.scaleDown,
-              child: Row(mainAxisSize: MainAxisSize.min, children: [
-                Text(bannerTitle!, style: titleStyle(3.4 * u, const Color(0xFFFF9B8E))),
-                SizedBox(width: 1.6 * u),
-                Text(bannerText ?? '', style: bodyStyle(2.6 * u, _cream, weight: 700)),
-              ]),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(bannerTitle!, style: titleStyle(3.4 * u, const Color(0xFFFF9B8E))),
+                  SizedBox(width: 1.6 * u),
+                  Text(bannerText ?? '', style: bodyStyle(2.6 * u, _cream, weight: 700)),
+                ],
+              ),
             ),
           ),
         ),
@@ -254,10 +310,13 @@ class CardFace extends StatelessWidget {
         left: 3.8 * u,
         right: 3.8 * u,
         top: 145 * u,
-        child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Text(data.categoryLabel, style: bodyStyle(2 * u, const Color(0xFF8A7A66), weight: 600)),
-          Text(footer, style: bodyStyle(2 * u, const Color(0xFF8A7A66), weight: 600)),
-        ]),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(data.categoryLabel, style: bodyStyle(2 * u, const Color(0xFF8A7A66), weight: 600)),
+            Text(footer, style: bodyStyle(2 * u, const Color(0xFF8A7A66), weight: 600)),
+          ],
+        ),
       ),
     ];
   }
@@ -271,20 +330,20 @@ class CardBack extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        width: width,
-        height: width * cardRatio,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(width * 0.045),
-          boxShadow: [BoxShadow(color: const Color(0x99000000), offset: Offset(0, width * 0.02), blurRadius: width * 0.05)],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(width * 0.045),
-          child: RotatedBox(
-            quarterTurns: 1,
-            child: Image.asset(cardBackAsset, fit: BoxFit.fill, filterQuality: FilterQuality.medium),
-          ),
-        ),
-      );
+    width: width,
+    height: width * cardRatio,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(width * 0.04),
+      boxShadow: [BoxShadow(color: const Color(0x99000000), offset: Offset(0, width * 0.02), blurRadius: width * 0.05)],
+    ),
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(width * 0.04),
+      child: RotatedBox(
+        quarterTurns: 1,
+        child: Image.asset(cardBackAsset, fit: BoxFit.fill, filterQuality: FilterQuality.medium),
+      ),
+    ),
+  );
 }
 
 class _Frame extends StatelessWidget {
@@ -294,17 +353,17 @@ class _Frame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => DecoratedBox(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(4 * u),
-          gradient: const RadialGradient(
-            center: Alignment(0, -0.2),
-            radius: 0.9,
-            colors: [Color(0xFF1A2D5C), Color(0xFF0F1C3F)],
-          ),
-          boxShadow: [BoxShadow(color: const Color(0xB3000000), offset: Offset(0, 1.5 * u), blurRadius: 4 * u)],
-        ),
-        child: CustomPaint(painter: _FramePainter(u)),
-      );
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(4 * u),
+      gradient: const RadialGradient(
+        center: Alignment(0, -0.2),
+        radius: 0.9,
+        colors: [Color(0xFF1A2D5C), Color(0xFF0F1C3F)],
+      ),
+      boxShadow: [BoxShadow(color: const Color(0xB3000000), offset: Offset(0, 1.5 * u), blurRadius: 4 * u)],
+    ),
+    child: CustomPaint(painter: _FramePainter(u)),
+  );
 }
 
 /// Toile du cadre et filet doré.
@@ -388,12 +447,12 @@ class _IlluEdgePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) => canvas.drawPath(
-        _illuEdge(size, closed: false),
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = max(0.25 * u, 0.5)
-          ..color = _gold,
-      );
+    _illuEdge(size, closed: false),
+    Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = max(0.25 * u, 0.5)
+      ..color = _gold,
+  );
 
   @override
   bool shouldRepaint(_IlluEdgePainter old) => old.u != u;
@@ -409,8 +468,10 @@ class _SeparatorPainter extends CustomPainter {
     final cx = size.width / 2, cy = size.height / 2, half = 25.4 * u;
     final line = Paint()
       ..strokeWidth = max(0.2 * u, 0.4)
-      ..shader = const LinearGradient(colors: [Color(0x00C9A35A), _gold, _gold, Color(0x00C9A35A)], stops: [0, 0.3, 0.7, 1])
-          .createShader(Rect.fromLTWH(cx - half, cy, 2 * half, 1));
+      ..shader = const LinearGradient(
+        colors: [Color(0x00C9A35A), _gold, _gold, Color(0x00C9A35A)],
+        stops: [0, 0.3, 0.7, 1],
+      ).createShader(Rect.fromLTWH(cx - half, cy, 2 * half, 1));
     canvas.drawLine(Offset(cx - half, cy), Offset(cx - 3 * u, cy), line);
     canvas.drawLine(Offset(cx + 3 * u, cy), Offset(cx + half, cy), line);
     final d = 0.85 * u;
@@ -440,22 +501,22 @@ class _Round extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        width: size,
-        height: size,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: RadialGradient(
-            center: const Alignment(-0.2, -0.3),
-            colors: translucent
-                ? [_navyTop.withValues(alpha: 0.8), _navyBottom.withValues(alpha: 0.8)]
-                : [_navyTop, _navyBottom],
-          ),
-          border: Border.all(color: _gold, width: max(0.25 * u, 0.5)),
-          boxShadow: [BoxShadow(color: const Color(0x80000000), offset: Offset(0, 0.5 * u), blurRadius: 1.2 * u)],
-        ),
-        child: child,
-      );
+    width: size,
+    height: size,
+    alignment: Alignment.center,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      gradient: RadialGradient(
+        center: const Alignment(-0.2, -0.3),
+        colors: translucent
+            ? [_navyTop.withValues(alpha: 0.8), _navyBottom.withValues(alpha: 0.8)]
+            : [_navyTop, _navyBottom],
+      ),
+      border: Border.all(color: _gold, width: max(0.25 * u, 0.5)),
+      boxShadow: [BoxShadow(color: const Color(0x80000000), offset: Offset(0, 0.5 * u), blurRadius: 1.2 * u)],
+    ),
+    child: child,
+  );
 }
 
 /// Une proposition : lettre dans un rond, texte ajusté. Sert sur la carte et ailleurs.
@@ -503,15 +564,36 @@ class AnswerPillState extends State<AnswerPill> {
       Mark.right when !widget.keepLetter => PictoIcon(Picto.ok, size: 3 * u, color: Colors.white, stroke: 3.4),
       _ => Text(widget.letter, style: bodyStyle(3.6 * u, Colors.white, weight: 700).copyWith(height: 1)),
     };
-    return LayoutBuilder(builder: (context, c) => _build(u, mark, top, bottom, edge, c1, c2, ring, inCircle, c.maxWidth - 16.4 * u));
+    return LayoutBuilder(
+      builder: (context, c) => _build(u, mark, top, bottom, edge, c1, c2, ring, inCircle, c.maxWidth - 16.4 * u),
+    );
   }
 
-  Widget _build(double u, Mark mark, Color top, Color bottom, Color edge, Color c1, Color c2, Color ring, Widget inCircle,
-      double textWidth) {
+  Widget _build(
+    double u,
+    Mark mark,
+    Color top,
+    Color bottom,
+    Color edge,
+    Color c1,
+    Color c2,
+    Color ring,
+    Widget inCircle,
+    double textWidth,
+  ) {
     final base = bodyStyle(3.8 * u, _brun, weight: 700).copyWith(height: 1.12);
-    final one = tryFit(widget.text, base, textWidth, 5 * u, [3.8 * u, 3.4 * u, 3.1 * u], maxLines: 1, align: TextAlign.left);
+    final one = tryFit(
+      widget.text,
+      base,
+      textWidth,
+      5 * u,
+      [3.8 * u, 3.4 * u, 3.1 * u],
+      maxLines: 1,
+      align: TextAlign.left,
+    );
     final lines = one == null ? 2 : 1;
-    final size = one ??
+    final size =
+        one ??
         fitSize(widget.text, base, textWidth, 8.6 * u, [3.1 * u, 2.8 * u, 2.5 * u], maxLines: 2, align: TextAlign.left);
     final pill = AnimatedScale(
       scale: _down ? 0.97 : 1,
@@ -528,23 +610,30 @@ class AnswerPillState extends State<AnswerPill> {
             BoxShadow(color: const Color(0x38462D0A), offset: Offset(0, 0.7 * u), blurRadius: 1 * u),
           ],
         ),
-        child: Row(children: [
-          Container(
-            width: 7 * u,
-            height: 7 * u,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(center: const Alignment(-0.2, -0.3), colors: [c1, c2]),
-              border: Border.all(color: ring, width: max(0.2 * u, 0.4)),
+        child: Row(
+          children: [
+            Container(
+              width: 7 * u,
+              height: 7 * u,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(center: const Alignment(-0.2, -0.3), colors: [c1, c2]),
+                border: Border.all(color: ring, width: max(0.2 * u, 0.4)),
+              ),
+              child: inCircle,
             ),
-            child: inCircle,
-          ),
-          SizedBox(width: 2.8 * u),
-          Expanded(
-            child: Text(widget.text, maxLines: lines, overflow: TextOverflow.ellipsis, style: base.copyWith(fontSize: size)),
-          ),
-        ]),
+            SizedBox(width: 2.8 * u),
+            Expanded(
+              child: Text(
+                widget.text,
+                maxLines: lines,
+                overflow: TextOverflow.ellipsis,
+                style: base.copyWith(fontSize: size),
+              ),
+            ),
+          ],
+        ),
       ),
     );
     final shown = mark == Mark.dim ? Opacity(opacity: 0.45, child: pill) : pill;
