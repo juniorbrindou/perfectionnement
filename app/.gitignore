@@ -49,3 +49,6 @@ test/ui/captures/
 # mklink /J assets ..\assets   et   mklink /J data ..\data
 /assets
 /data
+
+# Captures prises pendant « flutter run » (touche s).
+flutter_*.png
