@@ -482,8 +482,8 @@ const _difficultyArt = {
 /// Une difficulté choisie comme une carte du jeu : cadre bleu nuit, l'image de la difficulté
 /// en haut (le lait, la manne, le pain), le nom en serif et la mise sur le parchemin.
 class DifficultyCard extends StatelessWidget {
-  /// Taille relative (1 : écran « En ligne » ; plus petit dans le panneau de l'aventure).
-  final double size;
+  /// Version basse qui prend la largeur donnée par son parent (panneau de l'aventure).
+  final bool compact;
   final Color? helpColor;
   final String difficulty;
   final String label;
@@ -494,7 +494,7 @@ class DifficultyCard extends StatelessWidget {
 
   const DifficultyCard({
     super.key,
-    this.size = 1,
+    this.compact = false,
     this.helpColor,
     required this.difficulty,
     required this.label,
@@ -506,21 +506,23 @@ class DifficultyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final k = tableUnit(context) * size;
+    final k = tableUnit(context);
+    final lift = (compact ? 5 : 12) * k;
     final (art, color) = _difficultyArt[difficulty]!;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOutBack,
-        transform: Matrix4.translationValues(0, selected ? -12 * k : 0, 0),
+        transform: Matrix4.translationValues(0, selected ? -lift : 0, 0),
         child: Stack(
           clipBehavior: Clip.none,
           children: [
             AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              width: 100 * k,
-              height: 186 * k,
+              width: compact ? double.infinity : 100 * k,
+              // En version basse, la hauteur suit le contenu (et la taille du texte du téléphone).
+              height: compact ? null : 186 * k,
               padding: EdgeInsets.all(3 * k),
               decoration: BoxDecoration(
                 color: const Color(0xFF13234A),
@@ -542,14 +544,15 @@ class DifficultyCard extends StatelessWidget {
                   ),
                 ),
                 child: Column(
+                  mainAxisSize: compact ? MainAxisSize.min : MainAxisSize.max,
                   children: [
                     SizedBox(
-                      height: 92 * k,
+                      height: (compact ? 54 : 92) * k,
                       width: double.infinity,
                       child: Image.asset(art, fit: BoxFit.cover, alignment: const Alignment(0, -0.1), cacheWidth: 400),
                     ),
                     Container(height: 4 * k, color: color),
-                    SizedBox(height: 9 * k),
+                    SizedBox(height: (compact ? 3 : 9) * k),
                     Text(
                       label,
                       style: const TextStyle(
@@ -557,32 +560,33 @@ class DifficultyCard extends StatelessWidget {
                         color: Color(0xFF1D2A4A),
                         fontVariations: [FontVariation('wght', 700)],
                         height: 1,
-                      ).copyWith(fontSize: 21 * k),
+                      ).copyWith(fontSize: (compact ? 18 : 21) * k),
                     ),
-                    SizedBox(height: 8 * k),
+                    SizedBox(height: (compact ? 1 : 8) * k),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Image.asset('assets/duel/pieces.png', width: 20 * k, height: 20 * k),
+                        Image.asset('assets/duel/pieces.png', width: (compact ? 16 : 20) * k, height: (compact ? 16 : 20) * k),
                         SizedBox(width: 4 * k),
-                        Text('$stake', style: titleStyle(20 * k, const Color(0xFF6B4310))),
+                        Text('$stake', style: titleStyle((compact ? 16 : 20) * k, const Color(0xFF6B4310))),
                       ],
                     ),
-                    SizedBox(height: 3 * k),
+                    SizedBox(height: (compact ? 1 : 3) * k),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 4 * k),
                       child: FittedBox(
                         fit: BoxFit.scaleDown,
-                        child: Text(help, maxLines: 1, style: bodyStyle(10.5 * k, helpColor ?? const Color(0xFF8A7A66), weight: helpColor == null ? 800 : 900)),
+                        child: Text(help, maxLines: 1, style: bodyStyle((compact ? 11 : 10.5) * k, helpColor ?? Color(compact ? 0xFF6F604C : 0xFF8A7A66), weight: helpColor == null ? 800 : 900)),
                       ),
                     ),
+                    if (compact) SizedBox(height: 4 * k),
                   ],
                 ),
               ),
             ),
             if (selected)
               Positioned(
-                top: -12 * k,
+                top: (compact ? -10 : -12) * k,
                 left: 0,
                 right: 0,
                 child: Center(

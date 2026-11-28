@@ -17,8 +17,8 @@ import '../toast.dart';
 import '../profile/profile_screen.dart';
 
 /// L'aventure contre le Scribe (docs/maquettes/aventure.html, piste C « le livre du chapitre ») :
-/// les niveaux du chapitre en petites cartes, puis le panneau du niveau choisi avec ses trois
-/// difficultés et « Jouer ».
+/// la peinture du livre en haut, son enseigne, les niveaux en petites cartes, puis le panneau du
+/// niveau choisi avec ses trois difficultés et « Jouer ».
 class AdventureScreen extends StatefulWidget {
   const AdventureScreen({super.key});
 
@@ -134,37 +134,72 @@ class _AdventureScreenState extends State<AdventureScreen> {
   @override
   Widget build(BuildContext context) {
     final k = tableUnit(context);
-    return Scaffold(
-      backgroundColor: Palette.night,
-      body: NightSky(
-        child: SafeArea(
-          child: ListenableBuilder(
-            listenable: Player.instance,
-            builder: (context, _) => Column(
-              children: [
-                _topBar(k),
-                Expanded(
-                  child: _chapters.isEmpty
-                      ? const Center(child: CircularProgressIndicator(color: Palette.gold))
-                      : ListView(
-                          padding: EdgeInsets.fromLTRB(14 * k, 12 * k, 14 * k, 12 * k),
-                          children: [
-                            for (var i = 0; i < _chapters.length; i++) ...[
-                              _chapterHeader(_chapters[i], i + 1, k),
-                              SizedBox(height: 12 * k),
-                              _grid(_chapters[i], k),
-                              SizedBox(height: 14 * k),
-                            ],
-                            _nextChapter(k),
-                          ],
-                        ),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      // Boutons Android clairs sur la nuit du panneau, sans le voile blanc que le système ajoute sinon.
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+        systemNavigationBarColor: _deepNight,
+        systemNavigationBarDividerColor: Colors.transparent,
+        systemNavigationBarIconBrightness: Brightness.light,
+        systemNavigationBarContrastEnforced: false,
+      ),
+      child: Scaffold(
+        backgroundColor: _deepNight,
+        body: ListenableBuilder(
+          listenable: Player.instance,
+          builder: (context, _) => Stack(
+            children: [
+              _backdrop(k),
+              Positioned.fill(
+                child: Column(
+                  children: [
+                    SafeArea(bottom: false, child: _topBar(k)),
+                    Expanded(
+                      child: _chapters.isEmpty
+                          ? const Center(child: CircularProgressIndicator(color: Palette.gold))
+                          : _book(k),
+                    ),
+                    // Le panneau descend jusqu'au bord de l'écran, sous la barre de navigation.
+                    if (_selected > 0) _panel(k),
+                  ],
                 ),
-                if (_selected > 0) _panel(k),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
+    );
+  }
+
+  /// La peinture du livre (celui du niveau choisi), qui se fond dans la nuit sous les cartes.
+  Widget _backdrop(double k) {
+    final chapter = _chapters.where((c) => c.levels.any((l) => l.$1 == _selected)).firstOrNull ?? _chapters.firstOrNull;
+    final art = chapter == null ? null : Session.instance.illustration(chapter.books);
+    return Positioned(
+      left: 0,
+      right: 0,
+      top: 0,
+      height: MediaQuery.paddingOf(context).top + 390 * k,
+      child: art == null
+          ? const SizedBox.shrink()
+          : Stack(
+              fit: StackFit.expand,
+              children: [
+                Image.asset(art, fit: BoxFit.cover),
+                const DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      stops: [0, 0.2, 0.6, 1],
+                      colors: [Color(0xB306122F), Color(0x0006122F), Color(0x0006122F), _deepNight],
+                    ),
+                  ),
+                ),
+              ],
+            ),
     );
   }
 
@@ -172,30 +207,36 @@ class _AdventureScreenState extends State<AdventureScreen> {
     padding: EdgeInsets.fromLTRB(14 * k, 6 * k, 14 * k, 0),
     child: Row(
       children: [
-        GestureDetector(
-          onTap: () => Navigator.of(context).maybePop(),
-          child: Container(
-            width: 40 * k,
-            height: 40 * k,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: const RadialGradient(
-                center: Alignment(-0.2, -0.3),
-                colors: [Color(0xFF1D3266), Color(0xFF0C1838)],
+        Semantics(
+          button: true,
+          label: 'Retour',
+          child: GestureDetector(
+            onTap: () => Navigator.of(context).maybePop(),
+            child: Container(
+              width: 40 * k,
+              height: 40 * k,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: const RadialGradient(
+                  center: Alignment(-0.2, -0.3),
+                  colors: [Color(0xFF1D3266), Color(0xFF0C1838)],
+                ),
+                border: Border.all(color: Palette.gold, width: 2),
               ),
-              border: Border.all(color: Palette.gold, width: 2),
+              child: Icon(Icons.chevron_left_rounded, color: goldLight, size: 26 * k),
             ),
-            child: Icon(Icons.chevron_left_rounded, color: goldLight, size: 26 * k),
           ),
         ),
         SizedBox(width: 10 * k),
-        Expanded(child: Text('Aventure', style: titleStyle(21 * k, Colors.white))),
+        Expanded(
+          child: Text('Aventure', maxLines: 1, style: titleStyle(21 * k, Colors.white).copyWith(shadows: _textShadow)),
+        ),
         Container(
-          height: 32 * k,
+          constraints: BoxConstraints(minHeight: 32 * k),
           padding: EdgeInsets.only(left: 6 * k, right: 12 * k),
           decoration: BoxDecoration(
-            color: const Color(0xCC06122F),
-            borderRadius: BorderRadius.circular(16 * k),
+            color: const Color(0xE606122F),
+            borderRadius: BorderRadius.circular(24 * k),
             border: Border.all(color: const Color(0x99F2C14E), width: 1.5),
           ),
           child: Row(
@@ -211,151 +252,235 @@ class _AdventureScreenState extends State<AdventureScreen> {
     ),
   );
 
-  Widget _chapterHeader(_Chapter c, int number, double k) {
-    final art = Session.instance.illustration(c.books);
+  /// Les chapitres, posés juste au-dessus du panneau : la place libre montre la peinture.
+  /// Les cartes prennent la hauteur disponible ; sur un très petit écran seulement, on fait défiler.
+  Widget _book(double k) => LayoutBuilder(
+    builder: (context, box) {
+      final text = MediaQuery.textScalerOf(context);
+      // Hauteur de tout sauf les cartes : enseigne, mention de la suite et espacements.
+      final nextHeight = text.scale(11.5 * k) * 1.1 + 8 * k;
+      final around = text.scale(12 * k) * 1.1 + text.scale(23 * k) * 1.1 + nextHeight + 51 * k;
+      // Sur un écran court, la mention de la suite laisse sa place aux cartes.
+      final short = (box.maxHeight - around) / 2 < 98 * k;
+      final cardHeight = ((box.maxHeight - around + (short ? nextHeight : 0)) / 2).clamp(84 * k, 134 * k);
+      return SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: box.maxHeight),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12 * k),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                for (var i = 0; i < _chapters.length; i++) ...[
+                  SizedBox(height: 8 * k),
+                  _chapterSign(_chapters[i], i + 1, k),
+                  SizedBox(height: 10 * k),
+                  _grid(_chapters[i], cardHeight, k),
+                ],
+                if (!short) ...[
+                  SizedBox(height: 8 * k),
+                  Text(
+                    'D’autres chapitres arrivent bientôt.',
+                    textAlign: TextAlign.center,
+                    style: bodyStyle(11.5 * k, paleText).copyWith(shadows: _textShadow),
+                  ),
+                ],
+                SizedBox(height: 8 * k),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
+
+  /// L'enseigne du chapitre, en bois comme le ruban du titre du jeu.
+  Widget _chapterSign(_Chapter c, int number, double k) {
     final total = c.levels.length * 3;
     final won = c.levels.fold<int>(0, (n, l) => n + (_stars['${l.$1}'] ?? const []).length);
     final title = c.name.contains(':') ? c.name.split(':').last.trim() : c.name;
     final cap = title.isEmpty ? title : title[0].toUpperCase() + title.substring(1);
-    return Row(
-      children: [
-        Container(
-          width: 62 * k,
-          height: 62 * k,
-          clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12 * k),
-            border: Border.all(color: const Color(0xFFC9A35A), width: 2),
-          ),
-          child: art == null
-              ? const ColoredBox(color: Color(0xFF13234A))
-              : Image.asset(art, fit: BoxFit.cover, cacheWidth: 300),
-        ),
-        SizedBox(width: 12 * k),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Chapitre $number', style: bodyStyle(12 * k, goldLight, weight: 900)),
-              Text(cap, style: titleStyle(24 * k, Colors.white)),
-              Row(
-                children: [
-                  Image.asset('assets/aventure/etoile.png', width: 15 * k, height: 15 * k),
-                  SizedBox(width: 5 * k),
-                  Text('$won étoiles sur $total', style: bodyStyle(12 * k, paleText)),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _grid(_Chapter c, double k) {
-    final art = Session.instance.illustration(c.books);
-    return GridView.count(
-      crossAxisCount: 4,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 9 * k,
-      crossAxisSpacing: 9 * k,
-      childAspectRatio: 0.66,
-      children: [
-        for (var i = 0; i < c.levels.length; i++)
-          _LevelCard(
-            number: c.levels[i].$1,
-            name: c.levels[i].$2,
-            art: art,
-            // Chaque niveau montre un morceau différent de l'illustration du livre.
-            artAlignment: Alignment(-1 + 2 * (i % 4) / 3, -0.2 + 0.4 * (i ~/ 4)),
-            stars: _stars['${c.levels[i].$1}'] ?? const [],
-            open: Adventure.isOpen(_stars, c.levels[i].$1),
-            selected: c.levels[i].$1 == _selected,
-            onTap: () {
-              if (Adventure.isOpen(_stars, c.levels[i].$1)) {
-                _select(c.levels[i].$1);
-              } else {
-                showToast(context, 'Gagne le niveau ${c.levels[i].$1 - 1} pour ouvrir celui-ci.');
-              }
-            },
-          ),
-      ],
-    );
-  }
-
-  Widget _nextChapter(double k) => Container(
-    padding: EdgeInsets.symmetric(horizontal: 12 * k, vertical: 10 * k),
-    decoration: BoxDecoration(
-      color: const Color(0x0AFFFFFF),
-      borderRadius: BorderRadius.circular(12 * k),
-      border: Border.all(color: const Color(0x40F2C14E)),
-    ),
-    child: Text(
-      'D’autres chapitres arrivent bientôt.',
-      textAlign: TextAlign.center,
-      style: bodyStyle(12.5 * k, paleText),
-    ),
-  );
-
-  Widget _panel(double k) {
-    final level = _selected;
-    final name = _chapters.expand((c) => c.levels).firstWhere((l) => l.$1 == level, orElse: () => (level, '')).$2;
-    final won = _stars['$level'] ?? const [];
     return Container(
-      margin: EdgeInsets.fromLTRB(12 * k, 0, 12 * k, 10 * k),
-      padding: EdgeInsets.fromLTRB(12 * k, 12 * k, 12 * k, 12 * k),
+      padding: EdgeInsets.fromLTRB(14 * k, 6 * k, 12 * k, 7 * k),
       decoration: BoxDecoration(
-        color: const Color(0xEB06122F),
-        borderRadius: BorderRadius.circular(20 * k),
-        border: Border.all(color: const Color(0x8CF2C14E), width: 1.5),
-        boxShadow: const [BoxShadow(color: Color(0x80000000), blurRadius: 30, offset: Offset(0, -10))],
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFF8B552A), Color(0xFF532C14)],
+        ),
+        borderRadius: BorderRadius.circular(12 * k),
+        border: Border.all(color: const Color(0xFFE8B85A), width: 1.5),
+        boxShadow: const [BoxShadow(color: Color(0x80000000), blurRadius: 12, offset: Offset(0, 5))],
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+      child: Row(
         children: [
-          Text('Niveau $level · $name', textAlign: TextAlign.center, style: titleStyle(19 * k, goldLight)),
-          Text('Contre le Scribe · choisis ta difficulté', style: bodyStyle(11.5 * k, paleText)),
-          SizedBox(height: 16 * k),
-          ListenableBuilder(
-            listenable: Reglages.instance,
-            builder: (context, _) => Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                for (final (d, label) in const [('lait', 'Lait'), ('manne', 'Manne'), ('solide', 'Solide')]) ...[
-                  if (d != 'lait') SizedBox(width: 8 * k),
-                  Opacity(
-                    opacity: 1,
-                    child: DifficultyCard(
-                      size: 0.66,
-                      difficulty: d,
-                      label: label,
-                      help: won.contains(d) ? '★ gagnée' : 'à gagner',
-                      helpColor: won.contains(d) ? const Color(0xFF2F8A3A) : null,
-                      stake: Reglages.instance.miseArcade(d),
-                      selected: d == _difficulty,
-                      onTap: () => setState(() => _difficulty = d),
-                    ),
-                  ),
-                ],
+                Text('Chapitre $number', style: bodyStyle(12 * k, goldLight, weight: 900)),
+                Text(cap, style: titleStyle(23 * k, Palette.cream).copyWith(shadows: _textShadow)),
               ],
             ),
           ),
-          SizedBox(height: 14 * k),
-          GoldButton(
-            _busy ? 'Préparation…' : 'Jouer',
-            onPressed: _busy ? null : _play,
-            height: 56 * k,
-            fontSize: 22 * k,
-            shiny: true,
-            icon: Icon(Icons.play_arrow_rounded, color: Palette.ink, size: 30 * k),
+          SizedBox(width: 8 * k),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 9 * k, vertical: 6 * k),
+            decoration: BoxDecoration(color: const Color(0x73200F04), borderRadius: BorderRadius.circular(20 * k)),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.asset('assets/aventure/etoile.png', width: 17 * k, height: 17 * k),
+                SizedBox(width: 5 * k),
+                // En français, zéro et un restent au singulier.
+                Text('$won ${won < 2 ? 'étoile' : 'étoiles'} sur $total', style: bodyStyle(12 * k, Palette.cream)),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
+
+  Widget _grid(_Chapter c, double cardHeight, double k) {
+    final art = Session.instance.illustration(c.books);
+    Widget card(int i) {
+      final level = c.levels[i].$1;
+      final open = Adventure.isOpen(_stars, level);
+      return _LevelCard(
+        number: level,
+        name: c.levels[i].$2,
+        art: art,
+        // Chaque niveau montre un autre détail de la peinture du livre.
+        artAlignment: _details[i % _details.length],
+        stars: _stars['$level'] ?? const [],
+        open: open,
+        selected: level == _selected,
+        onTap: () {
+          if (open) {
+            _select(level);
+          } else {
+            showToast(context, 'Gagne le niveau ${level - 1} pour ouvrir celui-ci.');
+          }
+        },
+      );
+    }
+
+    // Les noms grossissent avec le texte du téléphone, mais pas au point de sortir de leur carte.
+    return MediaQuery.withClampedTextScaling(
+      maxScaleFactor: 1.1,
+      child: Column(
+        children: [
+          for (var row = 0; row < c.levels.length; row += 4) ...[
+            if (row > 0) SizedBox(height: 8 * k),
+            SizedBox(
+              height: cardHeight,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (var i = row; i < row + 4; i++) ...[
+                    if (i > row) SizedBox(width: 8 * k),
+                    Expanded(child: i < c.levels.length ? card(i) : const SizedBox()),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _panel(double k) {
+    final level = _selected;
+    final name = _chapters.expand((c) => c.levels).firstWhere((l) => l.$1 == level, orElse: () => (level, '')).$2;
+    final won = _stars['$level'] ?? const [];
+    final bottom = MediaQuery.paddingOf(context).bottom;
+    return Container(
+      padding: const EdgeInsets.only(top: 1.5),
+      decoration: BoxDecoration(
+        color: const Color(0xFFD9AE55),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(22 * k)),
+        boxShadow: const [BoxShadow(color: Color(0x80000000), blurRadius: 24, offset: Offset(0, -8))],
+      ),
+      child: Container(
+        padding: EdgeInsets.fromLTRB(14 * k, 9 * k, 14 * k, bottom + 10 * k),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF1B3573), _deepNight],
+          ),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(21 * k)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text('Niveau $level · $name', style: titleStyle(19 * k, goldLight)),
+            ),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text('Contre le Scribe · choisis ta difficulté', style: bodyStyle(11.5 * k, paleText)),
+            ),
+            SizedBox(height: 14 * k),
+            ListenableBuilder(
+              listenable: Reglages.instance,
+              builder: (context, _) => Row(
+                children: [
+                  for (final (d, label) in const [('lait', 'Lait'), ('manne', 'Manne'), ('solide', 'Solide')]) ...[
+                    if (d != 'lait') SizedBox(width: 9 * k),
+                    Expanded(
+                      child: DifficultyCard(
+                        compact: true,
+                        difficulty: d,
+                        label: label,
+                        help: won.contains(d) ? '★ gagnée' : 'à gagner',
+                        helpColor: won.contains(d) ? const Color(0xFF24732F) : null,
+                        stake: Reglages.instance.miseArcade(d),
+                        selected: d == _difficulty,
+                        onTap: () => setState(() => _difficulty = d),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            SizedBox(height: 10 * k),
+            GoldButton(
+              _busy ? 'Préparation…' : 'Jouer',
+              onPressed: _busy ? null : _play,
+              height: 52 * k,
+              fontSize: 22 * k,
+              shiny: true,
+              icon: Icon(Icons.play_arrow_rounded, color: Palette.ink, size: 30 * k),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
+const _deepNight = Color(0xFF06122F);
+
+const _textShadow = [Shadow(color: Color(0xCC000000), blurRadius: 5, offset: Offset(0, 1.5))];
+
+/// Les huit détails de la peinture montrés par les cartes : ciel, cime, rive, tronc…
+const _details = [
+  Alignment(-0.75, -0.3),
+  Alignment(0.1, -0.55),
+  Alignment(-0.85, 0.45),
+  Alignment(0.15, 0.3),
+  Alignment(0.8, -0.25),
+  Alignment(-0.3, 0.8),
+  Alignment(0.65, 0.4),
+  Alignment(0.85, 0.9),
+];
+
+/// Un niveau en petite carte : le détail peint en haut, le nom dessous. Ouverte, la carte est
+/// sur parchemin avec ses trois étoiles ; fermée, la peinture est dans la nuit, avec un cadenas.
 class _LevelCard extends StatelessWidget {
   final int number;
   final String name;
@@ -380,140 +505,136 @@ class _LevelCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final k = tableUnit(context);
-    final card = Container(
-      padding: EdgeInsets.all(2.5 * k),
-      decoration: BoxDecoration(
-        color: const Color(0xFF13234A),
-        borderRadius: BorderRadius.circular(10 * k),
-        border: Border.all(color: selected ? goldLight : const Color(0xFFB8924C), width: selected ? 2 : 1),
-        boxShadow: [
-          if (selected) const BoxShadow(color: Color(0xBFFFD66E), blurRadius: 20),
-          const BoxShadow(color: Color(0x80000000), blurRadius: 12, offset: Offset(0, 6)),
-        ],
-      ),
-      child: Container(
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          color: const Color(0xFFF3ECDD),
-          borderRadius: BorderRadius.circular(8 * k),
-          border: Border.all(color: const Color(0xFFC9A35A)),
-        ),
-        child: Column(
-          children: [
-            SizedBox(
-              height: 56 * k,
-              width: double.infinity,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  if (art != null)
-                    // Rogné à sa place : le morceau agrandi ne déborde pas sur le nom.
-                    ClipRect(
-                      child: Transform.scale(
-                        scale: 2.2,
-                        alignment: artAlignment,
-                        child: Image.asset(art!, fit: BoxFit.cover, alignment: artAlignment, cacheWidth: 500),
-                      ),
-                    )
-                  else
-                    const ColoredBox(color: Color(0xFF1F3165)),
-                  Positioned(
-                    left: 4 * k,
-                    top: 4 * k,
-                    child: Container(
-                      width: 20 * k,
-                      height: 20 * k,
-                      alignment: Alignment.center,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(colors: [Color(0xFFFFE48A), Color(0xFFE0961A)]),
-                      ),
-                      child: Text('$number', style: titleStyle(12 * k, Palette.ink)),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(3 * k, 4 * k, 3 * k, 0),
-                child: Text(
-                  name,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontFamily: 'Garamond',
-                    color: Color(0xFF1D2A4A),
-                    fontVariations: [FontVariation('wght', 700)],
-                    height: 1.05,
-                  ).copyWith(fontSize: 12 * k),
-                ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(bottom: 4 * k),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  for (final d in const ['lait', 'manne', 'solide'])
-                    Opacity(
-                      opacity: stars.contains(d) ? 1 : 0.3,
-                      child: ColorFiltered(
-                        colorFilter: stars.contains(d)
-                            ? const ColorFilter.mode(Colors.transparent, BlendMode.dst)
-                            : const ColorFilter.matrix([
-                                0.3,
-                                0.59,
-                                0.11,
-                                0,
-                                0,
-                                0.3,
-                                0.59,
-                                0.11,
-                                0,
-                                0,
-                                0.3,
-                                0.59,
-                                0.11,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                1,
-                                0,
-                              ]),
-                        child: Image.asset('assets/aventure/etoile.png', width: 12 * k, height: 12 * k),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    final nameSize = MediaQuery.textScalerOf(context).scale(12 * k);
     return GestureDetector(
       onTap: onTap,
-      child: open
-          ? card
-          : Stack(
-              fit: StackFit.passthrough,
-              alignment: Alignment.center,
-              children: [
-                ColorFiltered(
-                  colorFilter: const ColorFilter.matrix([
-                    0.17, 0.33, 0.05, 0, 0, //
-                    0.17, 0.33, 0.05, 0, 0,
-                    0.17, 0.33, 0.05, 0, 0,
-                    0, 0, 0, 1, 0,
-                  ]),
-                  child: card,
+      child: Container(
+        // Le liseré plus épais de la carte choisie ne rétrécit pas son contenu.
+        padding: EdgeInsets.all(selected ? 2.5 * k - 1.5 : 2.5 * k),
+        decoration: BoxDecoration(
+          color: const Color(0xFF13234A),
+          borderRadius: BorderRadius.circular(10 * k),
+          border: Border.all(color: selected ? goldLight : const Color(0xFFD9AE55), width: selected ? 2.5 : 1),
+          boxShadow: [
+            if (selected) const BoxShadow(color: Color(0xE6FFD66E), blurRadius: 18, spreadRadius: 2),
+            const BoxShadow(color: Color(0x80000000), blurRadius: 10, offset: Offset(0, 5)),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(8 * k),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(child: _picture(k)),
+              Container(
+                // Deux lignes de nom et la rangée d'étoiles.
+                height: nameSize * 2.1 + 21 * k,
+                color: open ? const Color(0xFFF8EFDC) : const Color(0xFF1A2F66),
+                padding: EdgeInsets.symmetric(horizontal: k),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          name,
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontFamily: 'Garamond',
+                            fontSize: 12 * k,
+                            color: open ? const Color(0xFF1D2A4A) : const Color(0xFFE9E4D6),
+                            fontVariations: const [FontVariation('wght', 700)],
+                            height: 1.05,
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (open)
+                      Padding(
+                        padding: EdgeInsets.only(bottom: 3 * k),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            for (final d in const ['lait', 'manne', 'solide']) _star(stars.contains(d), k),
+                          ],
+                        ),
+                      ),
+                  ],
                 ),
-                Icon(Icons.lock_rounded, color: goldLight, size: 26 * k),
-              ],
-            ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
+
+  Widget _picture(double k) => Stack(
+    fit: StackFit.expand,
+    children: [
+      if (art != null)
+        // Rogné à sa place : le détail agrandi ne déborde pas sur le nom.
+        ClipRect(
+          child: Transform.scale(
+            scale: 2.2,
+            alignment: artAlignment,
+            child: Image.asset(art!, fit: BoxFit.cover, alignment: artAlignment, cacheWidth: 500),
+          ),
+        )
+      else
+        const ColoredBox(color: Color(0xFF1F3165)),
+      // La nuit sur un niveau fermé : la peinture se devine encore, en couleurs.
+      if (!open) const ColoredBox(color: Color(0x990B1F4D)),
+      Positioned(
+        left: 3 * k,
+        top: 3 * k,
+        child: Container(
+          width: 20 * k,
+          height: 20 * k,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: open ? null : const Color(0xE606122F),
+            gradient: open ? const LinearGradient(colors: [Color(0xFFFFE48A), Color(0xFFE0961A)]) : null,
+            border: Border.all(color: open ? const Color(0xFF6B4310) : const Color(0xFFD9AE55)),
+          ),
+          child: Text(
+            '$number',
+            textScaler: TextScaler.noScaling,
+            style: titleStyle(12 * k, open ? Palette.ink : goldLight),
+          ),
+        ),
+      ),
+      // En bas à droite de l'image : ni sur le numéro, ni sur le nom.
+      if (!open)
+        Positioned(
+          right: 4 * k,
+          bottom: 4 * k,
+          child: Container(
+            width: 24 * k,
+            height: 24 * k,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xFFFFE48A), Color(0xFFE0961A)],
+              ),
+              boxShadow: [BoxShadow(color: Color(0x99000000), blurRadius: 5, offset: Offset(0, 2))],
+            ),
+            child: Icon(Icons.lock_rounded, color: Palette.ink, size: 15 * k),
+          ),
+        ),
+    ],
+  );
+
+  /// Une étoile gagnée en or ; à gagner, sa silhouette sur le parchemin.
+  Widget _star(bool won, double k) => Image.asset(
+    'assets/aventure/etoile.png',
+    width: 15 * k,
+    height: 15 * k,
+    color: won ? null : const Color(0x401D2A4A),
+    colorBlendMode: won ? null : BlendMode.srcIn,
+  );
 }
