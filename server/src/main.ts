@@ -5,6 +5,7 @@
 // (sinon : « function key could not be extracted: not found » et le module entier refuse de charger).
 
 const apresCreationCompte = function (ctx: nkruntime.Context, logger: nkruntime.Logger, nk: nkruntime.Nakama, session: nkruntime.Session): void {
+  chargerReglages(nk, logger);
   if (session.created && ctx.userId) {
     crediterCapital(nk, logger, ctx.userId);
   }
@@ -30,6 +31,8 @@ function InitModule(ctx: nkruntime.Context, logger: nkruntime.Logger, nk: nkrunt
   initializer.registerRpc("arcade", rpcArcade);
   initializer.registerRpc("duel_ami", rpcDuelAmi);
   initializer.registerRpc("salon", rpcSalon);
+  initializer.registerRpc("reglages", rpcReglages);
+  initializer.registerRpc("reglages_admin", rpcReglagesAdmin);
   initializer.registerMatchmakerMatched(apresAppariement);
   // Les fonctions de la partie sont, elles aussi, des variables globales nommées.
   initializer.registerMatch<PartieDuel>(MODULE_DUEL, {
@@ -43,7 +46,7 @@ function InitModule(ctx: nkruntime.Context, logger: nkruntime.Logger, nk: nkrunt
   });
   // Classement général par XP (créé s'il n'existe pas ; le serveur seul y écrit).
   nk.leaderboardCreate(CLASSEMENT_XP, true, nkruntime.SortOrder.DESCENDING, nkruntime.Operator.SET, null, null, true);
-  logger.info("Module Perfectionnement chargé (talents, pain quotidien, arcade, XP, duels en ligne, salons).");
+  logger.info("Module Perfectionnement chargé (talents, pain quotidien, arcade, XP, duels en ligne, salons, réglages).");
 }
 
 // Nakama appelle InitModule par son nom : on le garde référencé pour qu'il ne soit pas éliminé.

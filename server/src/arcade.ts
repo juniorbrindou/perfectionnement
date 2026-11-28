@@ -17,9 +17,9 @@ const COLLECTION_PARTIES = "parties";  // cartes des dernières parties, commune
 const CLE_PARTIE = "partie";
 const CLE_RECENTES = "recentes";
 const CLE_AVENTURE = "aventure";
-const DELAI_DEPART_S = 20;
-const DELAI_CHOISIR_S = 20;
-const DELAI_REPONDRE_S = 30;
+let DELAI_DEPART_S = 20;
+let DELAI_CHOISIR_S = 20;
+let DELAI_REPONDRE_S = 30;
 /** Délai accordé en plus pour le réseau avant de jouer à la place du joueur. */
 const MARGE_S = 3;
 const PARTIES_RECENTES = 5;
@@ -346,6 +346,7 @@ function progressionDe(nk: nkruntime.Nakama, userId: string): { valeur: Progress
 }
 
 const rpcArcade: nkruntime.RpcFunction = function (ctx, logger, nk, payload) {
+  chargerReglages(nk, logger);
   if (!ctx.userId) throw refus("Connexion requise.", nkruntime.Codes.UNAUTHENTICATED);
   const userId = ctx.userId;
   const demande = payload ? JSON.parse(payload) : {};

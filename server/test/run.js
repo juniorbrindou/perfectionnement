@@ -744,4 +744,38 @@ test("salons : un salon inactif depuis 7 jours disparaît de la liste", function
   assert.strictEqual(nk.stock[SYS + "/salons/vieux"], undefined);
 });
 
+// ---------------------------------------------------------------- Réglages du back-office
+
+test("réglages : les valeurs par défaut sont celles du code", function () {
+  const v = g.valeursEnVigueur({});
+  assert.strictEqual(v.capital_depart, g.CAPITAL_DEPART);
+  assert.strictEqual(v.pain_quotidien, g.PAIN_QUOTIDIEN);
+  assert.strictEqual(v.mise_duel_solide, g.MISES_DUEL.solide);
+  assert.strictEqual(v.duel_repondre_s, g.DUEL_REPONDRE_S);
+  assert.strictEqual(v.ia_chance_lait, Math.round(g.CHANCES_IA.lait * 100));
+  assert.strictEqual(v.salon_inactif_jours * 86400000, g.SALON_INACTIF_MS);
+});
+
+test("réglages : bornes et entiers vérifiés", function () {
+  assert.strictEqual(g.verifierReglage("pain_quotidien", 15), "");
+  assert.ok(g.verifierReglage("pain_quotidien", -1));
+  assert.ok(g.verifierReglage("mise_duel_lait", 0));
+  assert.ok(g.verifierReglage("duel_repondre_s", 2.5));
+  assert.ok(g.verifierReglage("duel_repondre_s", "45"));
+  assert.ok(g.verifierReglage("inconnu", 1));
+  // Une valeur stockée devenue invalide retombe sur le défaut.
+  assert.strictEqual(g.valeursEnVigueur({ pain_quotidien: -3, xp_victoire: 40 }).pain_quotidien, 10);
+  assert.strictEqual(g.valeursEnVigueur({ pain_quotidien: -3, xp_victoire: 40 }).xp_victoire, 40);
+});
+
+test("réglages : appliqués aux règles, puis remis par défaut", function () {
+  g.appliquerReglages(g.valeursEnVigueur({ mise_arcade_manne: 7, ia_chance_solide: 80, xp_defaite: 0 }));
+  assert.strictEqual(g.mise("arcade", "manne"), 7);
+  assert.strictEqual(g.CHANCES_IA.solide, 0.8);
+  assert.strictEqual(g.xpDePartie(false, false), 0);
+  g.appliquerReglages(g.valeursEnVigueur({}));
+  assert.strictEqual(g.mise("arcade", "manne"), 5);
+  assert.strictEqual(g.xpDePartie(false, false), 10);
+});
+
 console.log("\n" + ok + " tests serveur réussis");

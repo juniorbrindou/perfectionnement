@@ -311,3 +311,35 @@ modifiée avant réécriture passe par cette copie.
   membre d'un autre salon et n'est donc pas ajouté.
 - **Le score de salon** (`scoreApresPartie`, +10/−5) n'est encore appelé nulle part : les duels ne le mettent pas
   à jour.
+
+## Réglages du jeu et back-office : déployés le 2026-11-28
+
+Les valeurs d'équilibrage ne sont plus figées dans le code : `server/src/reglages.ts` liste 29 réglages, chacun
+avec sa valeur par défaut (celle d'avant), ses bornes et son libellé. Ils sont regroupés en économie, délais,
+progression, Scribe et salons. Seules les valeurs changées sont stockées (collection `config`, clé `reglages`,
+propriétaire système, illisible par les joueurs), avec un historique (clé `historique`, 200 entrées). Chaque point
+d'entrée du module (RPC, hooks, fonctions de partie) appelle `chargerReglages(nk, logger)`, qui relit au plus toutes
+les 30 s : **un changement s'applique en moins d'une minute, sans redéploiement.**
+
+- **Back-office** : `https://brindoujunior.com/perfectionnement-admin/`, protégé par mot de passe nginx
+  (`/etc/nginx/perfectionnement-admin.htpasswd`). Source : `backoffice/index.html`. Pour le mettre à jour, la copier dans
+  `/var/www/perfectionnement-admin/`. La page appelle `api`, que nginx relaie au RPC `reglages_admin` en ajoutant la
+  clé HTTP de Nakama et le nom de l'utilisateur connecté (`auteur`). Aucun secret n'est dans la page.
+- **RPC `reglages_admin`** (clé HTTP seulement ; refusé à un joueur, code 7) : `lire`, `enregistrer { valeurs }`
+  (refus clair hors bornes ou non entier), `reinitialiser { cles }`. Remettre la valeur par défaut efface l'entrée
+  stockée.
+- **RPC `reglages`** (joueurs) : toutes les valeurs en vigueur, `{ cle: nombre }`. **À faire côté application** :
+  la lire à l'ouverture et l'utiliser pour tout chiffre affiché (mises, coût d'un salon, capital, délais), au lieu
+  de constantes en dur.
+- **Ajouter un réglage** : une ligne dans `REGLAGES` (`reglages.ts`), la constante concernée passée de `const` à
+  `let`, et son affectation dans `appliquerReglages`. Les tests vérifient que chaque défaut égale la constante du code.
+- **Pas réglables pour l'instant** : les seuils de niveau (100, puis +50). L'application les calcule elle-même, donc
+  les changer côté serveur seulement fausserait l'affichage. Même chose pour les 5 cartes par main, liées à la mise
+  en page des écrans.
+
+Vérifié depuis l'adresse publique : page et `api` refusées sans mot de passe ou avec un mauvais (401), `GET api`
+refusé (403), clé HTTP absente de la page, refus hors bornes, puis capital 100 → 120 et pain 10 → 15. Un nouveau
+compte reçoit alors 120 talents et un pain de +15, et le RPC `reglages` renvoie ces valeurs. Les valeurs ont été
+rétablies ensuite, et l'historique garde les deux changements avec l'auteur `admin`. Page contrôlée à 375 px de
+large, sans défilement horizontal.
+

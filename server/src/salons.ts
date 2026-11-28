@@ -16,18 +16,18 @@
 const COLLECTION_SALONS = "salons";
 const CLE_LIEN_SALON = "salon";
 const SYSTEME = "00000000-0000-0000-0000-000000000000";
-const SALON_COUT = 30;
-const SALON_MEMBRES_MAX = 50;
+let SALON_COUT = 30;
+let SALON_MEMBRES_MAX = 50;
 // 10 le temps des tests (la réserve en ligne n’a que 10 questions par difficulté) ; 40 au lancement (PRD §6.2).
-const SALON_QUESTIONS_MIN = 10;
-const SALON_INACTIF_MS = 7 * 24 * 60 * 60 * 1000;
+let SALON_QUESTIONS_MIN = 10;
+let SALON_INACTIF_MS = 7 * 24 * 60 * 60 * 1000;
 const SALON_NOM_MIN = 3;
 const SALON_NOM_MAX = 24;
 const SALON_DEVISE_MAX = 60;
 const SALON_THEMES = ["fete", "paturages", "jardin"];
 const SALON_COULEURS = 6;
-const SALON_VICTOIRE = 10;
-const SALON_DEFAITE = 5;
+let SALON_VICTOIRE = 10;
+let SALON_DEFAITE = 5;
 
 interface MembreSalon { userId: string; pseudo: string; score: number; depuis: number; }
 interface DemandeSalon { userId: string; pseudo: string; niveau: number; quand: number; }
@@ -219,6 +219,7 @@ function salonExistant(nk: nkruntime.Nakama, id: string): { salon: Salon; versio
 }
 
 const rpcSalon: nkruntime.RpcFunction = function (ctx, logger, nk, payload) {
+  chargerReglages(nk, logger);
   if (!ctx.userId) throw refus("Connexion requise.", nkruntime.Codes.UNAUTHENTICATED);
   const moi = ctx.userId;
   const d = payload ? JSON.parse(payload) : {};

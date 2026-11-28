@@ -23,13 +23,13 @@ const OP_ABANDONNER = 5;
 const OP_REVANCHE = 6;
 const OP_VUE = 10;
 
-const DUEL_DEPART_S = 30;       // en ligne, trois fois les délais d'origine (10, 10, 15 s) :
-const DUEL_CHOISIR_S = 30;      // les joueurs trouvaient le temps trop court
-const DUEL_REPONDRE_S = 45;
+let DUEL_DEPART_S = 30;       // en ligne, trois fois les délais d'origine (10, 10, 15 s) :
+let DUEL_CHOISIR_S = 30;      // les joueurs trouvaient le temps trop court
+let DUEL_REPONDRE_S = 45;
 const ANNONCE_S = 3;            // résultat de la question de départ, avant le premier tour
-const RESULTAT_S = 10;          // écran de résultat d'un coup, si les deux n'ont pas touché « Continuer »
-const RECONNEXION_S = 30;       // PRD §3.4
-const REVANCHE_S = 15;
+let RESULTAT_S = 10;          // écran de résultat d'un coup, si les deux n'ont pas touché « Continuer »
+let RECONNEXION_S = 30;       // PRD §3.4
+let REVANCHE_S = 15;
 const ARRIVEE_S = 20;           // duel rapide : les deux joueurs doivent arriver dans ce délai
 const ATTENTE_AMI_S = 10 * 60;  // une partie entre amis attend son invité au plus 10 minutes
 const MARGE_DIRECT_MS = 1000;   // retard réseau toléré avant de jouer à la place d'un joueur
@@ -527,6 +527,7 @@ function appliquerEffets(nk: nkruntime.Nakama, logger: nkruntime.Logger, dispatc
 }
 
 const duelInit: nkruntime.MatchInitFunction<PartieDuel> = function (ctx, logger, nk, params) {
+  chargerReglages(nk, logger);
   const attendus = params.attendus ? String(params.attendus).split(",") : [];
   const p = nouvellePartieDuel(String(params.mode), String(params.difficulte), String(params.code || ""), String(params.createur || ""), attendus, Date.now());
   if (p.createur) {
@@ -536,6 +537,7 @@ const duelInit: nkruntime.MatchInitFunction<PartieDuel> = function (ctx, logger,
 };
 
 const duelEssaiArrivee: nkruntime.MatchJoinAttemptFunction<PartieDuel> = function (ctx, logger, nk, dispatcher, tick, state, presence, metadata) {
+  chargerReglages(nk, logger);
   let raison = accepterArrivee(state, presence.userId);
   if (raison === "" && indexJoueur(state, presence.userId) < 0 && talentsDe(nk, presence.userId) < state.mise) {
     raison = "Pas assez de talents pour cette mise.";
@@ -544,6 +546,7 @@ const duelEssaiArrivee: nkruntime.MatchJoinAttemptFunction<PartieDuel> = functio
 };
 
 const duelArrivee: nkruntime.MatchJoinFunction<PartieDuel> = function (ctx, logger, nk, dispatcher, tick, state, presences) {
+  chargerReglages(nk, logger);
   const maintenant = Date.now();
   let terminer = false;
   presences.forEach(function (presence) {
@@ -558,6 +561,7 @@ const duelArrivee: nkruntime.MatchJoinFunction<PartieDuel> = function (ctx, logg
 };
 
 const duelDepartJoueur: nkruntime.MatchLeaveFunction<PartieDuel> = function (ctx, logger, nk, dispatcher, tick, state, presences) {
+  chargerReglages(nk, logger);
   const maintenant = Date.now();
   let terminer = false;
   presences.forEach(function (presence) {
@@ -569,6 +573,7 @@ const duelDepartJoueur: nkruntime.MatchLeaveFunction<PartieDuel> = function (ctx
 };
 
 const duelBoucle: nkruntime.MatchLoopFunction<PartieDuel> = function (ctx, logger, nk, dispatcher, tick, state, messages) {
+  chargerReglages(nk, logger);
   const maintenant = Date.now();
   const version = state.version;
   let terminer = false;
@@ -604,6 +609,7 @@ const duelSignal: nkruntime.MatchSignalFunction<PartieDuel> = function (ctx, log
 
 /** Duel rapide : le matchmaker a trouvé deux joueurs de la même difficulté. */
 const apresAppariement: nkruntime.MatchmakerMatchedFunction = function (ctx, logger, nk, matches) {
+  chargerReglages(nk, logger);
   const difficulte = matches[0].properties["difficulte"];
   if (DIFFICULTES.indexOf(difficulte) < 0) {
     logger.warn("Duel rapide : difficulté inconnue %s", String(difficulte));
@@ -618,6 +624,7 @@ function partiesParCode(nk: nkruntime.Nakama, code: string): nkruntime.Match[] {
 }
 
 const rpcDuelAmi: nkruntime.RpcFunction = function (ctx, logger, nk, payload) {
+  chargerReglages(nk, logger);
   if (!ctx.userId) throw refus("Connexion requise.", nkruntime.Codes.UNAUTHENTICATED);
   const demande = payload ? JSON.parse(payload) : {};
   if (demande.action === "creer") {

@@ -1,8 +1,8 @@
 // Règles pures (sans Nakama), testées par test/run.js.
 // Valeurs du PRD §4 ; à rééquilibrer après les tests (PRD §13).
 
-const CAPITAL_DEPART = 100;
-const PAIN_QUOTIDIEN = 10;
+let CAPITAL_DEPART = 100;
+let PAIN_QUOTIDIEN = 10;
 const MISES_DUEL: { [difficulte: string]: number } = { lait: 5, manne: 20, solide: 50 };
 const MISES_ARCADE: { [difficulte: string]: number } = { lait: 2, manne: 5, solide: 10 };
 const JOUR_MS = 24 * 60 * 60 * 1000;
@@ -27,8 +27,8 @@ function prochainPain(maintenantMs: number): number {
 // ---------------------------------------------------------------- XP, niveaux et rangs (PRD §7)
 // Même table que scripts/core/progression.gd : les tests des deux côtés vérifient les mêmes seuils.
 
-const XP_VICTOIRE = 30;
-const XP_DEFAITE = 10;
+let XP_VICTOIRE = 30;
+let XP_DEFAITE = 10;
 const RANGS: { niveau: number; nom: string }[] = [
   { niveau: 1, nom: "Débutant" },
   { niveau: 6, nom: "Explorateur" },

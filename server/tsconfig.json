@@ -18,6 +18,7 @@
     "./src/arcade.ts",
     "./src/duel_en_ligne.ts",
     "./src/salons.ts",
+    "./src/reglages.ts",
     "./src/main.ts"
   ]
 }

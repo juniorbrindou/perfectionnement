@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Réglages · Perfectionnement</title>
+<!-- Back-office des réglages du jeu. Servi par nginx sous /perfectionnement-admin/ (mot de passe) ;
+     les appels passent par /perfectionnement-admin/api, que nginx relaie au RPC reglages_admin de Nakama
+     avec la clé HTTP du serveur. Cette page ne contient aucun secret. -->
+<style>
+:root { --nuit: #0b1a3a; --nuit2: #12285a; --or: #f4b63a; --or-fonce: #b9801a; --creme: #fff8e8; --encre: #1d2433;
+  --gris: #6b7487; --ligne: #e6e1d3; --vert: #1f9d55; --rouge: #c8323b; --fond: #f6f2e8; }
+* { box-sizing: border-box; }
+body { margin: 0; font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--encre); background: var(--fond); }
+header { background: linear-gradient(160deg, var(--nuit2), var(--nuit)); color: var(--creme); padding: 18px 16px 20px; }
+header .in, main { max-width: 760px; margin: 0 auto; }
+header small { color: var(--or); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 12px; }
+header h1 { margin: 2px 0 4px; font-size: 24px; }
+header p { margin: 0; color: #c9d3ea; font-size: 14px; }
+main { padding: 16px 16px 110px; }
+.groupe { background: #fff; border: 1px solid var(--ligne); border-radius: 14px; margin-bottom: 16px; overflow: hidden; }
+.groupe h2 { margin: 0; padding: 12px 16px; font-size: 16px; background: var(--creme); border-bottom: 1px solid var(--ligne); }
+.ligne { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; padding: 10px 16px; border-bottom: 1px solid #f1ede3; }
+.ligne:last-child { border-bottom: 0; }
+.ligne label { font-weight: 600; }
+.ligne .aide { grid-column: 1; color: var(--gris); font-size: 12.5px; }
+.champ { grid-row: 1 / span 2; grid-column: 2; display: flex; align-items: center; gap: 6px; }
+.champ input { width: 88px; padding: 8px 10px; font: inherit; font-weight: 700; text-align: right; border: 1.5px solid #cfc8b6; border-radius: 9px; background: #fff; }
+.champ input:focus { outline: 3px solid rgba(244,182,58,.45); border-color: var(--or-fonce); }
+.champ .unite { color: var(--gris); font-size: 13px; min-width: 52px; }
+.ligne.modifiee { background: #fff6dc; }
+.ligne.modifiee input { border-color: var(--or-fonce); }
+.ligne.erreur input { border-color: var(--rouge); background: #fff1f1; }
+.ligne .retablir { grid-column: 1; justify-self: start; border: 0; background: none; color: var(--or-fonce); font: inherit; font-size: 12.5px; padding: 0; cursor: pointer; text-decoration: underline; }
+.different { color: var(--or-fonce); font-weight: 700; }
+.barre { position: fixed; left: 0; right: 0; bottom: 0; background: var(--nuit); color: var(--creme); padding: 12px 16px; transform: translateY(100%); transition: transform .2s; }
+.barre.visible { transform: none; }
+.barre .in { max-width: 760px; margin: 0 auto; display: flex; align-items: center; gap: 10px; }
+.barre span { flex: 1; font-weight: 600; }
+button.principal { background: var(--or); color: #2a1a00; border: 0; border-radius: 10px; padding: 10px 18px; font: inherit; font-weight: 800; cursor: pointer; }
+button.second { background: transparent; color: var(--creme); border: 1.5px solid rgba(255,255,255,.4); border-radius: 10px; padding: 9px 14px; font: inherit; font-weight: 600; cursor: pointer; }
+button:disabled { opacity: .5; cursor: default; }
+.message { border-radius: 10px; padding: 10px 14px; margin-bottom: 16px; font-weight: 600; display: none; }
+.message.ok { display: block; background: #e7f6ee; color: #11653a; }
+.message.ko { display: block; background: #fdecec; color: #8e1d24; }
+.historique ol { list-style: none; margin: 0; padding: 0; }
+.historique li { padding: 10px 16px; border-bottom: 1px solid #f1ede3; font-size: 14px; }
+.historique li:last-child { border-bottom: 0; }
+.historique .quand { color: var(--gris); font-size: 12.5px; }
+.vide { padding: 12px 16px; color: var(--gris); }
+@media (prefers-reduced-motion: reduce) { .barre { transition: none; } }
+</style>
+</head>
+<body>
+<header><div class="in">
+  <small>Perfectionnement · back-office</small>
+  <h1>Réglages du jeu</h1>
+  <p>Pris en compte par le serveur en moins d'une minute, sans mise à jour de l'application.</p>
+</div></header>
+
+<main>
+  <div class="message" id="message" role="status"></div>
+  <div id="groupes"><p class="vide">Chargement…</p></div>
+  <section class="groupe historique">
+    <h2>Derniers changements</h2>
+    <ol id="historique"></ol>
+  </section>
+</main>
+
+<div class="barre" id="barre"><div class="in">
+  <span id="compte"></span>
+  <button class="second" id="annuler" type="button">Annuler</button>
+  <button class="principal" id="enregistrer" type="button">Enregistrer</button>
+</div></div>
+
+<script>
+let etat = null;            // dernière réponse du serveur
+const saisies = {};         // cle -> valeur saisie (texte)
+
+async function appeler(corps) {
+  const r = await fetch("api", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(corps) });
+  const t = await r.text();
+  let d = {};
+  try { d = t ? JSON.parse(t) : {}; } catch (e) { d = { message: t }; }
+  if (!r.ok) throw new Error(d.message || ("Erreur " + r.status));
+  return d;
+}
+
+function message(texte, ok) {
+  const m = document.getElementById("message");
+  m.textContent = texte; m.className = "message " + (ok ? "ok" : "ko");
+  if (ok) setTimeout(() => { m.className = "message"; }, 4000);
+}
+
+function reglages() { return etat.groupes.flatMap(g => g.reglages); }
+
+function modifiees() {
+  return reglages().filter(r => saisies[r.cle] !== undefined && saisies[r.cle] !== String(r.valeur));
+}
+
+function rafraichirBarre() {
+  const n = modifiees().length;
+  document.getElementById("barre").classList.toggle("visible", n > 0);
+  document.getElementById("compte").textContent = n + (n > 1 ? " réglages modifiés" : " réglage modifié");
+}
+
+function afficher() {
+  const zone = document.getElementById("groupes");
+  zone.innerHTML = "";
+  etat.groupes.forEach(g => {
+    const s = document.createElement("section"); s.className = "groupe";
+    s.innerHTML = `<h2>${g.nom}</h2>`;
+    g.reglages.forEach(r => {
+      const l = document.createElement("div"); l.className = "ligne"; l.dataset.cle = r.cle;
+      const id = "r-" + r.cle;
+      const aide = r.valeur !== r.defaut ? `<span class="different">Par défaut : ${r.defaut}</span> · ` : `Par défaut · `;
+      l.innerHTML = `<label for="${id}">${r.libelle}</label>
+        <div class="champ"><input id="${id}" type="number" inputmode="numeric" step="1" min="${r.min}" max="${r.max}" value="${r.valeur}"><span class="unite">${r.unite}</span></div>
+        <div class="aide">${aide}de ${r.min} à ${r.max}</div>`;
+      if (r.valeur !== r.defaut) {
+        const b = document.createElement("button"); b.className = "retablir"; b.type = "button"; b.textContent = "Remettre " + r.defaut;
+        b.onclick = () => { l.querySelector("input").value = r.defaut; saisir(r, String(r.defaut), l); };
+        l.appendChild(b);
+      }
+      l.querySelector("input").addEventListener("input", (e) => saisir(r, e.target.value, l));
+      s.appendChild(l);
+    });
+    zone.appendChild(s);
+  });
+  const h = document.getElementById("historique");
+  h.innerHTML = etat.historique.length ? "" : `<li class="vide">Aucun changement pour l'instant : toutes les valeurs sont celles par défaut.</li>`;
+  etat.historique.forEach(e => {
+    const li = document.createElement("li");
+    const quand = new Date(e.quand).toLocaleString("fr-FR", { dateStyle: "medium", timeStyle: "short" });
+    li.innerHTML = `<div class="quand">${quand} · ${e.auteur}</div>` +
+      e.changements.map(c => `<div>${c.libelle} : ${c.avant} → <strong>${c.apres}</strong></div>`).join("");
+    h.appendChild(li);
+  });
+  for (const k in saisies) delete saisies[k];
+  rafraichirBarre();
+}
+
+function saisir(r, valeur, ligne) {
+  saisies[r.cle] = valeur;
+  const n = Number(valeur);
+  const bon = valeur !== "" && Number.isInteger(n) && n >= r.min && n <= r.max;
+  ligne.classList.toggle("modifiee", valeur !== String(r.valeur));
+  ligne.classList.toggle("erreur", !bon);
+  rafraichirBarre();
+}
+
+async function charger() {
+  try { etat = await appeler({ action: "lire" }); afficher(); }
+  catch (e) { document.getElementById("groupes").innerHTML = ""; message("Impossible de lire les réglages : " + e.message, false); }
+}
+
+document.getElementById("annuler").onclick = afficher;
+document.getElementById("enregistrer").onclick = async () => {
+  const valeurs = {};
+  for (const r of modifiees()) {
+    const n = Number(saisies[r.cle]);
+    if (saisies[r.cle] === "" || !Number.isInteger(n) || n < r.min || n > r.max) {
+      message(`${r.libelle} : entre ${r.min} et ${r.max} ${r.unite}.`, false); return;
+    }
+    valeurs[r.cle] = n;
+  }
+  const b = document.getElementById("enregistrer"); b.disabled = true;
+  try {
+    const n = Object.keys(valeurs).length;
+    etat = await appeler({ action: "enregistrer", valeurs });
+    afficher();
+    message(n > 1 ? `${n} réglages enregistrés.` : "Réglage enregistré.", true);
+  } catch (e) { message(e.message, false); }
+  finally { b.disabled = false; }
+};
+charger();
+</script>
+</body>
+</html>

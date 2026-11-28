@@ -16,6 +16,7 @@ function crediterCapital(nk: nkruntime.Nakama, logger: nkruntime.Logger, userId:
  * La lecture puis l'écriture conditionnelle (version) empêchent de le prendre deux fois.
  */
 const rpcPainQuotidien: nkruntime.RpcFunction = function (ctx, logger, nk, _payload) {
+  chargerReglages(nk, logger);
   if (!ctx.userId) {
     throw { message: "Connexion requise.", code: nkruntime.Codes.UNAUTHENTICATED } as nkruntime.Error;
   }
