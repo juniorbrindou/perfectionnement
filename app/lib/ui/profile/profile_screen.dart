@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../core/progression.dart';
 import '../../core/pseudo.dart';
@@ -14,6 +15,7 @@ enum ProfileView { profile, create, login }
 
 const _pale = Color(0xFFC9D6FF);
 const _alert = Color(0xFFFF8FA3);
+const _good = Color(0xFF5BE08A);
 const _field = Color(0xFF0B1A42);
 
 /// Profil du joueur, porté de scripts/ui/profile.gd (bleu nuit semé de poussière d'or) :
@@ -36,8 +38,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _renaming = false;
   bool _busy = false;
   String? _error;
+  String? _emailError;
+  String? _passwordError;
+  String? _confirmError;
+  bool _visible = false; // Mots de passe affichés en clair.
 
   final _online = Online.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    // Les repères sous les champs suivent la saisie ; une erreur disparaît dès qu'on corrige.
+    _email.addListener(() => setState(() => _emailError = _error = null));
+    _password.addListener(() => setState(() => _passwordError = _error = null));
+    _confirm.addListener(() => setState(() => _confirmError = _error = null));
+    _name.addListener(() => setState(() => _error = null));
+  }
 
   @override
   void dispose() {
@@ -51,9 +67,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _show(ProfileView v) => setState(() {
         _view = v;
         _renaming = false;
-        _error = null;
+        _visible = false;
         _password.clear();
         _confirm.clear();
+        _error = _emailError = _passwordError = _confirmError = null;
       });
 
   void _back() {
@@ -93,7 +110,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       },
       child: Scaffold(
         backgroundColor: const Color(0xFF0B1638),
-        body: Container(
+        body: GestureDetector(
+          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+          child: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
@@ -127,6 +146,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
           ),
+        ),
         ),
       ),
     );
@@ -194,60 +214,135 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _link(u, 'J’ai déjà un compte sur un autre téléphone', () => _show(ProfileView.login), color: _pale, size: 14),
       ];
 
+  // ---------------------------------------------------------------- Formulaires
+
+  bool get _keyboardOpen => MediaQuery.viewInsetsOf(context).bottom > 0;
+
+  bool _validEmail(String text) => RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(text.trim());
+
+  void _submitCreate() {
+    setState(() {
+      _emailError = _validEmail(_email.text) ? null : 'Cette adresse e-mail n’est pas valide.';
+      _passwordError = _password.text.length >= 8 ? null : 'Le mot de passe doit faire au moins 8 caractères.';
+      _confirmError = _password.text == _confirm.text ? null : 'Les deux mots de passe ne sont pas identiques.';
+    });
+    if (_emailError != null || _passwordError != null || _confirmError != null) return;
+    FocusManager.instance.primaryFocus?.unfocus();
+    _run(() => _online.linkEmail(_email.text, _password.text), () {
+      TextInput.finishAutofillContext(); // Propose au téléphone d'enregistrer le mot de passe.
+      _show(ProfileView.profile);
+    });
+  }
+
+  void _submitLogin() {
+    setState(() {
+      _emailError = _validEmail(_email.text) ? null : 'Cette adresse e-mail n’est pas valide.';
+      _passwordError = _password.text.isEmpty ? 'Saisis ton mot de passe.' : null;
+    });
+    if (_emailError != null || _passwordError != null) return;
+    FocusManager.instance.primaryFocus?.unfocus();
+    _run(() => _online.loginEmail(_email.text, _password.text), () {
+      TextInput.finishAutofillContext();
+      _show(ProfileView.profile);
+    });
+  }
+
   List<Widget> _create(double u) {
     final name = Player.instance.username;
+    final long = _password.text.length >= 8;
+    final same = _confirm.text.isNotEmpty && _confirm.text == _password.text;
     return [
       _header(u, 'Créer mon compte'),
-      SizedBox(height: 14 * u),
-      Container(
-        padding: EdgeInsets.all(12 * u),
-        decoration: _panel(u, const Color(0x12FFFFFF), 18),
-        child: Row(
-          children: [
-            _Avatar(name: name, size: 46 * u),
-            SizedBox(width: 12 * u),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      // Clavier ouvert, la place revient aux champs et au bouton.
+      _keyboardOpen
+          ? const SizedBox.shrink()
+          : Container(
+              margin: EdgeInsets.only(top: 10 * u),
+              padding: EdgeInsets.all(12 * u),
+              decoration: _panel(u, const Color(0x12FFFFFF), 18),
+              child: Row(
                 children: [
-                  Text(name, style: titleStyle(18 * u, Palette.gold)),
-                  Text('Ton pseudo et ta progression sont conservés.', style: bodyStyle(13 * u, _pale)),
+                  _Avatar(name: name, size: 46 * u),
+                  SizedBox(width: 12 * u),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(name, style: titleStyle(18 * u, Palette.gold)),
+                        Text('Ton pseudo et ta progression sont conservés.', style: bodyStyle(13 * u, _pale)),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
+      AutofillGroup(
+        key: const ValueKey('champs'),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _input(u, 'Adresse e-mail', _email, hint: 'toi@exemple.fr', email: true, error: _emailError),
+            _input(u, 'Mot de passe', _password,
+                secret: true,
+                newPassword: true,
+                error: _passwordError,
+                help: '8 caractères minimum',
+                good: long),
+            _input(u, 'Confirme le mot de passe', _confirm,
+                secret: true,
+                newPassword: true,
+                last: _submitCreate,
+                error: _confirmError,
+                help: _confirm.text.isEmpty ? null : (same ? 'Les mots de passe sont identiques' : 'Pas encore identiques'),
+                good: same),
           ],
         ),
       ),
-      ..._input(u, 'Adresse e-mail', _email, hint: 'toi@exemple.fr', email: true),
-      ..._input(u, 'Mot de passe', _password, secret: true),
-      Text('8 caractères minimum', style: bodyStyle(13 * u, _pale)),
-      ..._input(u, 'Confirme le mot de passe', _confirm, secret: true),
       if (_error != null) _message(u, _error!),
-      const Spacer(),
-      SizedBox(height: 16 * u),
-      _primary(u, 'Créer mon compte', () {
-        if (_password.text != _confirm.text) {
-          setState(() => _error = 'Les deux mots de passe ne sont pas identiques.');
-          return;
-        }
-        _run(() => _online.linkEmail(_email.text, _password.text), () => _show(ProfileView.profile));
-      }),
+      SizedBox(height: 14 * u),
+      _primary(u, 'Créer mon compte', _submitCreate),
+      if (!_keyboardOpen) ...[
+        SizedBox(height: 12 * u),
+        Row(
+          children: [
+            const Expanded(child: Divider(color: Color(0x33FFFFFF))),
+            Padding(padding: EdgeInsets.symmetric(horizontal: 10 * u), child: Text('ou', style: bodyStyle(13 * u, _pale))),
+            const Expanded(child: Divider(color: Color(0x33FFFFFF))),
+          ],
+        ),
+        SizedBox(height: 12 * u),
+        _google(u, Player.instance.connection == Connection.online, () => _show(ProfileView.profile)),
+      ],
     ];
   }
 
   List<Widget> _login(double u) => [
         _header(u, 'Retrouver mon compte'),
-        SizedBox(height: 10 * u),
-        Text(
-          'Connecte-toi avec l’e-mail de ton compte pour retrouver ton pseudo et ta progression sur ce téléphone.',
-          style: bodyStyle(15 * u, _pale),
+        _keyboardOpen
+            ? const SizedBox.shrink()
+            : Padding(
+                padding: EdgeInsets.only(top: 6 * u),
+                child: Text(
+                  'Connecte-toi avec l’e-mail de ton compte pour retrouver ton pseudo et ta progression sur ce téléphone.',
+                  style: bodyStyle(15 * u, _pale),
+                ),
+              ),
+        AutofillGroup(
+          key: const ValueKey('champs'),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _input(u, 'Adresse e-mail', _email, hint: 'toi@exemple.fr', email: true, error: _emailError),
+              _input(u, 'Mot de passe', _password, secret: true, last: _submitLogin, error: _passwordError),
+            ],
+          ),
         ),
-        ..._input(u, 'Adresse e-mail', _email, hint: 'toi@exemple.fr', email: true),
-        ..._input(u, 'Mot de passe', _password, secret: true),
         if (_error != null) _message(u, _error!),
         SizedBox(height: 14 * u),
-        if (!_online.hasAccount && Player.instance.username.isNotEmpty)
+        _primary(u, 'Me connecter', _submitLogin),
+        if (!_keyboardOpen && !_online.hasAccount && Player.instance.username.isNotEmpty)
           Container(
+            margin: EdgeInsets.only(top: 14 * u),
             padding: EdgeInsets.all(12 * u),
             decoration: BoxDecoration(
               color: const Color(0x2EE0315B),
@@ -259,10 +354,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: bodyStyle(14 * u, Palette.cream),
             ),
           ),
-        const Spacer(),
-        SizedBox(height: 16 * u),
-        _primary(u, 'Me connecter',
-            () => _run(() => _online.loginEmail(_email.text, _password.text), () => _show(ProfileView.profile))),
       ];
 
   // ---------------------------------------------------------------- Éléments
@@ -343,7 +434,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _rename(double u) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ..._input(u, 'Nouveau pseudo', _name, maxLength: Pseudo.maxLength),
+          _input(u, 'Nouveau pseudo', _name, maxLength: Pseudo.maxLength),
           if (_error != null) _message(u, _error!),
           SizedBox(height: 10 * u),
           Row(
@@ -383,47 +474,84 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       );
 
-  List<Widget> _input(
+  /// Un champ : libellé, saisie (avec l'œil pour un mot de passe), puis son erreur ou son repère.
+  /// Un seul widget avec une clé : le champ garde le focus quand l'écran se réarrange.
+  Widget _input(
     double u,
     String label,
     TextEditingController controller, {
     String? hint,
     bool secret = false,
+    bool newPassword = false,
     bool email = false,
     int? maxLength,
+    String? error,
+    String? help,
+    bool good = false,
+    VoidCallback? last,
   }) =>
-      [
-        SizedBox(height: 12 * u),
-        Text(label, style: titleStyle(16 * u, Palette.cream)),
-        SizedBox(height: 6 * u),
-        TextField(
-          controller: controller,
-          obscureText: secret,
-          autocorrect: false,
-          enableSuggestions: false,
-          maxLength: maxLength,
-          keyboardType: email ? TextInputType.emailAddress : TextInputType.text,
-          autofillHints: email ? const [AutofillHints.email] : (secret ? const [AutofillHints.password] : null),
-          style: bodyStyle(16 * u, Palette.cream),
-          cursorColor: Palette.gold,
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: bodyStyle(16 * u, const Color(0x80C9D6FF)),
-            counterText: '',
-            filled: true,
-            fillColor: _field,
-            contentPadding: EdgeInsets.symmetric(horizontal: 14 * u, vertical: 14 * u),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14 * u),
-              borderSide: const BorderSide(color: Color(0x40FFFFFF)),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14 * u),
-              borderSide: const BorderSide(color: Palette.gold, width: 2),
+      Column(
+        key: ValueKey(label),
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(height: 10 * u),
+          Text(label, style: titleStyle(16 * u, Palette.cream)),
+          SizedBox(height: 5 * u),
+          TextField(
+            controller: controller,
+            obscureText: secret && !_visible,
+            autocorrect: false,
+            enableSuggestions: false,
+            textCapitalization: TextCapitalization.none,
+            maxLength: maxLength,
+            keyboardType: email ? TextInputType.emailAddress : (secret ? TextInputType.visiblePassword : TextInputType.text),
+            textInputAction: last != null || (!email && !secret) ? TextInputAction.done : TextInputAction.next,
+            onSubmitted: last == null ? null : (_) => last(),
+            autofillHints: email
+                ? const [AutofillHints.email]
+                : (secret ? [newPassword ? AutofillHints.newPassword : AutofillHints.password] : null),
+            style: bodyStyle(16 * u, Palette.cream),
+            cursorColor: Palette.gold,
+            decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: bodyStyle(16 * u, const Color(0x80C9D6FF)),
+              counterText: '',
+              filled: true,
+              fillColor: _field,
+              contentPadding: EdgeInsets.symmetric(horizontal: 14 * u, vertical: 13 * u),
+              suffixIcon: secret
+                  ? IconButton(
+                      onPressed: () => setState(() => _visible = !_visible),
+                      tooltip: _visible ? 'Masquer le mot de passe' : 'Afficher le mot de passe',
+                      icon: Icon(_visible ? Icons.visibility_off : Icons.visibility, color: _pale, size: 22 * u),
+                    )
+                  : null,
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14 * u),
+                borderSide: BorderSide(color: error == null ? const Color(0x40FFFFFF) : _alert, width: error == null ? 1 : 2),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14 * u),
+                borderSide: BorderSide(color: error == null ? Palette.gold : _alert, width: 2),
+              ),
             ),
           ),
-        ),
-      ];
+          if (error != null || help != null)
+            Padding(
+              padding: EdgeInsets.only(top: 5 * u),
+              child: Row(
+                children: [
+                  if (error != null || good) ...[
+                    Icon(error != null ? Icons.error_outline : Icons.check_circle,
+                        color: error != null ? _alert : _good, size: 15 * u),
+                    SizedBox(width: 5 * u),
+                  ],
+                  Expanded(child: Text(error ?? help!, style: bodyStyle(13 * u, error != null ? _alert : (good ? _good : _pale)))),
+                ],
+              ),
+            ),
+        ],
+      );
 
   Widget _message(double u, String text) => Padding(
         padding: EdgeInsets.only(top: 8 * u),
@@ -462,8 +590,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
 
   /// Bouton « Continuer avec Google » (blanc, selon les règles de marque de Google).
-  Widget _google(double u, bool online) => FilledButton(
-        onPressed: online && !_busy ? () => _run(_online.signInGoogle) : null,
+  Widget _google(double u, bool online, [VoidCallback? done]) => FilledButton(
+        onPressed: online && !_busy ? () => _run(_online.signInGoogle, done) : null,
         style: FilledButton.styleFrom(
           backgroundColor: Colors.white,
           disabledBackgroundColor: const Color(0xFFF1F3F4),
@@ -544,7 +672,7 @@ class _GoldDust extends CustomPainter {
     final rng = Random(1910);
     for (var i = 0; i < 90; i++) {
       final at = Offset(rng.nextDouble() * size.width, rng.nextDouble() * size.height);
-      canvas.drawCircle(at, 0.7 + rng.nextDouble() * 1.4, Paint()..color = Color.fromRGBO(255, 214, 115, 0.2 + rng.nextDouble() * 0.5));
+      canvas.drawCircle(at, 0.7 + rng.nextDouble() * 1.4, Paint()..color = Color.fromRGBO(255, 214, 115, 0.1 + rng.nextDouble() * 0.25));
     }
   }
 

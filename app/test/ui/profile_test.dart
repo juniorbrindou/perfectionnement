@@ -74,4 +74,35 @@ void main() {
     expect(tester.takeException(), isNull);
     await capture('profil_reprise');
   });
+
+  testWidgets('création : l’œil affiche le mot de passe et les repères suivent la saisie', (tester) async {
+    await open(tester, ProfileView.create);
+    final champs = find.byType(TextField);
+    bool masque(int i) => tester.widget<TextField>(champs.at(i)).obscureText;
+    expect(masque(1), isTrue);
+    await tester.tap(find.byTooltip('Afficher le mot de passe').first);
+    await tester.pump();
+    expect(masque(1), isFalse);
+    expect(masque(2), isFalse);
+    await tester.enterText(champs.at(1), 'motdepasse1');
+    await tester.enterText(champs.at(2), 'motde');
+    await tester.pump();
+    expect(find.text('Pas encore identiques'), findsOneWidget);
+    await tester.enterText(champs.at(2), 'motdepasse1');
+    await tester.pump();
+    expect(find.text('Les mots de passe sont identiques'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('création : clavier ouvert, le bouton reste visible et le champ garde le focus', (tester) async {
+    await open(tester, ProfileView.create);
+    await tester.tap(find.byType(TextField).at(1));
+    await tester.pump();
+    tester.view.viewInsets = const FakeViewPadding(bottom: 960); // 320 points de clavier
+    await settle(tester, frames: 5);
+    expect(tester.testTextInput.isVisible, isTrue);
+    final bouton = tester.getRect(find.widgetWithText(FilledButton, 'Créer mon compte'));
+    expect(bouton.bottom, lessThanOrEqualTo(740 - 320));
+    expect(tester.takeException(), isNull);
+  });
 }
