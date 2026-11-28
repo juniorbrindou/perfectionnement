@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// Pictos des cartes (docs/maquettes/carte.html), dessinés dans une grille de 24 × 24.
-enum Picto { lait, manne, solide, personnages, miracles, paraboles, lieuxEvenements, ok, non }
+enum Picto { lait, manne, solide, personnages, miracles, paraboles, lieuxEvenements, structure, ok, non }
 
 Picto pictoForDifficulty(String d) => switch (d) {
   'manne' => Picto.manne,
@@ -13,6 +13,7 @@ Picto pictoForCategory(String c) => switch (c) {
   'miracles' => Picto.miracles,
   'paraboles' => Picto.paraboles,
   'lieux_evenements' => Picto.lieuxEvenements,
+  'structure' => Picto.structure,
   _ => Picto.personnages,
 };
 
@@ -50,6 +51,19 @@ class _PictoPainter extends CustomPainter {
       ..strokeJoin = StrokeJoin.round
       ..isAntiAlias = true;
     switch (picto) {
+      case Picto.structure: // Un livre ouvert.
+        canvas.drawPath(
+          Path()
+            ..moveTo(12, 6)
+            ..cubicTo(10, 4.5, 6.5, 4.2, 3.5, 5)
+            ..lineTo(3.5, 18)
+            ..cubicTo(6.5, 17.2, 10, 17.5, 12, 19)
+            ..cubicTo(14, 17.5, 17.5, 17.2, 20.5, 18)
+            ..lineTo(20.5, 5)
+            ..cubicTo(17.5, 4.2, 14, 4.5, 12, 6)
+            ..lineTo(12, 19),
+          line,
+        );
       case Picto.lait:
         canvas.drawPath(
           Path()

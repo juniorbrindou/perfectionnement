@@ -98,6 +98,25 @@ class DuelOnline extends MatchSource {
     }
   }
 
+  /// Partie de salon : un autre membre du même salon qui cherche aussi (PRD §6.4). Le serveur
+  /// vérifie l'appartenance ; la difficulté et les cartes sont celles du salon.
+  Future<String?> searchSalon(String salonId) async {
+    if (!await _ready()) return 'Pas de connexion au serveur.';
+    try {
+      final mark = salonId.replaceAll('-', '');
+      final t = await _socket!.addMatchmaker(
+        minCount: 2,
+        maxCount: 2,
+        query: '+properties.salon:$mark',
+        stringProperties: {'salon': mark},
+      );
+      _ticket = t.ticket;
+      return null;
+    } catch (e) {
+      return Online.describe(e);
+    }
+  }
+
   Future<void> cancelSearch() async {
     final ticket = _ticket;
     _ticket = '';

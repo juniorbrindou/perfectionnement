@@ -129,6 +129,20 @@ function scoreApresPartie(score: number, gagne: boolean): number {
   return gagne ? score + SALON_VICTOIRE : Math.max(0, score - SALON_DEFAITE);
 }
 
+/** Le matchmaker reçoit l'identifiant du salon sans tirets (propriété « salon »). */
+function idDepuisMarque(marque: string): string {
+  return marque.replace(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/, "$1-$2-$3-$4-$5");
+}
+
+/** Applique le résultat d'une partie aux membres encore présents du salon. */
+function appliquerResultat(s: Salon, userIds: string[], gagnant: number, maintenant: number): void {
+  userIds.forEach(function (id, i) {
+    const k = membreIndex(s, id);
+    if (k >= 0) s.membres[k].score = scoreApresPartie(s.membres[k].score, i === gagnant);
+  });
+  s.dernierePartie = maintenant;
+}
+
 function salonInactif(s: Salon, maintenant: number): boolean {
   return maintenant - s.dernierePartie > SALON_INACTIF_MS;
 }
@@ -197,6 +211,31 @@ function tousLesSalons(nk: nkruntime.Nakama, logger: nkruntime.Logger, maintenan
   return salons;
 }
 
+function salonParMarque(nk: nkruntime.Nakama, marque: string): Salon | null {
+  return lireSalon(nk, idDepuisMarque(marque)).salon;
+}
+
+function reglerScoreSalon(nk: nkruntime.Nakama, logger: nkruntime.Logger, salonId: string, userIds: string[], gagnant: number, maintenant: number): void {
+  // Deux parties du salon peuvent finir ensemble : on relit et on réessaie.
+  for (let essai = 0; essai < 3; essai++) {
+    const l = lireSalon(nk, salonId);
+    if (!l.salon) return;
+    appliquerResultat(l.salon, userIds, gagnant, maintenant);
+    try {
+      nk.storageWrite([ecritureSalon(l.salon, l.version)]);
+      return;
+    } catch (e) {
+      if (essai === 2) logger.error("Score de salon non enregistré pour %s : %s", salonId, String(e));
+    }
+  }
+}
+
+/** Les salons sont réservés aux comptes e-mail ou Google (PRD §5). */
+function exigerCompte(nk: nkruntime.Nakama, userId: string): void {
+  const compte = nk.accountGetId(userId);
+  if (!compte.email && !compte.user.googleId) throw refus("Les salons demandent un compte (e-mail ou Google).", nkruntime.Codes.PERMISSION_DENIED);
+}
+
 function supprimerSalon(nk: nkruntime.Nakama, logger: nkruntime.Logger, s: Salon): void {
   try {
     nk.storageDelete([{ collection: COLLECTION_SALONS, key: s.id, userId: SYSTEME }]);
@@ -247,6 +286,7 @@ const rpcSalon: nkruntime.RpcFunction = function (ctx, logger, nk, payload) {
   }
 
   if (action === "creer") {
+    exigerCompte(nk, moi);
     const probleme = verifierSalon(d, CARTES);
     if (probleme) throw refus(probleme, nkruntime.Codes.INVALID_ARGUMENT);
     const l = lireLien(nk, moi);
@@ -262,6 +302,7 @@ const rpcSalon: nkruntime.RpcFunction = function (ctx, logger, nk, payload) {
   }
 
   if (action === "demander") {
+    exigerCompte(nk, moi);
     const l = lireLien(nk, moi);
     if (l.lien.salon) throw refus("Tu es déjà membre d'un salon.");
     const { salon: s, version } = salonExistant(nk, d.id);
@@ -291,7 +332,8 @@ const rpcSalon: nkruntime.RpcFunction = function (ctx, logger, nk, payload) {
     s.demandes = s.demandes.filter(function (x) { return x.userId !== joueur; });
     const l = lireLien(nk, joueur);
     const ecritures = [ecritureSalon(s, version)];
-    if (d.accepte && !l.lien.salon) {
+    const ajoute = !!d.accepte && !l.lien.salon;
+    if (ajoute) {
       if (s.membres.length >= SALON_MEMBRES_MAX) throw refus("Le salon est complet.");
       s.membres.push({ userId: joueur, pseudo: demande.pseudo, score: 0, depuis: maintenant });
       ecritures.push(ecritureLien(joueur, { salon: s.id, demande: "" }, l.version));
@@ -299,8 +341,10 @@ const rpcSalon: nkruntime.RpcFunction = function (ctx, logger, nk, payload) {
       ecritures.push(ecritureLien(joueur, { salon: l.lien.salon, demande: "" }, l.version));
     }
     nk.storageWrite(ecritures);
+    // Accepté mais déjà membre ailleurs : rien à annoncer, le Berger en est informé.
+    if (d.accepte && !ajoute) throw refus("Ce joueur a rejoint un autre salon entre-temps.");
     try {
-      nk.notificationSend(joueur, d.accepte ? "Bienvenue au salon" : "Demande refusée", { salon: s.id, nom: s.nom, accepte: !!d.accepte }, 100, SYSTEME, true);
+      nk.notificationSend(joueur, ajoute ? "Bienvenue au salon" : "Demande refusée", { salon: s.id, nom: s.nom, accepte: ajoute }, 100, SYSTEME, true);
     } catch (e) { logger.warn("Notification de salon : %s", String(e)); }
     return JSON.stringify(ficheSalon(s, moi, lireLien(nk, moi).lien));
   }

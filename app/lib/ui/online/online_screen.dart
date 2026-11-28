@@ -12,11 +12,15 @@ import '../salons/salons_screen.dart';
 import '../theme.dart';
 import '../toast.dart';
 import 'duel_match_screen.dart';
+import '../../state/sound.dart';
 
 /// « Jouer en ligne » (docs/maquettes/salon.html) : la difficulté se choisit comme une carte,
 /// puis la recherche d'un adversaire au hasard. Pour jouer entre amis : les salons.
 class OnlineScreen extends StatefulWidget {
-  const OnlineScreen({super.key});
+  /// Partie de salon : on cherche aussitôt un autre membre, sans choisir la difficulté.
+  final ({String id, String name, String difficulty})? salon;
+
+  const OnlineScreen({super.key, this.salon});
 
   @override
   State<OnlineScreen> createState() => _OnlineScreenState();
@@ -106,6 +110,14 @@ class _OnlineScreenState extends State<OnlineScreen> with SingleTickerProviderSt
     super.initState();
     _ring = AnimationController(vsync: this, duration: const Duration(seconds: 2))..repeat();
     _matchedSub = _duel.onMatched.listen((_) => _onMatched());
+    final salon = widget.salon;
+    if (salon != null) {
+      _difficulty = salon.difficulty;
+      _step = _Step.searching;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _search();
+      });
+    }
   }
 
   @override
@@ -122,12 +134,14 @@ class _OnlineScreenState extends State<OnlineScreen> with SingleTickerProviderSt
     final stake = Reglages.instance.miseDuel(_difficulty);
     if (Player.instance.talents < stake) {
       showToast(context, 'Il te faut $stake talents pour cette difficulté.');
+      if (widget.salon != null) Navigator.of(context).maybePop();
       return;
     }
     setState(() => _step = _Step.searching);
     _clock.value = 0;
     _timer = Timer.periodic(const Duration(seconds: 1), (_) => _clock.value++);
-    final error = await _duel.search(_difficulty);
+    final salon = widget.salon;
+    final error = salon == null ? await _duel.search(_difficulty) : await _duel.searchSalon(salon.id);
     if (error != null && mounted) {
       _stopSearch();
       showToast(context, error);
@@ -137,18 +151,23 @@ class _OnlineScreenState extends State<OnlineScreen> with SingleTickerProviderSt
   void _stopSearch() {
     _timer?.cancel();
     _duel.cancelSearch();
-    if (mounted) setState(() => _step = _Step.choose);
+    if (!mounted) return;
+    setState(() => _step = _Step.choose);
+    if (widget.salon != null) Navigator.of(context).pop(); // Retour au salon.
   }
 
   Future<void> _onMatched() async {
     _timer?.cancel();
     if (!mounted) return;
     setState(() => _step = _Step.found);
+    Sound.instance.play('tonnerre');
     // Face-à-face pendant que la partie démarre, puis la table.
     await Future.delayed(const Duration(milliseconds: 2200));
     if (!mounted) return;
     await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const DuelMatchScreen()));
-    if (mounted) setState(() => _step = _Step.choose);
+    if (!mounted) return;
+    setState(() => _step = _Step.choose);
+    if (widget.salon != null) Navigator.of(context).pop();
   }
 
   @override
@@ -192,7 +211,7 @@ class _OnlineScreenState extends State<OnlineScreen> with SingleTickerProviderSt
         SizedBox(width: 10 * k),
         Expanded(
           child: Text(
-            _step == _Step.choose ? 'Jouer en ligne' : 'Recherche',
+            widget.salon?.name ?? (_step == _Step.choose ? 'Jouer en ligne' : 'Recherche'),
             style: titleStyle(21 * k, Colors.white).copyWith(
               shadows: const [Shadow(color: Colors.black, blurRadius: 4, offset: Offset(0, 2))],
             ),

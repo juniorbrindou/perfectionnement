@@ -9,6 +9,7 @@ environment:
   sdk: ^3.12.2
 
 dependencies:
+  audioplayers: ^6.8.1
   dio: ^5.11.1
   flutter:
     sdk: flutter
@@ -33,6 +34,18 @@ flutter:
     - assets/duel/dos_carte_bleu.jpg
     - assets/duel/dos_illustration.jpg
     - assets/duel/paysage.png
+    - assets/duel/dos_carte.png
+    - assets/logo/logo_livre.png
+    - assets/logo/logo_enseigne.png
+    - assets/sons/carte.wav
+    - assets/sons/tic.wav
+    - assets/sons/juste.wav
+    - assets/sons/faux.wav
+    - assets/sons/victoire.wav
+    - assets/sons/defaite.wav
+    - assets/sons/feu.wav
+    - assets/sons/tonnerre.wav
+    - assets/sons/musique/musique_1.mp3
     - assets/aventure/etoile.png
     - assets/duel/lait.jpg
     - assets/duel/manne.jpg

@@ -645,6 +645,9 @@ test("duel entre amis : création avec code, difficulté inconnue refusée", fun
 // ---------------------------------------------------------------- Salons
 function fauxNakamaSalons(talents) {
   const nk = fauxNakamaDuel(talents);
+  // Tous les joueurs ont un compte e-mail, sauf ceux dont l'identifiant commence par « invite ».
+  const compte = nk.accountGetId;
+  nk.accountGetId = function (id) { return Object.assign(compte(id), { email: id.indexOf("invite") === 0 ? "" : id + "@x.y" }); };
   nk.notifs = [];
   nk.uuidv4 = function () { return "salon-" + Object.keys(nk.stock).length; };
   nk.storageList = function (owner, collection) {
@@ -842,6 +845,27 @@ test("structure : une carte au plus par main, sauf réserve trop pauvre", functi
   assert.strictEqual(new Set(mains[0].concat(mains[1]).map(function (x) { return x.id; })).size, 10);
   const pauvre = g.composerMains(structure.slice(0, 8).concat(autres.slice(0, 2)));
   assert.strictEqual(pauvre[0].length + pauvre[1].length, 10);
+});
+
+test("salon : marque du matchmaker, score après partie et contenu du salon", function () {
+  assert.strictEqual(g.idDepuisMarque("dc66ee6bec6b4debb15edaf36c20003f"), "dc66ee6b-ec6b-4deb-b15e-daf36c20003f");
+  const s = { membres: [{ userId: "a", score: 0 }, { userId: "b", score: 3 }], dernierePartie: 0 };
+  g.appliquerResultat(s, ["a", "b"], 0, 42);
+  assert.deepStrictEqual(s.membres.map(function (m) { return m.score; }), [10, 0]);
+  assert.strictEqual(s.dernierePartie, 42);
+  const p = g.nouvellePartieDuel("salon", "manne", "", "", [], 0);  // assez de cartes Structure en Manne
+  p.contenu = { type: "categorie", valeurs: ["structure"] };
+  g.demarrerDuel(p, {}, 0, Math.random);
+  const cartes = vm.runInContext("CARTES_TOUTES", g);
+  p.duel.mains[0].concat(p.duel.mains[1]).forEach(function (c) {
+    assert.strictEqual(cartes.filter(function (x) { return x.id === c.id; })[0].category, "structure");
+  });
+});
+
+test("salons : un invité ne peut ni créer ni demander", function () {
+  const nk = fauxNakamaSalons({ "invite-1": 100 });
+  assert.throws(function () { salonRpc(nk, "invite-1", { action: "creer", nom: "Salon", devise: "", couleur: 0, theme: "fete", difficulte: "lait", contenu: { type: "bible" } }); }, function (e) { return e.message.indexOf("compte") >= 0; });
+  assert.throws(function () { salonRpc(nk, "invite-1", { action: "demander", id: "x" }); }, function (e) { return e.message.indexOf("compte") >= 0; });
 });
 
 console.log("\n" + ok + " tests serveur réussis");

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -28,6 +30,11 @@ class Session {
       rootBundle.loadString('data/questions_depart.json'),
       rootBundle.loadString('data/recits.json'),
     ]);
+    final server = await _serverCards();
+    if (server != null) {
+      texts[0] = jsonEncode(server['cartes']);
+      texts[1] = jsonEncode(server['depart']);
+    }
     final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
     _illustrations = {
       for (final a in manifest.listAssets())
@@ -38,8 +45,28 @@ class Session {
       startersJson: texts[1],
       storiesJson: texts[2],
       // --dart-define=BROUILLONS=true : version β, tant que les cartes ne sont pas validées.
-      includeDrafts: kDebugMode || kProfileMode || const bool.fromEnvironment('BROUILLONS'),
+      // Les cartes du serveur sont déjà celles qu'il autorise à jouer (réglage « brouillons »).
+      includeDrafts: server != null || kDebugMode || kProfileMode || const bool.fromEnvironment('BROUILLONS'),
     );
+  }
+
+  /// Lit les cartes de la partie à deux gardées sur le téléphone, ou null.
+  Future<String?> Function()? readServerCards;
+
+  /// Oublie la banque chargée : de nouvelles cartes sont arrivées.
+  void reload() => _bank = null;
+
+  Future<Map<String, dynamic>?> _serverCards() async {
+    try {
+      final text = await readServerCards?.call();
+      if (text == null) return null;
+      final d = jsonDecode(text) as Map<String, dynamic>;
+      final cards = d['cartes'] as List, starters = d['depart'] as List;
+      return cards.isEmpty || starters.isEmpty ? null : d;
+    } catch (e) {
+      debugPrint('Cartes du serveur illisibles : $e');
+      return null;
+    }
   }
 
   /// Illustration d'un livre (« 1 Rois » → assets/illustrations/1_rois.jpg), ou null s'il n'en a pas.

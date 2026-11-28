@@ -16,6 +16,7 @@ import 'burn.dart';
 import 'card_face.dart';
 import 'celebration.dart';
 import 'table.dart';
+import '../../state/sound.dart';
 
 /// Partie à deux sur le même téléphone (PRD §2 et §3.2), maquette « Table de jeu ».
 ///
@@ -55,6 +56,7 @@ class _LocalMatchScreenState extends State<LocalMatchScreen> with TickerProvider
   /// Temps restant : seul le minuteur se redessine à chaque image, pas tout l’écran.
   final _clock = ValueNotifier<double>(0);
   double _total = 1;
+  int _ticked = 0;
   VoidCallback? _onTimeout;
   bool _paused = false;
 
@@ -124,6 +126,11 @@ class _LocalMatchScreenState extends State<LocalMatchScreen> with TickerProvider
     final done = _onTimeout;
     if (done == null || _paused || _passTo >= 0) return;
     _clock.value = max(0, _clock.value - dt);
+    final second = _clock.value.ceil();
+    if (second >= 1 && second <= 5 && second != _ticked) {
+      _ticked = second;
+      Sound.instance.play('tic', volume: 0.6);
+    }
     if (_clock.value <= 0) {
       _onTimeout = null;
       done();
@@ -132,6 +139,7 @@ class _LocalMatchScreenState extends State<LocalMatchScreen> with TickerProvider
 
   void _startTimer(double seconds, VoidCallback onTimeout) {
     _total = seconds;
+    _ticked = 0;
     _clock.value = seconds;
     _onTimeout = onTimeout;
   }
@@ -179,6 +187,7 @@ class _LocalMatchScreenState extends State<LocalMatchScreen> with TickerProvider
       _starterChoice = choice;
     });
     final first = round.resolve(player, choice);
+    Sound.instance.play(first == player ? 'juste' : 'faux');
     final msg = first == player ? '${_names[player]} a trouvé !' : 'Mauvaise réponse de ${_names[player]}.';
     _showFlash('$msg\n${_names[first]} commence.');
     _later(2.2, () {
@@ -240,6 +249,7 @@ class _LocalMatchScreenState extends State<LocalMatchScreen> with TickerProvider
     if (_step != _Step.choose || _selected < 0 || _duel.phase != Phase.choosing) return;
     final i = _selected;
     _duel.play(i);
+    Sound.instance.play('carte');
     _afterPlay(i, null);
   }
 
@@ -283,6 +293,7 @@ class _LocalMatchScreenState extends State<LocalMatchScreen> with TickerProvider
 
   void _showResult(AnswerResult result) {
     _stopTimer();
+    Sound.instance.play(result.correct ? 'juste' : 'faux');
     setState(() {
       _step = _Step.result;
       _result = result;
@@ -293,6 +304,7 @@ class _LocalMatchScreenState extends State<LocalMatchScreen> with TickerProvider
   void _continue() {
     if (_duel.phase == Phase.finished) {
       setState(() => _step = _Step.end);
+      Sound.instance.play('victoire');
     } else {
       _beginChoose();
     }

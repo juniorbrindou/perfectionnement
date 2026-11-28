@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
+import '../../state/sound.dart';
 
 /// Carte détruite par le feu doré, porté de scripts/ui/feu_dore.gd : la carte est
 /// photographiée, puis la photo brûle de bas en haut (shaders/feu_dore.frag) ; des
@@ -69,6 +70,7 @@ class _FeuDoreState extends State<FeuDore> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    Sound.instance.play('feu', volume: 0.6);
     _start();
   }
 

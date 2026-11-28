@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fond de lancement : celui de l'animation de démarrage. -->
+    <color name="launch_night">#03102A</color>
+</resources>

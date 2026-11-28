@@ -14,6 +14,7 @@ import '../game/card_face.dart';
 import '../game/celebration.dart';
 import '../game/table.dart';
 import '../theme.dart';
+import '../../state/sound.dart';
 
 /// Un duel en ligne, mené par le serveur (server/src/duel_en_ligne.ts) : l'écran ne fait
 /// qu'afficher la dernière vue reçue et envoyer les choix du joueur. Même table que la partie
@@ -46,11 +47,13 @@ class _DuelMatchScreenState extends State<DuelMatchScreen> with SingleTickerProv
   /// Coup déjà brûlé (la vue « résultat » revient à chaque « Continuer »).
   String _burnt = '';
   String _etape = '';
+  int _ticked = 0;
 
   @override
   void initState() {
     super.initState();
     _duel.addListener(_onView);
+    _clock.addListener(_tickSound);
     _ticker = createTicker((_) => _clock.value = _left())..start();
     _onView();
   }
@@ -90,6 +93,7 @@ class _DuelMatchScreenState extends State<DuelMatchScreen> with SingleTickerProv
     if (!mounted) return;
     if (_step != _etape) {
       _etape = _step;
+      _ticked = 0;
       _selected = -1;
       _played = false;
       _answer = null;
@@ -99,16 +103,41 @@ class _DuelMatchScreenState extends State<DuelMatchScreen> with SingleTickerProv
         _rematch = false;
         _endApplied = false;
       }
+      _stepSound();
     }
     final fin = _v['fin'] as Map?;
     if (fin != null && !_endApplied) {
       _endApplied = true;
+      Sound.instance.play(fin['gagne'] == true ? 'victoire' : 'defaite');
       Online.instance.applyEnd(talents: (fin['talents'] as num?)?.toInt(), xp: (fin['xpTotal'] as num?)?.toInt());
     }
     setState(() {});
   }
 
   void _send(int op, [Map<String, dynamic> data = const {}]) => _duel.send(op, data);
+
+  /// Le son d'une nouvelle étape : carte posée, résultat du départ ou d'un coup.
+  void _stepSound() {
+    final c = _coup;
+    switch (_step) {
+      case 'repondre':
+        Sound.instance.play('carte');
+      case 'annonce' when c != null:
+        Sound.instance.play(c['jeCommence'] == true ? 'juste' : 'faux');
+      case 'resultat' when c != null && c['juste'] != null:
+        // Ta carte trouvée par l'autre : mauvaise nouvelle pour toi.
+        final good = c['mienne'] == true ? c['juste'] != true : c['juste'] == true;
+        Sound.instance.play(good ? 'juste' : 'faux');
+    }
+  }
+
+  void _tickSound() {
+    final second = _clock.value.ceil();
+    if (second >= 1 && second <= 5 && second != _ticked && const ['depart', 'choisir', 'repondre'].contains(_step)) {
+      _ticked = second;
+      Sound.instance.play('tic', volume: 0.6);
+    }
+  }
 
   Future<void> _quit() async {
     final over = _step == 'finie' || _step == 'annulee';

@@ -7,6 +7,7 @@ import '../../core/pseudo.dart';
 import '../../state/online.dart';
 import '../../state/player.dart';
 import '../theme.dart';
+import '../../state/sound.dart';
 
 /// Vues de l'écran : le profil, la création de compte, la reprise d'un compte.
 enum ProfileView { profile, create, login }
@@ -145,6 +146,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       Text(name, textAlign: TextAlign.center, style: titleStyle(30 * u, Palette.cream)),
       SizedBox(height: 14 * u),
       if (player.isKnown) _progress(u),
+      SizedBox(height: 10 * u),
+      _sounds(u),
       SizedBox(height: 6 * u),
       if (_renaming)
         _rename(u)
@@ -273,6 +276,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           Expanded(child: Text(text, style: titleStyle(26 * u, Palette.cream))),
         ],
+      );
+
+  /// Effets sonores et musique, à couper séparément (PRD §9).
+  Widget _sounds(double u) => ListenableBuilder(
+        listenable: Sound.instance,
+        builder: (context, _) => Row(
+          children: [
+            for (final (label, on, set) in [
+              ('Effets sonores', Sound.instance.effectsOn, Sound.instance.setEffects),
+              ('Musique', Sound.instance.musicOn, Sound.instance.setMusic),
+            ]) ...[
+              if (label == 'Musique') SizedBox(width: 10 * u),
+              Expanded(
+                child: FilledButton(
+                  onPressed: () => set(!on),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: on ? Palette.gold : _field,
+                    side: BorderSide(color: on ? const Color(0xFFFFE9A8) : const Color(0x40FFFFFF)),
+                    padding: EdgeInsets.symmetric(horizontal: 4 * u),
+                    minimumSize: Size(0, 44 * u),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16 * u)),
+                  ),
+                  child: FittedBox(
+                    child: Text('$label : ${on ? 'oui' : 'non'}', style: titleStyle(14 * u, on ? Palette.ink : _pale)),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
       );
 
   Widget _progress(double u) {

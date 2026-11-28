@@ -47,7 +47,9 @@ interface FinDuel {
 }
 
 interface PartieDuel {
-  mode: string;          // "rapide" ou "ami"
+  mode: string;          // "rapide", "ami" ou "salon"
+  salon: string;         // identifiant du salon (mode "salon"), sinon ""
+  contenu: ContenuSalon | null; // cartes du salon
   code: string;
   difficulte: string;
   mise: number;
@@ -77,7 +79,7 @@ interface EffetDuel { type: string; }  // demarrer, regler, rembourser, revanche
 
 function nouvellePartieDuel(mode: string, difficulte: string, code: string, createur: string, attendus: string[], maintenant: number): PartieDuel {
   return {
-    mode: mode, code: code, difficulte: difficulte, mise: mise("duel", difficulte), createur: createur,
+    mode: mode, salon: "", contenu: null, code: code, difficulte: difficulte, mise: mise("duel", difficulte), createur: createur,
     pseudoCreateur: "", attendus: attendus, etape: "attente", joueurs: [], duel: null, depart: null,
     echeance: 0, pauseReste: -1, coup: null, continuer: [false, false], revanche: [false, false],
     fin: null, misesPrelevees: false, raisonAnnulation: "", creee: maintenant, version: 0, presences: {},
@@ -150,7 +152,9 @@ function annulerDuel(p: PartieDuel, raison: string): EffetDuel[] {
 
 /** Les mises sont prélevées : on distribue et on pose la question de départ. */
 function demarrerDuel(p: PartieDuel, recentes: { [id: string]: boolean }, maintenant: number, alea: Alea): void {
-  const reserve = CARTES.filter(function (c) { return c.difficulty === p.difficulte; });
+  // Un salon joue sur son contenu ; s'il ne suffit plus (cartes retirées), sur toute la difficulté.
+  let reserve = CARTES.filter(function (c) { return p.contenu !== null && carteDuSalon(c, p.difficulte, p.contenu); });
+  if (reserve.length < TAILLE_MAIN * 2) reserve = CARTES.filter(function (c) { return c.difficulty === p.difficulte; });
   const mains = distribuer(reserve, recentes, alea);
   p.duel = nouveauDuel(mains[0], mains[1], alea);
   p.fin = null;
@@ -487,6 +491,7 @@ function reglerDuel(nk: nkruntime.Nakama, logger: nkruntime.Logger, p: PartieDue
   } catch (e) {
     logger.error("Duel : règlement refusé : %s", String(e));
   }
+  if (p.salon) reglerScoreSalon(nk, logger, p.salon, p.joueurs.map(function (j) { return j.userId; }), fin.gagnant, Date.now());
   p.joueurs.forEach(function (j, i) {
     const xpTotal = xpDe(nk, j.userId);
     fin.comptes[i] = { talents: talentsDe(nk, j.userId), xpTotal: xpTotal, niveauAvant: niveauDepuisXp(avant[i]).niveau, niveau: niveauDepuisXp(xpTotal).niveau };
@@ -530,6 +535,11 @@ const duelInit: nkruntime.MatchInitFunction<PartieDuel> = function (ctx, logger,
   chargerReglages(nk, logger);
   const attendus = params.attendus ? String(params.attendus).split(",") : [];
   const p = nouvellePartieDuel(String(params.mode), String(params.difficulte), String(params.code || ""), String(params.createur || ""), attendus, Date.now());
+  if (params.salon) {
+    const salon = lireSalon(nk, String(params.salon)).salon;
+    p.salon = String(params.salon);
+    p.contenu = salon ? salon.contenu : null;
+  }
   if (p.createur) {
     try { p.pseudoCreateur = nk.accountGetId(p.createur).user.username; } catch (e) { p.pseudoCreateur = ""; }
   }
@@ -610,6 +620,23 @@ const duelSignal: nkruntime.MatchSignalFunction<PartieDuel> = function (ctx, log
 /** Duel rapide : le matchmaker a trouvé deux joueurs de la même difficulté. */
 const apresAppariement: nkruntime.MatchmakerMatchedFunction = function (ctx, logger, nk, matches) {
   chargerReglages(nk, logger);
+  // Le matchmaker ne vérifie la requête que d'un côté : on exige la même propriété chez les deux,
+  // et on contrôle ici l'appartenance au salon (un client peut envoyer n'importe quoi).
+  const meme = function (cle: string) { return matches.every(function (m) { return m.properties[cle] === matches[0].properties[cle]; }); };
+  const marque = matches[0].properties["salon"];
+  if (marque) {
+    if (!meme("salon")) return;
+    const salon = salonParMarque(nk, marque);
+    if (!salon || !matches.every(function (m) { return membreIndex(salon, m.presence.userId) >= 0; })) {
+      logger.warn("Duel de salon refusé : %s", marque);
+      return;
+    }
+    return nk.matchCreate(MODULE_DUEL, {
+      mode: "salon", difficulte: salon.difficulte, salon: salon.id,
+      attendus: matches.map(function (m) { return m.presence.userId; }).join(","),
+    });
+  }
+  if (!meme("difficulte")) return;
   const difficulte = matches[0].properties["difficulte"];
   if (DIFFICULTES.indexOf(difficulte) < 0) {
     logger.warn("Duel rapide : difficulté inconnue %s", String(difficulte));

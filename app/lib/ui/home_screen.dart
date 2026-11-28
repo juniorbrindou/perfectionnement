@@ -17,6 +17,7 @@ import 'theme.dart';
 import 'toast.dart';
 import 'top_bar.dart';
 import 'profile/profile_screen.dart';
+import 'leaderboard/leaderboard_screen.dart';
 
 /// Écran d'accueil, d'après l'illustration validée (assets/accueil/accueil.png).
 ///
@@ -81,8 +82,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Écrans pas encore réécrits en Flutter.
   void _profile() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProfileScreen()));
-
-  void _go(String screen) => _toast('« $screen » arrive dans une prochaine étape de la réécriture.');
 
   @override
   Widget build(BuildContext context) {
@@ -200,7 +199,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: GestureDetector(
                       behavior: HitTestBehavior.opaque,
                       onTap: () => switch (message) {
-                        'classement' => _go('Classement'),
+                        'classement' => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LeaderboardScreen())),
                         'profil' => _profile(),
                         _ => _toast(message),
                       },

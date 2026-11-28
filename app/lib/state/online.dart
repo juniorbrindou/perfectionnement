@@ -14,6 +14,7 @@ import 'package:path_provider/path_provider.dart';
 import '../core/pseudo.dart';
 import 'player.dart';
 import 'reglages.dart';
+import 'session.dart' as game;
 
 /// Connexion au serveur Nakama (docs/SERVEUR.md), portée de scripts/online.gd.
 ///
@@ -38,6 +39,7 @@ class Online {
   static const deviceIdFile = 'nakama_device_id';
   static const _sessionFile = 'session.json';
   static const _cacheFile = 'compte.json';
+  static const _phoneCardsFile = 'cartes_telephone.json';
 
   /// Code gRPC « déjà existant » : le pseudo tiré au sort est pris.
   static const _alreadyExists = 6;
@@ -88,6 +90,7 @@ class Online {
       debugPrint('Dossier de l’app indisponible : $e'); // Connexion quand même, sans rien garder.
     }
     await _loadCache();
+    game.Session.instance.readServerCards = () => _read(_phoneCardsFile);
     await connectGuest();
   }
 
@@ -111,6 +114,7 @@ class Online {
       await refreshAccount();
       _setConnection(Connection.online);
       unawaited(loadReglages());
+      unawaited(loadPhoneCards());
       unawaited(claimBread());
       return true;
     } catch (e) {
@@ -201,6 +205,18 @@ class Online {
       await _saveCache();
     } catch (e) {
       debugPrint('Pain quotidien : ${_message(e)}');
+    }
+  }
+
+  /// Cartes de la partie à deux (back-office), gardées pour jouer hors ligne.
+  Future<void> loadPhoneCards() async {
+    try {
+      final data = await rpc('cartes_telephone');
+      if ((data['cartes'] as List?)?.isEmpty ?? true) return;
+      await _write(_phoneCardsFile, jsonEncode(data));
+      game.Session.instance.reload();
+    } catch (e) {
+      debugPrint('Cartes : ${_message(e)}');
     }
   }
 

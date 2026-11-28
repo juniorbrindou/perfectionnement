@@ -417,3 +417,25 @@ rattaché au compte invité, reprise d'un compte (sans jamais en créer) et conn
 - Sur le serveur de build (Linux), `app/data` et `app/assets` sont des liens vers la racine, comme les jonctions
   Windows.
 
+## Salons jouables et application complétée : 2026-11-28
+
+**Serveur (déployé).**
+- **Partie de salon** (PRD §6.4, recherche rapide) : le matchmaker reçoit la propriété `salon` (identifiant sans
+  tirets) avec la requête `+properties.salon:<marque>`. Le hook exige la même marque chez les deux joueurs et vérifie
+  qu'ils sont membres. La partie est en mode `salon`, avec la difficulté et le contenu du salon.
+- **Score** : `+10 / −5` appliqués à la fin de la partie (`reglerScoreSalon`), `dernierePartie` mis à jour.
+- `creer` et `demander` exigent un compte e-mail ou Google. Un joueur déjà parti dans un autre salon ne reçoit plus
+  « Bienvenue ».
+- Le duel rapide vérifie aussi que les deux joueurs ont la même difficulté (le matchmaker ne contrôle qu'un côté).
+
+Vérifié depuis l'adresse publique : invité refusé, non-membre écarté, partie de salon entre deux membres, score 10/0
+après un abandon.
+
+**Application.** Partie de salon depuis la fiche, écran Classement, sons et musique (`lib/state/sound.dart`, réglages
+dans le profil), animation de démarrage (`lib/ui/splash.dart`, une fois par lancement), cartes de la partie à deux
+lues via `cartes_telephone` et gardées sur le téléphone, pictogramme « livre » pour la catégorie Structure.
+
+**Pas fait** : le **défi direct** d'un membre (PRD §6.4), les outils du Berger au-delà des demandes (renommer,
+exclure : PRD §6.5, à revoir avec les salons sans code), la modération (PRD §10), le choix des musiques (une seule
+piste), la suppression du compte depuis l'application (exigée par Google Play).
+

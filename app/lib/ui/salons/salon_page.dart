@@ -7,6 +7,7 @@ import '../theme.dart';
 import '../toast.dart';
 import 'salon_theme.dart';
 import 'salons_screen.dart';
+import '../online/online_screen.dart';
 
 /// La fiche d'un salon, dans le thème choisi par son Berger : demander à rejoindre, attendre
 /// la réponse, ou (membre) son classement ; le Berger y reçoit les demandes.
@@ -317,7 +318,12 @@ class _SalonPageState extends State<SalonPage> {
           SalonButton(
             'Jouer dans le salon',
             theme: t,
-            onPressed: () => showToast(context, 'Les parties de salon arrivent dans la prochaine étape.'),
+            onPressed: () async {
+              await Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => OnlineScreen(salon: (id: s.id, name: s.name, difficulty: s.difficulty)),
+              ));
+              if (mounted) _load(); // Les scores ont pu changer.
+            },
             height: 52 * k,
             fontSize: 19 * k,
           ),
