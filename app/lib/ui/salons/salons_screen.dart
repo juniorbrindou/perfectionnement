@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../state/online.dart';
+import '../../state/reglages.dart';
 import '../../state/salons.dart';
 import '../game/table.dart';
 import '../theme.dart';
@@ -21,17 +22,17 @@ class SalonEmblem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        width: size,
-        height: size,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: salonColor(color),
-          borderRadius: BorderRadius.circular(size * 0.3),
-          border: Border.all(color: const Color(0x99FFE6B4), width: size * 0.045),
-          boxShadow: [BoxShadow(color: const Color(0x55000000), blurRadius: size * 0.3, offset: Offset(0, size * 0.06))],
-        ),
-        child: Text(salonInitial(name), style: titleStyle(size * 0.48, Colors.white)),
-      );
+    width: size,
+    height: size,
+    alignment: Alignment.center,
+    decoration: BoxDecoration(
+      color: salonColor(color),
+      borderRadius: BorderRadius.circular(size * 0.3),
+      border: Border.all(color: const Color(0x99FFE6B4), width: size * 0.045),
+      boxShadow: [BoxShadow(color: const Color(0x55000000), blurRadius: size * 0.3, offset: Offset(0, size * 0.06))],
+    ),
+    child: Text(salonInitial(name), style: titleStyle(size * 0.48, Colors.white)),
+  );
 }
 
 /// Initiale d'un salon, sans l'article : « Les Psalmistes » → P, « L'Arche » → A.
@@ -81,7 +82,9 @@ class SalonTopBar extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: titleStyle(28 * k, theme.title).copyWith(
-                    shadows: [Shadow(color: theme.dark ? const Color(0x99000000) : const Color(0xE6FFFAEB), blurRadius: 10)],
+                    shadows: [
+                      Shadow(color: theme.dark ? const Color(0x99000000) : const Color(0xE6FFFAEB), blurRadius: 10),
+                    ],
                   ),
                 ),
                 if (subtitle != null)
@@ -156,7 +159,11 @@ class _SalonsScreenState extends State<SalonsScreen> {
   }
 
   Future<void> _open(SalonInfo s) async {
-    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => SalonPage(id: s.id, preview: s)));
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => SalonPage(id: s.id, preview: s),
+      ),
+    );
     _load();
   }
 
@@ -165,7 +172,9 @@ class _SalonsScreenState extends State<SalonsScreen> {
       showToast(context, 'Tu es déjà membre d’un salon : quitte-le pour en créer un.');
       return;
     }
-    final created = await Navigator.of(context).push<SalonInfo>(MaterialPageRoute(builder: (_) => const SalonCreateScreen()));
+    final created = await Navigator.of(
+      context,
+    ).push<SalonInfo>(MaterialPageRoute(builder: (_) => const SalonCreateScreen()));
     await _load();
     if (created != null && mounted) _open(created);
   }
@@ -194,7 +203,12 @@ class _SalonsScreenState extends State<SalonsScreen> {
                     SizedBox(height: 10 * k),
                     Row(
                       children: [
-                        for (final (value, label) in const [(null, 'Tous'), ('lait', 'Lait'), ('manne', 'Manne'), ('solide', 'Solide')])
+                        for (final (value, label) in const [
+                          (null, 'Tous'),
+                          ('lait', 'Lait'),
+                          ('manne', 'Manne'),
+                          ('solide', 'Solide'),
+                        ])
                           Padding(
                             padding: EdgeInsets.only(right: 6 * k),
                             child: _Chip(
@@ -217,34 +231,40 @@ class _SalonsScreenState extends State<SalonsScreen> {
                 child: _error != null
                     ? _Message(text: _error!, theme: _t, onRetry: _load)
                     : salons == null
-                        ? Center(child: CircularProgressIndicator(color: _t.accent))
-                        : salons.isEmpty
-                            ? _Message(
-                                text: _search.text.isEmpty && _difficulty == null
-                                    ? 'Aucun salon pour l’instant. Crée le premier !'
-                                    : 'Aucun salon ne correspond.',
-                                theme: _t,
-                              )
-                            : RefreshIndicator(
-                                onRefresh: _load,
-                                color: _t.accent,
-                                child: ListView.separated(
-                                  padding: EdgeInsets.fromLTRB(16 * k, 0, 16 * k, 16 * k),
-                                  itemCount: salons.length,
-                                  separatorBuilder: (_, _) => SizedBox(height: 9 * k),
-                                  itemBuilder: (_, i) => SalonCard(
-                                    salon: salons[i],
-                                    theme: _t,
-                                    mine: salons[i].id == _mine,
-                                    requested: salons[i].id == _request,
-                                    onTap: () => _open(salons[i]),
-                                  ),
-                                ),
-                              ),
+                    ? Center(child: CircularProgressIndicator(color: _t.accent))
+                    : salons.isEmpty
+                    ? _Message(
+                        text: _search.text.isEmpty && _difficulty == null
+                            ? 'Aucun salon pour l’instant. Crée le premier !'
+                            : 'Aucun salon ne correspond.',
+                        theme: _t,
+                      )
+                    : RefreshIndicator(
+                        onRefresh: _load,
+                        color: _t.accent,
+                        child: ListView.separated(
+                          padding: EdgeInsets.fromLTRB(16 * k, 0, 16 * k, 16 * k),
+                          itemCount: salons.length,
+                          separatorBuilder: (_, _) => SizedBox(height: 9 * k),
+                          itemBuilder: (_, i) => SalonCard(
+                            salon: salons[i],
+                            theme: _t,
+                            mine: salons[i].id == _mine,
+                            requested: salons[i].id == _request,
+                            onTap: () => _open(salons[i]),
+                          ),
+                        ),
+                      ),
               ),
               Padding(
                 padding: EdgeInsets.fromLTRB(16 * k, 0, 16 * k, 14 * k),
-                child: GoldButton('Créer un salon · 30 talents', onPressed: _create, height: 52 * k, fontSize: 19 * k),
+                child: SalonButton(
+                  'Créer un salon · ${Reglages.instance.salonCout} talents',
+                  theme: _t,
+                  onPressed: _create,
+                  height: 52 * k,
+                  fontSize: 19 * k,
+                ),
               ),
             ],
           ),
@@ -261,22 +281,29 @@ class SalonCard extends StatelessWidget {
   final bool requested;
   final VoidCallback onTap;
 
-  const SalonCard({super.key, required this.salon, required this.theme, required this.onTap, this.mine = false, this.requested = false});
+  const SalonCard({
+    super.key,
+    required this.salon,
+    required this.theme,
+    required this.onTap,
+    this.mine = false,
+    this.requested = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     final k = tableUnit(context);
     final t = theme;
-    final status = mine ? 'Ton salon' : (requested ? 'Demande envoyée' : (salon.full ? 'Complet' : '${salon.members}/${salon.max}'));
+    final status = mine
+        ? 'Ton salon'
+        : (requested ? 'Demande envoyée' : (salon.full ? 'Complet' : '${salon.members}/${salon.max}'));
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 13 * k, vertical: 11 * k),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16 * k),
-          gradient: t.dark
-              ? const LinearGradient(colors: [Color(0x29FFD696), Color(0x0FFFD696)])
-              : null,
+          gradient: t.dark ? const LinearGradient(colors: [Color(0x29FFD696), Color(0x0FFFD696)]) : null,
           color: t.dark ? null : t.card,
           border: Border.all(color: mine ? t.accent : t.cardEdge, width: mine ? 2 : 1),
           boxShadow: t.dark ? null : const [BoxShadow(color: Color(0x1F50592F), blurRadius: 14, offset: Offset(0, 6))],
@@ -289,7 +316,12 @@ class SalonCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(salon.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: titleStyle(17 * k, t.dark ? t.text : t.title)),
+                  Text(
+                    salon.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: titleStyle(17 * k, t.dark ? t.text : t.title),
+                  ),
                   SizedBox(height: 2 * k),
                   Text(
                     '${salon.difficultyLabel} · ${salon.contentLabel}',
@@ -396,7 +428,10 @@ class _Message extends StatelessWidget {
             Text(text, textAlign: TextAlign.center, style: bodyStyle(15 * k, theme.text)),
             if (onRetry != null) ...[
               SizedBox(height: 14 * k),
-              TextButton(onPressed: onRetry, child: Text('Réessayer', style: titleStyle(17 * k, theme.accent))),
+              TextButton(
+                onPressed: onRetry,
+                child: Text('Réessayer', style: titleStyle(17 * k, theme.accent)),
+              ),
             ],
           ],
         ),

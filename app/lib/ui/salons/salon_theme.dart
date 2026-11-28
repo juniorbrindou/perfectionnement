@@ -15,9 +15,22 @@ class SalonTheme {
   final Color text;
   final Color soft;
   final Color accent;
+
+  /// Accent lisible sur les panneaux clairs (sélections, compteurs).
+  final Color panelAccent;
   final Color card;
   final Color cardEdge;
   final String art;
+
+  /// Bouton principal du thème : dégradé, texte, ombre portée et halo éventuel.
+  final List<Color> button;
+  final Color buttonText;
+  final Color buttonShadow;
+  final Color? buttonGlow;
+
+  /// Bouton secondaire : fond et texte.
+  final Color secondary;
+  final Color secondaryText;
 
   /// Rectangle de l'illustration (1152 × 768) montré en haut de l'écran.
   final Rect header;
@@ -34,9 +47,16 @@ class SalonTheme {
     required this.text,
     required this.soft,
     required this.accent,
+    required this.panelAccent,
     required this.card,
     required this.cardEdge,
     required this.art,
+    required this.button,
+    required this.buttonText,
+    required this.buttonShadow,
+    this.buttonGlow,
+    required this.secondary,
+    required this.secondaryText,
     required this.header,
     this.footer,
   });
@@ -50,9 +70,17 @@ class SalonTheme {
     text: Color(0xFFFBEFDC),
     soft: Color(0xFFD8B88F),
     accent: Color(0xFFF2B65A),
+    panelAccent: Color(0xFFB0702A),
     card: Color(0x24FFD696),
     cardEdge: Color(0x47F2B65A),
     art: 'assets/illustrations/jean.jpg',
+    // Lanterne ambrée qui rayonne.
+    button: [Color(0xFFFFD690), Color(0xFFF2B65A), Color(0xFFD98F2A)],
+    buttonText: Color(0xFF2E1A33),
+    buttonShadow: Color(0xFF8E5A18),
+    buttonGlow: Color(0x59F2B65A),
+    secondary: Color(0xD926130A),
+    secondaryText: Color(0xFFF3D08A),
     header: Rect.fromLTWH(760, 0, 392, 190),
     footer: Rect.fromLTWH(0, 590, 560, 178),
   );
@@ -66,9 +94,16 @@ class SalonTheme {
     text: Color(0xFF2F3A2A),
     soft: Color(0xFF7F8A6C),
     accent: Color(0xFF4F7A4A),
+    panelAccent: Color(0xFF4F7A4A),
     card: Color(0xFFFFFDF4),
     cardEdge: Color(0xFFE3DCC2),
     art: 'assets/illustrations/psaumes.jpg',
+    // Vert d'olivier, texte crème.
+    button: [Color(0xFF6E9A5F), Color(0xFF4F7A4A), Color(0xFF3E6339)],
+    buttonText: Color(0xFFFFFBE9),
+    buttonShadow: Color(0xFF2E4A2A),
+    secondary: Color(0xFFFFFDF4),
+    secondaryText: Color(0xFF4F7A4A),
     header: Rect.fromLTWH(670, 60, 482, 401),
   );
 
@@ -81,9 +116,16 @@ class SalonTheme {
     text: Color(0xFF1D2A4A),
     soft: Color(0xFF6F8290),
     accent: Color(0xFF2A5A7A),
+    panelAccent: Color(0xFF2A5A7A),
     card: Color(0xD9FFFFFF),
     cardEdge: Color(0xFFD6E2E4),
     art: 'assets/illustrations/genese.jpg',
+    // Bleu d'eau, texte blanc.
+    button: [Color(0xFF5F9CC0), Color(0xFF3A7AA0), Color(0xFF2A5A7A)],
+    buttonText: Colors.white,
+    buttonShadow: Color(0xFF1D3E55),
+    secondary: Color(0xCCFFFFFF),
+    secondaryText: Color(0xFF2A5A7A),
     header: Rect.fromLTWH(300, 40, 552, 460),
   );
 
@@ -192,7 +234,11 @@ class _SalonBackdropState extends State<SalonBackdrop> {
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
-                          colors: [t.background, t.background.withValues(alpha: 0.35), t.background.withValues(alpha: 0.1)],
+                          colors: [
+                            t.background,
+                            t.background.withValues(alpha: 0.35),
+                            t.background.withValues(alpha: 0.1),
+                          ],
                           stops: const [0, 0.45, 1],
                         ),
                       ),
@@ -217,19 +263,19 @@ class _Cover extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
-        builder: (context, c) {
-          final boxRatio = c.maxWidth / c.maxHeight;
-          var r = region;
-          if (r.width / r.height > boxRatio) {
-            final w = r.height * boxRatio;
-            r = Rect.fromLTWH(r.left + (r.width - w) / 2, r.top, w, r.height);
-          } else {
-            final h = r.width / boxRatio;
-            r = Rect.fromLTWH(r.left, r.top, r.width, h);
-          }
-          return Crop(image, r);
-        },
-      );
+    builder: (context, c) {
+      final boxRatio = c.maxWidth / c.maxHeight;
+      var r = region;
+      if (r.width / r.height > boxRatio) {
+        final w = r.height * boxRatio;
+        r = Rect.fromLTWH(r.left + (r.width - w) / 2, r.top, w, r.height);
+      } else {
+        final h = r.width / boxRatio;
+        r = Rect.fromLTWH(r.left, r.top, r.width, h);
+      }
+      return Crop(image, r);
+    },
+  );
 }
 
 /// Vignette d'un thème (choix du thème à la création).
@@ -258,5 +304,90 @@ class _SalonThemeThumbState extends State<SalonThemeThumb> {
   Widget build(BuildContext context) {
     final art = _art;
     return art == null ? ColoredBox(color: widget.theme.background) : _Cover(image: art, region: widget.theme.header);
+  }
+}
+
+/// Bouton aux couleurs du thème du salon.
+class SalonButton extends StatefulWidget {
+  final String text;
+  final SalonTheme theme;
+  final VoidCallback? onPressed;
+  final bool secondary;
+  final double height;
+  final double fontSize;
+
+  const SalonButton(
+    this.text, {
+    super.key,
+    required this.theme,
+    this.onPressed,
+    this.secondary = false,
+    this.height = 52,
+    this.fontSize = 19,
+  });
+
+  @override
+  State<SalonButton> createState() => _SalonButtonState();
+}
+
+class _SalonButtonState extends State<SalonButton> {
+  bool _down = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = widget.theme;
+    final h = widget.height;
+    final on = widget.onPressed != null;
+    final secondary = widget.secondary;
+    return GestureDetector(
+      onTapDown: on ? (_) => setState(() => _down = true) : null,
+      onTapUp: on ? (_) => setState(() => _down = false) : null,
+      onTapCancel: on ? () => setState(() => _down = false) : null,
+      onTap: widget.onPressed,
+      child: AnimatedOpacity(
+        opacity: on ? 1 : 0.45,
+        duration: const Duration(milliseconds: 200),
+        child: AnimatedScale(
+          scale: _down ? 0.96 : 1,
+          duration: const Duration(milliseconds: 90),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            height: h,
+            alignment: Alignment.center,
+            padding: EdgeInsets.symmetric(horizontal: h * 0.5),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(h / 2),
+              color: secondary ? t.secondary : null,
+              gradient: secondary
+                  ? null
+                  : LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: t.button,
+                      stops: const [0, 0.55, 1],
+                    ),
+              border: secondary ? Border.all(color: t.secondaryText.withValues(alpha: 0.7), width: 1.5) : null,
+              boxShadow: secondary
+                  ? null
+                  : [
+                      BoxShadow(color: t.buttonShadow, offset: Offset(0, h * 0.06)),
+                      BoxShadow(color: const Color(0x4D000000), offset: Offset(0, h * 0.14), blurRadius: h * 0.3),
+                      if (t.buttonGlow != null) BoxShadow(color: t.buttonGlow!, blurRadius: h * 0.6),
+                    ],
+            ),
+            child: Text(
+              widget.text,
+              maxLines: 1,
+              style: TextStyle(
+                fontFamily: 'Lilita',
+                fontSize: widget.fontSize,
+                height: 1.1,
+                color: secondary ? t.secondaryText : t.buttonText,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

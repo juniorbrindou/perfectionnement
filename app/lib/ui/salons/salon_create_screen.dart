@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/bible_books.dart';
 import '../../state/online.dart';
 import '../../state/player.dart';
+import '../../state/reglages.dart';
 import '../../state/salons.dart';
 import '../game/pictos.dart';
 import '../game/table.dart';
@@ -21,7 +22,8 @@ class SalonCreateScreen extends StatefulWidget {
 }
 
 class _SalonCreateScreenState extends State<SalonCreateScreen> {
-  static const _cost = 30;
+  /// Coût de création, réglé depuis le back-office.
+  int get _cost => Reglages.instance.salonCout;
   static const _categories = {
     'personnages': 'Personnages',
     'miracles': 'Miracles',
@@ -44,11 +46,13 @@ class _SalonCreateScreenState extends State<SalonCreateScreen> {
   void initState() {
     super.initState();
     _name.addListener(() => setState(() {}));
-    Salons.options().then((o) {
-      if (mounted) setState(() => _options = o);
-    }).catchError((Object e) {
-      if (mounted) showToast(context, Online.describe(e));
-    });
+    Salons.options()
+        .then((o) {
+          if (mounted) setState(() => _options = o);
+        })
+        .catchError((Object e) {
+          if (mounted) showToast(context, Online.describe(e));
+        });
   }
 
   @override
@@ -59,17 +63,18 @@ class _SalonCreateScreenState extends State<SalonCreateScreen> {
   }
 
   int get _minimum => (_options?['minimum'] as num?)?.toInt() ?? 40;
-  Map<String, dynamic> get _counts => ((_options?['difficultes'] as Map?)?[_difficulty] as Map?)?.cast<String, dynamic>() ?? const {};
+  Map<String, dynamic> get _counts =>
+      ((_options?['difficultes'] as Map?)?[_difficulty] as Map?)?.cast<String, dynamic>() ?? const {};
   int _count(String group, String key) => ((_counts[group] as Map?)?[key] as num?)?.toInt() ?? 0;
   int get _total => (_counts['total'] as num?)?.toInt() ?? 0;
 
   /// Questions disponibles pour un choix (approché pour plusieurs livres : une carte peut en citer deux).
   int _available(String type, Iterable<String> values) => switch (type) {
-        'testament' => values.fold(0, (n, v) => n + _count('testaments', v)),
-        'livres' => values.fold(0, (n, v) => n + _count('livres', v)),
-        'categorie' => values.fold(0, (n, v) => n + _count('categories', v)),
-        _ => _total,
-      };
+    'testament' => values.fold(0, (n, v) => n + _count('testaments', v)),
+    'livres' => values.fold(0, (n, v) => n + _count('livres', v)),
+    'categorie' => values.fold(0, (n, v) => n + _count('categories', v)),
+    _ => _total,
+  };
 
   bool get _nameOk => _name.text.trim().length >= 3;
   bool get _rulesOk => (_content == 'bible' || _values.isNotEmpty) && _available(_content, _values) >= _minimum;
@@ -133,11 +138,23 @@ class _SalonCreateScreenState extends State<SalonCreateScreen> {
                 Padding(
                   padding: EdgeInsets.fromLTRB(16 * k, 0, 16 * k, 12 * k),
                   child: _step == 1
-                      ? GoldButton('Continuer', onPressed: _nameOk ? () => setState(() => _step = 2) : null, height: 52 * k, fontSize: 19 * k)
+                      ? SalonButton(
+                          'Continuer',
+                          theme: t,
+                          onPressed: _nameOk ? () => setState(() => _step = 2) : null,
+                          height: 52 * k,
+                          fontSize: 19 * k,
+                        )
                       : Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            GoldButton('Créer le salon · $_cost talents', onPressed: _rulesOk && !_busy ? _create : null, height: 52 * k, fontSize: 19 * k),
+                            SalonButton(
+                              'Créer le salon · $_cost talents',
+                              theme: t,
+                              onPressed: _rulesOk && !_busy ? _create : null,
+                              height: 52 * k,
+                              fontSize: 19 * k,
+                            ),
                             SizedBox(height: 6 * k),
                             Text(
                               'Il te restera ${Player.instance.talents - _cost} talents.',
@@ -157,48 +174,52 @@ class _SalonCreateScreenState extends State<SalonCreateScreen> {
   // ---------------------------------------------------------------- Étape 1 : le visage du salon
 
   List<Widget> _face(double k) => [
-        _Panel(
+    _Panel(
+      children: [
+        _Label('Nom'),
+        _Field(controller: _name, max: 24, hint: 'Les Psalmistes'),
+        SizedBox(height: 12 * k),
+        _Label('Devise'),
+        _Field(controller: _motto, max: 60, hint: 'Une phrase pour ton salon (facultatif)', serif: true),
+        SizedBox(height: 12 * k),
+        _Label('Écu'),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _Label('Nom'),
-            _Field(controller: _name, max: 24, hint: 'Les Psalmistes'),
-            SizedBox(height: 12 * k),
-            _Label('Devise'),
-            _Field(controller: _motto, max: 60, hint: 'Une phrase pour ton salon (facultatif)', serif: true),
-            SizedBox(height: 12 * k),
-            _Label('Écu'),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                for (var i = 0; i < salonColors.length; i++)
-                  Padding(
-                    padding: EdgeInsets.zero,
-                    child: GestureDetector(
-                      onTap: () => setState(() => _color = i),
-                      child: Container(
-                        padding: EdgeInsets.all(2.5 * k),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(13 * k),
-                          border: Border.all(color: i == _color ? const Color(0xFFE0961A) : Colors.transparent, width: 2.5),
-                        ),
-                        child: SalonEmblem(name: _name.text.trim().isEmpty ? 'S' : _name.text.trim(), color: i, size: 34 * k),
-                      ),
+            for (var i = 0; i < salonColors.length; i++)
+              Padding(
+                padding: EdgeInsets.zero,
+                child: GestureDetector(
+                  onTap: () => setState(() => _color = i),
+                  child: Container(
+                    padding: EdgeInsets.all(2.5 * k),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(13 * k),
+                      border: Border.all(color: i == _color ? _theme.panelAccent : Colors.transparent, width: 2.5),
+                    ),
+                    child: SalonEmblem(
+                      name: _name.text.trim().isEmpty ? 'S' : _name.text.trim(),
+                      color: i,
+                      size: 34 * k,
                     ),
                   ),
-              ],
-            ),
-            SizedBox(height: 12 * k),
-            _Label('Thème'),
-            Row(
-              children: [
-                for (final th in SalonTheme.all) ...[
-                  if (th != SalonTheme.all.first) SizedBox(width: 8 * k),
-                  Expanded(child: _themeChoice(th, k)),
-                ],
-              ],
-            ),
+                ),
+              ),
           ],
         ),
-      ];
+        SizedBox(height: 12 * k),
+        _Label('Thème'),
+        Row(
+          children: [
+            for (final th in SalonTheme.all) ...[
+              if (th != SalonTheme.all.first) SizedBox(width: 8 * k),
+              Expanded(child: _themeChoice(th, k)),
+            ],
+          ],
+        ),
+      ],
+    ),
+  ];
 
   Widget _themeChoice(SalonTheme th, double k) {
     final on = th == _theme;
@@ -209,15 +230,24 @@ class _SalonCreateScreenState extends State<SalonCreateScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12 * k),
-          border: Border.all(color: on ? const Color(0xFFE0961A) : const Color(0xFFDCCDB0), width: on ? 2.5 : 1.5),
-          boxShadow: on ? const [BoxShadow(color: Color(0x80F0AA32), blurRadius: 14)] : null,
+          border: Border.all(color: on ? _theme.panelAccent : const Color(0xFFDCCDB0), width: on ? 2.5 : 1.5),
+          boxShadow: on ? const [BoxShadow(color: Color(0x40000000), blurRadius: 10)] : null,
         ),
         child: Column(
           children: [
-            SizedBox(height: 62 * k, width: double.infinity, child: SalonThemeThumb(theme: th)),
+            SizedBox(
+              height: 62 * k,
+              width: double.infinity,
+              child: SalonThemeThumb(theme: th),
+            ),
             Padding(
               padding: EdgeInsets.symmetric(vertical: 5 * k),
-              child: Text(th.name, textAlign: TextAlign.center, maxLines: 1, style: titleStyle(12.5 * k, const Color(0xFF3A2A1A))),
+              child: Text(
+                th.name,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                style: titleStyle(12.5 * k, const Color(0xFF3A2A1A)),
+              ),
             ),
           ],
         ),
@@ -236,23 +266,45 @@ class _SalonCreateScreenState extends State<SalonCreateScreen> {
           _Label('Difficulté'),
           Row(
             children: [
-              for (final (d, label, stake) in const [('lait', 'Lait', 5), ('manne', 'Manne', 20), ('solide', 'Solide', 50)]) ...[
+              for (final (d, label) in const [('lait', 'Lait'), ('manne', 'Manne'), ('solide', 'Solide')]) ...[
                 if (d != 'lait') SizedBox(width: 8 * k),
-                Expanded(child: _difficultyChoice(d, label, stake, k)),
+                Expanded(child: _difficultyChoice(d, label, Reglages.instance.miseDuel(d), k)),
               ],
             ],
           ),
           SizedBox(height: 12 * k),
           _Label('Questions'),
           if (_options == null)
-            Padding(padding: EdgeInsets.all(10 * k), child: const Center(child: CircularProgressIndicator(strokeWidth: 2)))
+            Padding(
+              padding: EdgeInsets.all(10 * k),
+              child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+            )
           else ...[
             _contentOption('bible', 'Toute la Bible', _total, k),
-            _contentOption('testament', 'Un Testament', _available('testament', const ['AT', 'NT']), k,
-                sub: [for (final v in const ['AT', 'NT']) (v, v == 'AT' ? 'Ancien Testament' : 'Nouveau Testament', _count('testaments', v))]),
-            _contentOption('livres', 'Des livres', _available('livres', books), k, sub: [for (final b in books) (b, b, _count('livres', b))]),
-            _contentOption('categorie', 'Une catégorie', _available('categorie', _categories.keys), k,
-                sub: [for (final e in _categories.entries) (e.key, e.value, _count('categories', e.key))]),
+            _contentOption(
+              'testament',
+              'Un Testament',
+              _available('testament', const ['AT', 'NT']),
+              k,
+              sub: [
+                for (final v in const ['AT', 'NT'])
+                  (v, v == 'AT' ? 'Ancien Testament' : 'Nouveau Testament', _count('testaments', v)),
+              ],
+            ),
+            _contentOption(
+              'livres',
+              'Des livres',
+              _available('livres', books),
+              k,
+              sub: [for (final b in books) (b, b, _count('livres', b))],
+            ),
+            _contentOption(
+              'categorie',
+              'Une catégorie',
+              _available('categorie', _categories.keys),
+              k,
+              sub: [for (final e in _categories.entries) (e.key, e.value, _count('categories', e.key))],
+            ),
           ],
         ],
       ),
@@ -270,7 +322,11 @@ class _SalonCreateScreenState extends State<SalonCreateScreen> {
                     Text(_name.text.trim(), style: titleStyle(20 * k, const Color(0xFF2B2A33))),
                     Text(
                       _summary(),
-                      style: const TextStyle(fontFamily: 'Garamond', fontStyle: FontStyle.italic, color: Color(0xFF5A4A3A)).copyWith(fontSize: 14 * k),
+                      style: const TextStyle(
+                        fontFamily: 'Garamond',
+                        fontStyle: FontStyle.italic,
+                        color: Color(0xFF5A4A3A),
+                      ).copyWith(fontSize: 14 * k),
                     ),
                   ],
                 ),
@@ -315,7 +371,7 @@ class _SalonCreateScreenState extends State<SalonCreateScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12 * k),
-          border: Border.all(color: on ? const Color(0xFFE0961A) : const Color(0xFFDCCDB0), width: on ? 2.5 : 1.5),
+          border: Border.all(color: on ? _theme.panelAccent : const Color(0xFFDCCDB0), width: on ? 2.5 : 1.5),
         ),
         child: Column(
           children: [
@@ -330,7 +386,14 @@ class _SalonCreateScreenState extends State<SalonCreateScreen> {
               child: PictoIcon(pictoForDifficulty(d), size: 18 * k),
             ),
             SizedBox(height: 4 * k),
-            Text(label, style: const TextStyle(fontFamily: 'Garamond', color: Color(0xFF1D2A4A), fontVariations: [FontVariation('wght', 600)]).copyWith(fontSize: 16 * k)),
+            Text(
+              label,
+              style: const TextStyle(
+                fontFamily: 'Garamond',
+                color: Color(0xFF1D2A4A),
+                fontVariations: [FontVariation('wght', 600)],
+              ).copyWith(fontSize: 16 * k),
+            ),
             Text('mise $stake', style: bodyStyle(11 * k, const Color(0xFF8A5A12), weight: 900)),
           ],
         ),
@@ -349,9 +412,9 @@ class _SalonCreateScreenState extends State<SalonCreateScreen> {
           GestureDetector(
             onTap: enough
                 ? () => setState(() {
-                      _content = type;
-                      _values.clear();
-                    })
+                    _content = type;
+                    _values.clear();
+                  })
                 : null,
             child: Opacity(
               opacity: enough ? 1 : 0.5,
@@ -361,7 +424,7 @@ class _SalonCreateScreenState extends State<SalonCreateScreen> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12 * k),
-                  border: Border.all(color: on ? const Color(0xFFE0961A) : const Color(0xFFDCCDB0), width: on ? 2 : 1.5),
+                  border: Border.all(color: on ? _theme.panelAccent : const Color(0xFFDCCDB0), width: on ? 2 : 1.5),
                 ),
                 child: Row(
                   children: [
@@ -370,7 +433,10 @@ class _SalonCreateScreenState extends State<SalonCreateScreen> {
                       height: 18 * k,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(color: on ? const Color(0xFFE0961A) : const Color(0xFFC9B89A), width: on ? 5 * k : 2),
+                        border: Border.all(
+                          color: on ? _theme.panelAccent : const Color(0xFFC9B89A),
+                          width: on ? 5 * k : 2,
+                        ),
                       ),
                     ),
                     SizedBox(width: 10 * k),
@@ -378,7 +444,7 @@ class _SalonCreateScreenState extends State<SalonCreateScreen> {
                     const Spacer(),
                     Text(
                       enough ? '$count questions' : 'Pas encore assez',
-                      style: bodyStyle(11.5 * k, enough ? const Color(0xFF4F7A4A) : const Color(0xFF9A5A3A), weight: 900),
+                      style: bodyStyle(11.5 * k, enough ? _theme.panelAccent : const Color(0xFF9A5A3A), weight: 900),
                     ),
                   ],
                 ),
@@ -401,11 +467,15 @@ class _SalonCreateScreenState extends State<SalonCreateScreen> {
                         padding: EdgeInsets.symmetric(horizontal: 9 * k, vertical: 4 * k),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10 * k),
-                          color: _values.contains(value) ? const Color(0xFF4F7A4A) : const Color(0xFFF1E8D6),
+                          color: _values.contains(value) ? _theme.panelAccent : const Color(0xFFF1E8D6),
                         ),
                         child: Text(
                           '$text · $n',
-                          style: bodyStyle(12 * k, _values.contains(value) ? Colors.white : const Color(0xFF6A5A40), weight: 900),
+                          style: bodyStyle(
+                            12 * k,
+                            _values.contains(value) ? Colors.white : const Color(0xFF6A5A40),
+                            weight: 900,
+                          ),
                         ),
                       ),
                     ),
@@ -465,8 +535,12 @@ class _Field extends StatelessWidget {
   Widget build(BuildContext context) {
     final k = tableUnit(context);
     final style = serif
-        ? const TextStyle(fontFamily: 'Garamond', fontStyle: FontStyle.italic, color: Color(0xFF4A3A2A), fontVariations: [FontVariation('wght', 500)])
-            .copyWith(fontSize: 16 * k)
+        ? const TextStyle(
+            fontFamily: 'Garamond',
+            fontStyle: FontStyle.italic,
+            color: Color(0xFF4A3A2A),
+            fontVariations: [FontVariation('wght', 500)],
+          ).copyWith(fontSize: 16 * k)
         : bodyStyle(15 * k, const Color(0xFF2B2A33));
     return TextField(
       controller: controller,
@@ -481,10 +555,15 @@ class _Field extends StatelessWidget {
         filled: true,
         fillColor: Colors.white,
         contentPadding: EdgeInsets.symmetric(horizontal: 12 * k, vertical: 11 * k),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12 * k), borderSide: const BorderSide(color: Color(0xFFDCCDB0), width: 1.5)),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12 * k), borderSide: const BorderSide(color: Color(0xFFE0961A), width: 2)),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12 * k),
+          borderSide: const BorderSide(color: Color(0xFFDCCDB0), width: 1.5),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12 * k),
+          borderSide: const BorderSide(color: Color(0xFFE0961A), width: 2),
+        ),
       ),
     );
   }
 }
-

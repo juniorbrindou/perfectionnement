@@ -12,6 +12,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../core/pseudo.dart';
 import 'player.dart';
+import 'reglages.dart';
 
 /// Connexion au serveur Nakama (docs/SERVEUR.md), portée de scripts/online.gd.
 ///
@@ -38,8 +39,12 @@ class Online {
 
   final Player _player = Player.instance;
   final _rng = Random();
-  late final NakamaBaseClient _client =
-      NakamaRestApiClient.init(host: host, serverKey: serverKey, port: port, ssl: true);
+  late final NakamaBaseClient _client = NakamaRestApiClient.init(
+    host: host,
+    serverKey: serverKey,
+    port: port,
+    ssl: true,
+  );
 
   Session? _session;
   Directory? _dir;
@@ -83,6 +88,7 @@ class Online {
       await _saveSession();
       await refreshAccount();
       _setConnection(Connection.online);
+      unawaited(loadReglages());
       unawaited(claimBread());
       return true;
     } catch (e) {
@@ -176,6 +182,16 @@ class Online {
     }
   }
 
+  /// Réglages du jeu en vigueur (back-office), gardés pour le prochain lancement.
+  Future<void> loadReglages() async {
+    try {
+      Reglages.instance.appliquer(await rpc('reglages'));
+      await _saveCache();
+    } catch (e) {
+      debugPrint('Réglages : ${_message(e)}');
+    }
+  }
+
   /// Appel d'une fonction du serveur ; renvoie sa réponse décodée.
   Future<Map<String, dynamic>> rpc(String id, [Map<String, dynamic>? payload]) async {
     if (!await _ensureSession()) throw StateError(lastError.isEmpty ? 'Pas de connexion au serveur.' : lastError);
@@ -234,7 +250,8 @@ class Online {
     if (stored.isNotEmpty) return stored;
     final b = List.generate(16, (_) => Random.secure().nextInt(256));
     final hex = b.map((x) => x.toRadixString(16).padLeft(2, '0')).join();
-    final id = '${hex.substring(0, 8)}-${hex.substring(8, 12)}-${hex.substring(12, 16)}-'
+    final id =
+        '${hex.substring(0, 8)}-${hex.substring(8, 12)}-${hex.substring(12, 16)}-'
         '${hex.substring(16, 20)}-${hex.substring(20)}';
     await _write(deviceIdFile, id);
     return id;
@@ -251,6 +268,7 @@ class Online {
       googleLinked = d['google'] == true;
       wallet = (d['portefeuille'] as Map?)?.cast<String, dynamic>() ?? {};
       _breadDate = '${d['pain'] ?? ''}';
+      Reglages.instance.appliquer((d['reglages'] as Map?)?.cast<String, dynamic>() ?? const {});
       _player.update((p) {
         p.username = '${d['pseudo'] ?? ''}';
         p.xp = _int(wallet['xp']);
@@ -276,6 +294,7 @@ class Online {
         'place': _player.rankPlace,
         'etoiles': _player.adventureStars,
         'pain': _breadDate,
+        'reglages': Reglages.instance.valeurs,
       }),
     );
   }
@@ -310,12 +329,12 @@ class Online {
   static String describe(Object e) => _message(e);
 
   static String _message(Object e) => switch (e) {
-        ResponseError(:final message) when (message ?? '').isNotEmpty => message!,
-        ResponseError(:final code) => 'Erreur du serveur ($code).',
-        DioException() => 'Pas de connexion au serveur.',
-        StateError(:final message) => message,
-        _ => '$e',
-      };
+    ResponseError(:final message) when (message ?? '').isNotEmpty => message!,
+    ResponseError(:final code) => 'Erreur du serveur ($code).',
+    DioException() => 'Pas de connexion au serveur.',
+    StateError(:final message) => message,
+    _ => '$e',
+  };
 
   static int _int(Object? v) => v is num ? v.toInt() : int.tryParse('$v') ?? 0;
 
