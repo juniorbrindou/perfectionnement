@@ -780,4 +780,54 @@ test("réglages : appliqués aux règles, puis remis par défaut", function () {
   assert.strictEqual(g.xpDePartie(false, false), 10);
 });
 
+// ---------------------------------------------------------------- Gestion des cartes
+
+function copie(o) { return JSON.parse(JSON.stringify(o)); }
+const semence = copie(vm.runInContext("SEMENCE", g));
+const modele = semence.en_ligne.cartes[0];
+function fiche(plus) { return Object.assign(copie(modele), { id: "T-001", question: "Question de test ?" }, plus); }
+
+test("cartes : les fichiers data/ passent les contrôles et ne partagent rien", function () {
+  ["en_ligne", "telephone"].forEach(function (nom) {
+    const autre = semence[nom === "en_ligne" ? "telephone" : "en_ligne"];
+    const r = g.appliquerFiches({ cartes: [], depart: [] }, autre, semence[nom].cartes, semence[nom].depart, false);
+    assert.strictEqual(r.erreurs.join(" | "), "");
+    assert.strictEqual(g.reserveInjouable(r.reserve), "");
+  });
+});
+
+test("cartes : fiche invalide, doublon ou carte de l'autre réserve refusés", function () {
+  const e = function (cartes) { return g.appliquerFiches(semence.en_ligne, semence.telephone, cartes, [], false).erreurs.join(" | "); };
+  assert.strictEqual(e([fiche({})]), "");
+  assert.ok(e([fiche({ wrongs: ["a", "b"] })]).indexOf("5 fausses") >= 0);
+  assert.ok(e([fiche({ wrongs: [modele.answer, "b", "c", "d", "e"] })]).indexOf("en double") >= 0);
+  assert.ok(e([fiche({ books: ["Tobie"] })]).indexOf("livre inconnu") >= 0);
+  assert.ok(e([fiche({}), fiche({})]).indexOf("répété") >= 0);
+  assert.ok(e([fiche({ id: semence.telephone.cartes[0].id })]).indexOf("autre réserve") >= 0);
+});
+
+test("cartes : fusionner, remplacer (corbeille) et statuts", function () {
+  const n = semence.en_ligne.cartes.length;
+  const ajout = g.appliquerFiches(semence.en_ligne, semence.telephone, [fiche({}), fiche({ id: modele.id, question: "Nouvelle question ?" })], [], false);
+  assert.strictEqual(ajout.reserve.cartes.length, n + 1);
+  assert.strictEqual(ajout.ajoutees, 1);
+  assert.strictEqual(ajout.modifiees, 1);
+  const rempl = g.appliquerFiches(semence.en_ligne, semence.telephone, [fiche({})], [], true);
+  assert.strictEqual(rempl.retirees, n);
+  assert.strictEqual(rempl.reserve.cartes.length, n + 1);
+  assert.ok(g.reserveInjouable(rempl.reserve));
+  const s = g.changerStatut(semence.en_ligne, [modele.id], "retiree");
+  assert.strictEqual(s.changees, 1);
+  assert.strictEqual(g.jouables(s.reserve).lait, g.jouables(semence.en_ligne).lait - 1);
+});
+
+test("cartes : une carte retirée n'est plus tirée mais reste lisible par id", function () {
+  const r = g.changerStatut(semence.en_ligne, [modele.id], "retiree").reserve;
+  vm.runInContext("[CARTES, QUESTIONS_DEPART, SEMENCE].forEach(Object.freeze)", g);
+  g.installerCartes(r);
+  assert.strictEqual(vm.runInContext("CARTES.filter(function (c) { return c.id === '" + modele.id + "'; }).length", g), 0);
+  assert.strictEqual(g.carteComplete(modele.id).question, modele.question);
+  g.installerCartes(semence.en_ligne);
+});
+
 console.log("\n" + ok + " tests serveur réussis");

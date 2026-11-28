@@ -48,6 +48,8 @@ const REGLAGES: Reglage[] = [
   { cle: "ia_chance_solide", groupe: "Le Scribe", libelle: "Réussite avec 4 propositions · Nourriture solide", unite: "%", defaut: 45, min: 0, max: 100 },
   { cle: "ia_depart_chance", groupe: "Le Scribe", libelle: "Réussite à la question de départ", unite: "%", defaut: 70, min: 0, max: 100 },
 
+  { cle: "cartes_brouillons", groupe: "Cartes", libelle: "Jouer aussi les brouillons (1 : oui, 0 : validées seules)", unite: "", defaut: 1, min: 0, max: 1 },
+
   { cle: "salon_membres_max", groupe: "Salons", libelle: "Membres au maximum", unite: "joueurs", defaut: 50, min: 2, max: 500 },
   { cle: "salon_questions_min", groupe: "Salons", libelle: "Questions validées au minimum pour un salon", unite: "questions", defaut: 10, min: 1, max: 1000 },
   { cle: "salon_score_victoire", groupe: "Salons", libelle: "Score de salon d'une victoire", unite: "points", defaut: 10, min: 0, max: 1000 },
@@ -92,6 +94,7 @@ function appliquerReglages(v: { [cle: string]: number }): void {
   MISES_ARCADE = { lait: v["mise_arcade_lait"], manne: v["mise_arcade_manne"], solide: v["mise_arcade_solide"] };
   MISES_DUEL = { lait: v["mise_duel_lait"], manne: v["mise_duel_manne"], solide: v["mise_duel_solide"] };
   SALON_COUT = v["salon_cout"];
+  BROUILLONS_JOUABLES = v["cartes_brouillons"];
   DELAI_DEPART_S = v["arcade_depart_s"];
   DELAI_CHOISIR_S = v["arcade_choisir_s"];
   DELAI_REPONDRE_S = v["arcade_repondre_s"];
@@ -126,6 +129,7 @@ function chargerReglages(nk: nkruntime.Nakama, logger?: nkruntime.Logger): void 
   reglagesLusA = maintenant;
   try {
     appliquerReglages(valeursEnVigueur(lireReglagesStockes(nk).valeurs));
+    chargerCartes(nk);
   } catch (e) {
     if (logger) logger.warn("Réglages : lecture impossible, valeurs précédentes gardées : %s", String(e));
   }
@@ -187,6 +191,15 @@ const rpcReglagesAdmin: nkruntime.RpcFunction = function (ctx, logger, nk, paylo
   const changements = REGLAGES.filter(function (r) { return avant[r.cle] !== apres[r.cle]; })
     .map(function (r) { return { cle: r.cle, libelle: r.libelle, avant: avant[r.cle], apres: apres[r.cle] }; });
   if (changements.length === 0) return vueAdmin(nk);
+  if (apres["cartes_brouillons"] === 0 && avant["cartes_brouillons"] !== 0) {
+    // Ne pas laisser le jeu sans cartes : il faut assez de validées avant d'écarter les brouillons.
+    chargerReglages(nk, logger);
+    const actuel = BROUILLONS_JOUABLES;
+    BROUILLONS_JOUABLES = 0;
+    const bloque = reserveInjouable(lireReserve(nk, "en_ligne").reserve);
+    BROUILLONS_JOUABLES = actuel;
+    if (bloque) throw refus("Validez d'abord plus de cartes en ligne (" + bloque + ").");
+  }
 
   const h = lireHistorique(nk);
   const entrees = [{ quand: Date.now(), auteur: auteur, changements: changements }].concat(h.entrees).slice(0, HISTORIQUE_MAX);

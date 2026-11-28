@@ -343,3 +343,44 @@ compte reçoit alors 120 talents et un pain de +15, et le RPC `reglages` renvoie
 rétablies ensuite, et l'historique garde les deux changements avec l'auteur `admin`. Page contrôlée à 375 px de
 large, sans défilement horizontal.
 
+
+## Gestion des cartes : déployée le 2026-11-28
+
+`server/src/cartes.ts` et l'écran **`https://brindoujunior.com/perfectionnement-admin/cartes.html`** (même mot de
+passe que les réglages). Pour les deux réserves (« En ligne » et « Partie à deux ») et les deux types (cartes,
+questions de départ) : créer, modifier (formulaire ou JSON), valider en lot, mettre à la corbeille, restaurer,
+importer et exporter en JSON au format de `data/*.json`. Rien à redéployer.
+
+**Source de vérité.** Tant qu'une réserve n'a jamais été modifiée, le serveur utilise les fichiers `data/` embarqués
+à la compilation. **Après la première modification, le serveur fait foi** (stockage `cartes` / `en_ligne` ou
+`telephone`) : une correction dans les fichiers du dépôt n'a d'effet qu'une fois **importée** depuis l'écran. Pour
+garder le dépôt à jour, exporter et commiter le fichier.
+
+Règles appliquées par le serveur (refus complet, rien n'est écrit à moitié) :
+
+- mêmes contrôles que `CardData.problems()` : 5 fausses réponses (4 pour une question de départ), pas de doublon,
+  livre connu, champs obligatoires ;
+- pas de carte commune aux deux réserves, par identifiant ou par question (anti-triche) ;
+- au moins 10 cartes jouables par difficulté et 1 question de départ ;
+- « supprimer » = statut `retiree` : plus tirée, mais gardée pour les parties en cours, et restaurable.
+
+Réglage ajouté : `cartes_brouillons` (1 par défaut). À 0, seules les cartes `valide` sont jouées. Le serveur
+refuse de passer à 0 tant qu'il n'y a pas assez de cartes validées.
+
+RPC `cartes_admin` (clé HTTP) : `lire`, `enregistrer`, `statut`, `importer { mode: fusionner | remplacer, essai }`.
+Nakama accepte des requêtes de 2 Mo (`socket.max_request_size_bytes`) pour les imports ; nginx limite l'API publique
+`/v2/` à 256 Ko.
+
+**À faire côté application** : la partie à deux lit encore les cartes embarquées dans l'APK. Le RPC joueur
+**`cartes_telephone`** renvoie `{ version, cartes, depart }` (cartes jouables de la réserve « Partie à deux »,
+`version` vide si jamais modifiée) : l'appeler à l'ouverture, garder la réponse sur le téléphone, et revenir aux
+fichiers embarqués hors ligne.
+
+**Correctif du même jour sur les réglages** : Nakama fige les objets globaux après `InitModule`. L'application des
+réglages plantait à la première mise (`Cannot assign to read only property`), et tout ce qui suivait restait aux
+valeurs du code. **Règle** : remplacer un objet ou un tableau global, ne jamais le modifier. Les tests figent
+maintenant les objets comme Nakama.
+
+Vérifié depuis l'adresse publique (données de test supprimées ensuite) : accès refusé sans mot de passe et aux
+joueurs, fiches invalides ou communes aux deux réserves refusées, création, modification, corbeille, import de 400
+cartes à l'essai, et une partie d'arcade qui sert la question de départ créée dans l'écran. Page contrôlée à 375 px.

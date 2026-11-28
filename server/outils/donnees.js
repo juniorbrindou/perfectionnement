@@ -9,22 +9,22 @@ const lire = function (nom) {
   return JSON.parse(fs.readFileSync(path.join(data, nom), "utf8"));
 };
 
-const cartes = lire("en_ligne/cartes.json").map(function (c) {
-  return {
-    id: c.id, difficulty: c.difficulty, testament: c.testament, books: c.books, category: c.category,
-    question: c.question, answer: c.answer, wrongs: c.wrongs, reference: c.reference,
-    explanation: c.explanation, story: c.story,
-  };
-});
-const depart = lire("en_ligne/questions_depart.json").map(function (q) {
-  return { id: q.id, question: q.question, answer: q.answer, wrongs: q.wrongs };
-});
+// Semence des deux réserves : utilisée tant que le back-office n'a rien modifié (src/cartes.ts).
+const semence = {
+  en_ligne: { cartes: lire("en_ligne/cartes.json"), depart: lire("en_ligne/questions_depart.json") },
+  telephone: { cartes: lire("cartes.json"), depart: lire("questions_depart.json") },
+};
+const cartes = semence.en_ligne.cartes;
+const depart = semence.en_ligne.depart;
 const aventure = lire("aventure.json");
 
 const sortie =
   "// Généré par outils/donnees.js depuis data/ : ne pas modifier à la main.\n" +
-  "const CARTES: CarteSource[] = " + JSON.stringify(cartes) + ";\n" +
-  "const QUESTIONS_DEPART: QuestionDepartSource[] = " + JSON.stringify(depart) + ";\n" +
+  "const SEMENCE: { [reserve: string]: { cartes: any[]; depart: any[] } } = " + JSON.stringify(semence) + ";\n" +
+  "let CARTES: CarteSource[] = SEMENCE.en_ligne.cartes;\n" +
+  "let QUESTIONS_DEPART: QuestionDepartSource[] = SEMENCE.en_ligne.depart;\n" +
+  "let CARTES_TOUTES: CarteSource[] = SEMENCE.en_ligne.cartes;\n" +
+  "let DEPART_TOUTES: QuestionDepartSource[] = SEMENCE.en_ligne.depart;\n" +
   "const AVENTURE: AventureSource = " + JSON.stringify(aventure) + ";\n";
 
 fs.writeFileSync(path.join(__dirname, "..", "src", "donnees.gen.ts"), sortie);

@@ -100,8 +100,8 @@ function contenuDesNiveaux(): { [niveau: string]: { [difficulte: string]: boolea
 // reçoit la réponse que pour ses propres cartes, ou pour une carte de l'IA qu'il vient de trouver.
 
 function carteSource(id: string): CarteSource | null {
-  for (let i = 0; i < CARTES.length; i++) {
-    if (CARTES[i].id === id) return CARTES[i];
+  for (let i = 0; i < CARTES_TOUTES.length; i++) {
+    if (CARTES_TOUTES[i].id === id) return CARTES_TOUTES[i];
   }
   return null;
 }
@@ -127,8 +127,8 @@ function carteADeviner(id: string, presentees: string[]): any {
 }
 
 function questionDepart(id: string): string {
-  for (let i = 0; i < QUESTIONS_DEPART.length; i++) {
-    if (QUESTIONS_DEPART[i].id === id) return QUESTIONS_DEPART[i].question || "";
+  for (let i = 0; i < DEPART_TOUTES.length; i++) {
+    if (DEPART_TOUTES[i].id === id) return DEPART_TOUTES[i].question || "";
   }
   return "";
 }

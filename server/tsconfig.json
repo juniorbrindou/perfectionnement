@@ -19,6 +19,7 @@
     "./src/duel_en_ligne.ts",
     "./src/salons.ts",
     "./src/reglages.ts",
+    "./src/cartes.ts",
     "./src/main.ts"
   ]
 }
