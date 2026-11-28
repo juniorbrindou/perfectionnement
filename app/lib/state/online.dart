@@ -238,10 +238,10 @@ class Online {
     if (!await _ensureSession()) return 'Pas de connexion au serveur.';
     try {
       await _client.updateAccount(session: _session!, username: name.trim());
-    } on ResponseError catch (e) {
-      return e.code == _alreadyExists ? 'Ce pseudo est déjà pris.' : _message(e);
     } catch (e) {
-      return _message(e);
+      // Nakama ne renvoie pas ici le code « déjà existant » : seul le texte le dit.
+      final message = _message(e);
+      return message.contains('already in use') ? 'Ce pseudo est déjà pris.' : message;
     }
     await refreshAccount();
     return null;
