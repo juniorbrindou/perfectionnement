@@ -19,14 +19,17 @@ import '../theme.dart';
 /// qu'afficher la dernière vue reçue et envoyer les choix du joueur. Même table que la partie
 /// à deux : main ouverte devant soi, carte au centre, feu doré, fête de la victoire.
 class DuelMatchScreen extends StatefulWidget {
-  const DuelMatchScreen({super.key});
+  /// La partie affichée (le duel en ligne par défaut).
+  final MatchSource? source;
+
+  const DuelMatchScreen({super.key, this.source});
 
   @override
   State<DuelMatchScreen> createState() => _DuelMatchScreenState();
 }
 
 class _DuelMatchScreenState extends State<DuelMatchScreen> with SingleTickerProviderStateMixin {
-  final _duel = DuelOnline.instance;
+  late final MatchSource _duel = widget.source ?? DuelOnline.instance;
   final _clock = ValueNotifier<double>(0);
   late final Ticker _ticker;
 
@@ -607,6 +610,18 @@ class _DuelMatchScreenState extends State<DuelMatchScreen> with SingleTickerProv
               _Gain(text: '+$xp XP', good: true),
             ],
           ),
+          if (fin['etoile'] == true)
+            Padding(
+              padding: EdgeInsets.only(top: 12 * k),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset('assets/aventure/etoile.png', width: 28 * k, height: 28 * k),
+                  SizedBox(width: 6 * k),
+                  Text('Nouvelle étoile !', style: titleStyle(20 * k, goldLight)),
+                ],
+              ),
+            ),
           SizedBox(height: 28 * k),
           if (canRematch)
             SizedBox(

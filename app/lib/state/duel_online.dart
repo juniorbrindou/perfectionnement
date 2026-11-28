@@ -17,9 +17,19 @@ abstract final class DuelOp {
   static const vue = 10;
 }
 
+/// Ce qu'un écran de partie lit et envoie : la dernière vue, l'instant de son arrivée, l'état du
+/// lien, et les choix du joueur (codes DuelOp). Duel en ligne (DuelOnline) ou arcade (ArcadeMatch).
+abstract class MatchSource extends ChangeNotifier {
+  Map<String, dynamic> get view;
+  DateTime get viewAt;
+  bool get linkLost => false;
+  void send(int op, [Map<String, dynamic> data = const {}]);
+  Future<void> leave();
+}
+
 /// Connexion temps réel des duels en ligne : recherche d'un adversaire, partie en cours, vues
 /// envoyées par le serveur, reconnexion après une coupure (portée de scripts/online.gd).
-class DuelOnline extends ChangeNotifier {
+class DuelOnline extends MatchSource {
   static final instance = DuelOnline();
 
   /// Une tentative toutes les 2 s : le serveur attend 30 s avant de déclarer l'absent perdant.
@@ -33,12 +43,15 @@ class DuelOnline extends ChangeNotifier {
   String matchId = '';
 
   /// Dernière vue de la partie envoyée par le serveur.
+  @override
   Map<String, dynamic> view = const {};
 
   /// Instant où la vue est arrivée (pour décompter son temps restant).
+  @override
   DateTime viewAt = DateTime.now();
 
   /// Connexion perdue pendant une partie, reconnexion en cours.
+  @override
   bool linkLost = false;
 
   /// Adversaire trouvé (duel rapide) : la partie est rejointe.
@@ -109,6 +122,7 @@ class DuelOnline extends ChangeNotifier {
     }
   }
 
+  @override
   void send(int op, [Map<String, dynamic> data = const {}]) {
     if (matchId.isEmpty) return;
     try {
@@ -119,6 +133,7 @@ class DuelOnline extends ChangeNotifier {
   }
 
   /// Quitte la partie (le serveur annule une partie pas encore commencée).
+  @override
   Future<void> leave() async {
     final id = matchId;
     matchId = '';

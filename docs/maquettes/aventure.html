@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Aventure : trois pistes</title>
+<style>
+@font-face { font-family: "Lilita"; src: url("../../assets/fonts/LilitaOne-Regular.ttf"); }
+@font-face { font-family: "Nunito"; src: url("../../assets/fonts/Nunito.ttf"); font-weight: 200 1000; }
+@font-face { font-family: "Garamond"; src: url("../../assets/fonts/EBGaramond.ttf"); font-weight: 400 800; }
+:root { --or: #f2c14e; --or-clair: #ffe39a; --pale: #c9d2ee; --encre: #1d2a4a; }
+* { margin: 0; box-sizing: border-box; }
+body { background: #1c1c22; font-family: "Nunito", sans-serif; color: #fff; padding: 28px 24px 50px; }
+h1 { font: 28px "Lilita"; }
+.intro { color: #b9bccb; margin: 6px 0 24px; max-width: 1200px; line-height: 1.45; font-size: 14px; }
+.rangee { display: flex; gap: 30px; flex-wrap: wrap; align-items: flex-start; }
+.piste h2 { font: 20px "Lilita"; color: var(--or); }
+.piste > p { color: #b9bccb; font-size: 12.5px; line-height: 1.4; width: 360px; margin: 4px 0 12px; min-height: 70px; }
+.tel { position: relative; width: 360px; height: 780px; border-radius: 32px; overflow: hidden; box-shadow: 0 0 0 9px #0a0a0d, 0 0 0 10px #333, 0 26px 50px rgba(0,0,0,.6); }
+.barre { position: absolute; top: 16px; left: 14px; right: 14px; display: flex; align-items: center; gap: 10px; z-index: 9; }
+.retour { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font: 22px "Lilita"; color: var(--or-clair);
+  background: radial-gradient(circle at 40% 35%, #1d3266, #0c1838); box-shadow: 0 0 0 2px var(--or); flex: none; }
+.barre b { font: 21px "Lilita"; flex: 1; text-shadow: 0 2px 4px rgba(0,0,0,.6); }
+.bourse { display: flex; align-items: center; gap: 5px; height: 32px; padding: 0 12px 0 6px; border-radius: 16px; background: rgba(6,18,47,.8);
+  box-shadow: inset 0 0 0 1.5px rgba(242,193,78,.6); font: 17px "Lilita"; color: var(--or-clair); }
+.piece { width: 22px; height: 22px; background: url("../../assets/duel/pieces.png") center/contain no-repeat; display: inline-block; flex: none; }
+.etoile { width: 15px; height: 15px; background: url("../../assets/aventure/etoile.png") center/contain no-repeat; display: inline-block; }
+.etoile.off { filter: grayscale(1) brightness(.6); opacity: .55; }
+.bouton { display: flex; align-items: center; justify-content: center; gap: 10px; height: 56px; border-radius: 28px; font: 22px "Lilita"; color: #3a2412;
+  background: linear-gradient(#fff0b0, #f8cf5c 50%, #ebb23a 85%, #d9962a); box-shadow: 0 0 0 1.2px #fff1b8 inset, 0 0 22px rgba(255,201,74,.6), 0 3px 0 #9a5d0e, 0 8px 16px rgba(0,0,0,.45); position: relative; overflow: hidden; }
+.bouton::after { content: ""; position: absolute; top: 0; bottom: 0; left: 58%; width: 26px; transform: skewX(-25deg); background: rgba(255,255,255,.22); }
+
+/* Panneau commun : le niveau choisi et ses trois difficultés (mêmes cartes qu'en ligne) */
+.panneau { position: absolute; left: 12px; right: 12px; bottom: 14px; padding: 12px 12px 12px; border-radius: 20px; z-index: 8;
+  background: rgba(6,18,47,.92); box-shadow: 0 0 0 1.5px rgba(242,193,78,.55), 0 -10px 30px rgba(0,0,0,.5); }
+.panneau h3 { font: 19px "Lilita"; text-align: center; color: var(--or-clair); }
+.panneau .num { text-align: center; font-size: 11.5px; font-weight: 800; color: var(--pale); margin-bottom: 9px; }
+.diffs { display: flex; gap: 7px; margin-bottom: 11px; }
+.diff { flex: 1; border-radius: 9px; padding: 2.5px; background: #13234a; box-shadow: inset 0 0 0 1px #b8924c; }
+.diff .in { border-radius: 7px; overflow: hidden; border: 1px solid #c9a35a; background: #f3ecdd; text-align: center; padding-bottom: 5px; }
+.diff .img { height: 50px; background: var(--img) center 45%/cover; border-bottom: 3px solid var(--c); }
+.diff b { display: block; font: 700 15px/1.1 "Garamond"; color: var(--encre); margin-top: 4px; }
+.diff .m { display: flex; justify-content: center; align-items: center; gap: 3px; font: 14px "Lilita"; color: #6b4310; }
+.diff .m .piece { width: 14px; height: 14px; }
+.diff .gagne { font-size: 10px; font-weight: 900; color: #2f8a3a; }
+.diff.on { box-shadow: inset 0 0 0 1px #ffe39a, 0 0 0 2px #ffe39a, 0 0 16px rgba(255,214,110,.7); transform: translateY(-4px); }
+
+/* ---------- A · La carte peinte ---------- */
+/* Seule la carte peinte (sans sa barre ni son panneau), agrandie pour remplir le haut de l'écran. */
+.a { background: #6aa84f url("../../assets/aventure/aventure.png") -86.8px -80.5px/533.5px auto no-repeat; }
+.a .masque { position: absolute; left: 0; right: 0; top: 0; height: 130px; background: linear-gradient(#3a86d6 45%, rgba(58,134,214,0)); z-index: 2; }
+.a::after { content: ""; position: absolute; left: 0; right: 0; top: 470px; bottom: 0; background: linear-gradient(rgba(11,31,77,0), #0b1f4d 70px); z-index: 2; }
+.a .noeud { position: absolute; width: 50px; height: 50px; margin: -25px 0 0 -25px; border-radius: 50%; display: grid; place-items: center; z-index: 3;
+  font: 20px "Lilita"; color: #3a2412; background: radial-gradient(circle at 40% 35%, #fff1b0, #f2c14e 55%, #b8781a); box-shadow: 0 0 0 3px #fff3c4, 0 0 22px rgba(255,214,110,.95), 0 6px 10px rgba(0,0,0,.4); }
+.a .noeud.fait { background: radial-gradient(circle at 40% 35%, #fff1b0, #e8b440 55%, #9a6412); box-shadow: 0 0 0 3px #fff3c4, 0 6px 10px rgba(0,0,0,.4); }
+.a .noeud .et { position: absolute; top: -12px; display: flex; gap: 0; }
+.a .noeud .et .etoile { width: 14px; height: 14px; }
+.a .ferme { position: absolute; width: 42px; height: 42px; margin: -21px 0 0 -21px; border-radius: 50%; display: grid; place-items: center; z-index: 3;
+  font: 16px "Lilita"; color: #e9e5dc; background: radial-gradient(circle at 40% 35%, #b9b5ad, #6d6a64); box-shadow: 0 0 0 2px #d8d4cc, 0 5px 8px rgba(0,0,0,.4); }
+.a .enseigne { position: absolute; top: 66px; left: 10px; min-width: 210px; z-index: 4; padding: 6px 16px 7px; border-radius: 8px; color: #fff4dc;
+  background: linear-gradient(#8a5a2a, #5a3216); box-shadow: 0 0 0 2px #3a1f0c, 0 6px 12px rgba(0,0,0,.45); transform: rotate(-3deg); }
+.a .enseigne b { font: 24px "Lilita"; display: block; } .a .enseigne small { font: italic 600 13px "Garamond"; }
+
+/* ---------- B · Le chemin de nuit ---------- */
+.b { background: radial-gradient(ellipse 120% 60% at 50% 0%, #1b3a86, #0b1f4d 45%, #06122f 80%); }
+.b .bandeau { position: absolute; left: 0; right: 0; top: 0; height: 200px; background: url("../../assets/illustrations/genese.jpg") center 35%/cover; }
+.b .bandeau::after { content: ""; position: absolute; inset: 0; background: linear-gradient(rgba(6,18,47,.35), rgba(6,18,47,.1) 40%, #0b1f4d 98%); }
+.b .chap { position: absolute; top: 120px; left: 0; right: 0; text-align: center; z-index: 3; }
+.b .chap small { font-size: 12px; font-weight: 900; color: var(--or-clair); }
+.b .chap b { display: block; font: 28px "Lilita"; text-shadow: 0 2px 8px #000; }
+.b svg.chemin { position: absolute; left: 0; top: 210px; z-index: 2; }
+.b .pt { position: absolute; z-index: 3; }
+.b .lbl { position: absolute; top: 4px; left: 56px; white-space: nowrap; } .b .pt.droite .lbl { left: auto; right: 56px; text-align: right; }
+.b .pt.droite .lbl span { justify-content: flex-end; }
+.b .med { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; font: 20px "Lilita"; flex: none; color: #3a2412;
+  background: radial-gradient(circle at 40% 35%, #fff1b0, #f2c14e 55%, #b8781a); box-shadow: 0 0 0 2.5px #6b4310, 0 0 0 4px #ffe39a, 0 4px 10px rgba(0,0,0,.5); }
+.b .med.ici { box-shadow: 0 0 0 2.5px #6b4310, 0 0 0 4px #ffe39a, 0 0 26px rgba(255,214,110,.95); transform: scale(1.12); }
+.b .med.ferme { color: #9aa3bd; background: radial-gradient(circle at 40% 35%, #2a3a66, #121d3d); box-shadow: 0 0 0 1.5px rgba(242,193,78,.35); }
+.b .lbl b { font: 14.5px "Lilita"; display: block; } .b .lbl.ferme b { color: #7d88aa; }
+.b .lbl span { display: flex; gap: 1px; margin-top: 1px; }
+
+/* ---------- C · Le livre de la Genèse ---------- */
+.c { background: radial-gradient(ellipse 120% 60% at 50% 0%, #1b3a86, #0b1f4d 45%, #06122f 80%); }
+.c .tete { position: absolute; top: 68px; left: 16px; right: 16px; display: flex; gap: 12px; align-items: center; z-index: 3; }
+.c .tete .cv { width: 62px; height: 62px; border-radius: 12px; background: url("../../assets/illustrations/genese.jpg") center/cover; box-shadow: 0 0 0 2px #c9a35a; flex: none; }
+.c .tete small { font-size: 12px; font-weight: 900; color: var(--or-clair); } .c .tete b { display: block; font: 24px "Lilita"; }
+.c .tete .prog { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: var(--pale); margin-top: 2px; }
+.c .grille { position: absolute; top: 150px; left: 14px; right: 14px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; z-index: 3; }
+.c .niv { height: 112px; border-radius: 10px; padding: 2.5px; background: #13234a; box-shadow: inset 0 0 0 1px #b8924c, 0 6px 12px rgba(0,0,0,.5); position: relative; }
+.c .niv .in { height: 100%; border-radius: 8px; overflow: hidden; border: 1px solid #c9a35a; background: #f3ecdd; display: flex; flex-direction: column; align-items: center; }
+.c .niv .img { width: 100%; height: 56px; background: url("../../assets/illustrations/genese.jpg") var(--x) 40%/420% auto; position: relative; }
+.c .niv .n { position: absolute; left: 4px; top: 4px; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font: 12px "Lilita"; color: #3a2412; background: linear-gradient(#ffe48a, #e0961a); }
+.c .niv b { font: 700 12px/1.05 "Garamond"; color: var(--encre); text-align: center; padding: 4px 3px 0; }
+.c .niv .s { margin-top: auto; margin-bottom: 4px; display: flex; } .c .niv .s .etoile { width: 12px; height: 12px; }
+.c .niv.ferme .in { filter: grayscale(.9) brightness(.55); } .c .niv.ferme::after { content: "🔒"; position: absolute; inset: 0; display: grid; place-items: center; font-size: 22px; }
+.c .niv.ici { box-shadow: inset 0 0 0 1px #ffe39a, 0 0 0 2px #ffe39a, 0 0 20px rgba(255,214,110,.75); }
+.c .suite { position: absolute; top: 392px; left: 14px; right: 14px; z-index: 3; padding: 10px 12px; border-radius: 12px; text-align: center; font-size: 12.5px; font-weight: 800; color: var(--pale);
+  background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(242,193,78,.25); }
+</style>
+</head>
+<body>
+<h1>Aventure : trois pistes</h1>
+<p class="intro">Le parcours de la Bible contre le Scribe. Chapitre 1, la Genèse, 8 niveaux : un niveau gagné ouvre le suivant, chaque difficulté gagnée donne
+son étoile (3 par niveau). En bas, dans les trois pistes, le même panneau : le niveau choisi, ses trois difficultés avec les vraies images
+(lait, manne, pain), la mise en arcade et l'étoile déjà gagnée, puis « Jouer ». Exemple : niveaux 1 et 2 gagnés, le 3 en cours.</p>
+<div class="rangee" id="r"></div>
+<script>
+const niveaux = ['La création', 'Le jardin d\'Éden', 'L\'arche de Noé', 'La tour de Babel', 'Abraham', 'Isaac et Rébecca', 'Jacob', 'Joseph'];
+const etoiles = [[1, 1, 1], [1, 1, 0], [1, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]];
+const ouvert = i => i <= 2;
+const et = (e, n = 3) => Array.from({length: n}, (_, j) => `<i class="etoile${e[j] ? '' : ' off'}"></i>`).join('');
+const diffs = [['lait', 'Lait', 2, '#4fae5c', 'lait'], ['manne', 'Manne', 5, '#3f78d8', 'manne'], ['solide', 'Solide', 10, '#8a5bc4', 'pain']];
+const panneau = `<div class="panneau"><h3>Niveau 3 · L'arche de Noé</h3><div class="num">Contre le Scribe · choisis ta difficulté</div>
+  <div class="diffs">${diffs.map(([id, nom, mise, c, img], j) => `<div class="diff${j === 1 ? ' on' : ''}" style="--c:${c};--img:url('../../assets/duel/${img}.jpg')"><div class="in">
+    <div class="img"></div><b>${nom}</b><div class="m"><i class="piece"></i>${mise}</div>${j === 0 ? '<div class="gagne">★ gagnée</div>' : '<div class="gagne" style="color:#8a7a66">à gagner</div>'}</div></div>`).join('')}</div>
+  <div class="bouton">▶ Jouer</div></div>`;
+const barre = `<div class="barre"><div class="retour">‹</div><b>Aventure</b><div class="bourse"><i class="piece"></i>90</div></div>`;
+
+// A · nœuds sur le chemin peint (coordonnées de l'image × 360/941)
+const k = 0.567, ox = -86.8, oy = -80.5;
+const spots = [[265, 958], [462, 1002], [585, 895], [452, 842], [420, 730], [614, 678], [537, 568], [720, 440]];
+const A = `<div class="tel a"><div class="masque"></div>${barre}
+  <div class="enseigne"><b>Aventure</b><small>Chapitre 1 · la Genèse</small></div>
+  ${spots.map(([x, y], i) => ouvert(i)
+    ? `<div class="noeud${i < 2 ? ' fait' : ''}" style="left:${x * k + ox}px;top:${y * k + oy}px">${i + 1}<span class="et">${et(etoiles[i])}</span></div>`
+    : `<div class="ferme" style="left:${x * k + ox}px;top:${y * k + oy}px">${i + 1}</div>`).join('')}
+  ${panneau}</div>`;
+
+// B · chemin de nuit en zigzag
+const pts = [[40, 470], [150, 432], [270, 396], [170, 356], [50, 320], [150, 284], [270, 250], [160, 214]];
+const path = 'M' + pts.map(([x, y]) => `${x + 23} ${y + 23}`).join(' L');
+const B = `<div class="tel b"><div class="bandeau"></div>${barre}
+  <div class="chap"><small>Chapitre 1</small><b>La Genèse</b></div>
+  <svg class="chemin" width="360" height="780" style="top:0"><path d="${path}" fill="none" stroke="rgba(242,193,78,.45)" stroke-width="3" stroke-dasharray="2 7" stroke-linecap="round"/></svg>
+  ${pts.map(([x, y], i) => `<div class="pt${x > 200 ? ' droite' : ''}" style="left:${x}px;top:${y}px">
+    <div class="med${i === 2 ? ' ici' : ''}${ouvert(i) ? '' : ' ferme'}">${i + 1}</div>
+    ${i < 3 ? `<div class="lbl"><b>${niveaux[i]}</b><span>${et(etoiles[i])}</span></div>` : ''}</div>`).join('')}
+  ${panneau}</div>`;
+
+// C · grille de niveaux en cartes
+const C = `<div class="tel c">${barre}
+  <div class="tete"><div class="cv"></div><div><small>Chapitre 1</small><b>La Genèse</b><div class="prog"><i class="etoile"></i> 6 étoiles sur 24</div></div></div>
+  <div class="grille">${niveaux.map((n, i) => `<div class="niv${ouvert(i) ? '' : ' ferme'}${i === 2 ? ' ici' : ''}" style="--x:${(i % 4) * 33}%"><div class="in">
+    <div class="img"><span class="n">${i + 1}</span></div><b>${n}</b><div class="s">${et(etoiles[i])}</div></div></div>`).join('')}</div>
+  <div class="suite">Chapitre 2 · l'Exode — s'ouvre après le chapitre 1</div>
+  ${panneau}</div>`;
+
+const pistes = [
+  ['A · La carte peinte', "On garde le tableau du chemin vers la ville, comme l'accueil : chaque niveau est un médaillon doré numéroté avec ses étoiles, les niveaux fermés sont gris. Le panneau du bas prend les nouvelles cartes de difficulté.", A],
+  ['B · Le chemin de nuit', "Dans la continuité des écrans en ligne : ciel de nuit, l'illustration du livre en haut, et un chemin d'or en pointillés qui serpente de niveau en niveau. Le niveau en cours brille.", B],
+  ['C · Le livre du chapitre', "Les 8 niveaux en petites cartes, comme une page d'album : numéro, nom, étoiles ; le niveau en cours cerclé d'or, les suivants grisés avec un cadenas. Le plus lisible, et chaque chapitre a sa page.", C],
+];
+document.getElementById('r').innerHTML = pistes.map(([t, p, c]) => `<div class="piste"><h2>${t}</h2><p>${p}</p>${c}</div>`).join('');
+</script>
+</body>
+</html>

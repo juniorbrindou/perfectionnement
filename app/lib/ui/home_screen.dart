@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 
 import '../core/adventure.dart';
 import '../state/player.dart';
+import 'adventure/adventure_screen.dart';
 import 'art.dart';
 import 'game/local_match_screen.dart';
 import 'online/online_screen.dart';
@@ -214,7 +215,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   deal: deal++,
                   breathe: true,
                   shine: true,
-                  onTap: () => _go('Aventure'),
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdventureScreen())),
                   children: [
                     onCard(_adventure, _levelPill, patch(const Color(0xEB171212), 26)),
                     onCard(

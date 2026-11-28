@@ -236,7 +236,7 @@ class _OnlineScreenState extends State<OnlineScreen> with SingleTickerProviderSt
                         ('solide', 'Solide', 'les connaisseurs'),
                       ]) ...[
                         if (d != 'lait') SizedBox(width: 9 * k),
-                        _DifficultyCard(
+                        DifficultyCard(
                           difficulty: d,
                           label: label,
                           help: help,
@@ -462,7 +462,10 @@ const _difficultyArt = {
 
 /// Une difficulté choisie comme une carte du jeu : cadre bleu nuit, l'image de la difficulté
 /// en haut (le lait, la manne, le pain), le nom en serif et la mise sur le parchemin.
-class _DifficultyCard extends StatelessWidget {
+class DifficultyCard extends StatelessWidget {
+  /// Taille relative (1 : écran « En ligne » ; plus petit dans le panneau de l'aventure).
+  final double size;
+  final Color? helpColor;
   final String difficulty;
   final String label;
   final String help;
@@ -470,7 +473,10 @@ class _DifficultyCard extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
 
-  const _DifficultyCard({
+  const DifficultyCard({
+    super.key,
+    this.size = 1,
+    this.helpColor,
     required this.difficulty,
     required this.label,
     required this.help,
@@ -481,7 +487,7 @@ class _DifficultyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final k = tableUnit(context);
+    final k = tableUnit(context) * size;
     final (art, color) = _difficultyArt[difficulty]!;
     return GestureDetector(
       onTap: onTap,
@@ -548,7 +554,7 @@ class _DifficultyCard extends StatelessWidget {
                       padding: EdgeInsets.symmetric(horizontal: 4 * k),
                       child: FittedBox(
                         fit: BoxFit.scaleDown,
-                        child: Text(help, maxLines: 1, style: bodyStyle(10.5 * k, const Color(0xFF8A7A66))),
+                        child: Text(help, maxLines: 1, style: bodyStyle(10.5 * k, helpColor ?? const Color(0xFF8A7A66), weight: helpColor == null ? 800 : 900)),
                       ),
                     ),
                   ],
