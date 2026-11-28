@@ -217,16 +217,20 @@ class CardFace extends StatelessWidget {
         child: _Round(
           size: 11.4 * u,
           u: u,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              PictoIcon(pictoForDifficulty(data.difficulty), size: 4.2 * u),
-              SizedBox(height: 0.4 * u),
-              Text(
-                CardData.difficultyLabels[data.difficulty] == 'Nourriture solide' ? 'Solide' : data.difficultyLabel,
-                style: bodyStyle(2.6 * u, _cream, weight: 700).copyWith(height: 1),
-              ),
-            ],
+          // Réduit si besoin : sur les toutes petites cartes, le cerclage prend sa place.
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                PictoIcon(pictoForDifficulty(data.difficulty), size: 4.2 * u),
+                SizedBox(height: 0.4 * u),
+                Text(
+                  CardData.difficultyLabels[data.difficulty] == 'Nourriture solide' ? 'Solide' : data.difficultyLabel,
+                  style: bodyStyle(2.6 * u, _cream, weight: 700).copyWith(height: 1),
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -58,6 +58,20 @@ class Online {
   bool get hasAccount => email.isNotEmpty || googleLinked;
   String? get userId => _session?.userId;
 
+  /// Jeton de session valide (rafraîchi si besoin), pour la connexion temps réel ; null hors ligne.
+  Future<String?> sessionToken() async => await _ensureSession() ? _session?.token : null;
+
+  /// Talents et XP reçus en fin de partie, sans relire le compte.
+  void applyEnd({int? talents, int? xp}) {
+    if (talents != null) wallet['talents'] = talents;
+    if (xp != null) wallet['xp'] = xp;
+    _player.update((p) {
+      if (talents != null) p.talents = talents;
+      if (xp != null) p.xp = xp;
+    });
+    _saveCache();
+  }
+
   /// À appeler une fois au lancement : compte gardé, puis connexion en invité.
   Future<void> start() async {
     try {

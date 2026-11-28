@@ -224,7 +224,8 @@ class _SalonBackdropState extends State<SalonBackdrop> {
                 left: 0,
                 right: 0,
                 bottom: 0,
-                height: widget.headerHeight * 0.62,
+                // Au-dessus de la barre de navigation du téléphone : seul le bas de la table passe dessous.
+                height: widget.headerHeight * 0.62 + MediaQuery.viewPaddingOf(context).bottom * 0.6,
                 child: Stack(
                   fit: StackFit.expand,
                   children: [

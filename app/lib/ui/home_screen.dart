@@ -9,6 +9,7 @@ import '../core/adventure.dart';
 import '../state/player.dart';
 import 'art.dart';
 import 'game/local_match_screen.dart';
+import 'online/online_screen.dart';
 import 'salons/salons_screen.dart';
 import 'sky_clouds.dart';
 import 'theme.dart';
@@ -236,7 +237,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               place(
                 _online,
-                _HomeCard(art: art, region: _online, radius: 26 * s, deal: deal++, onTap: () => _go('En ligne')),
+                _HomeCard(art: art, region: _online, radius: 26 * s, deal: deal++, onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OnlineScreen()))),
               ),
               place(
                 _rooms,
