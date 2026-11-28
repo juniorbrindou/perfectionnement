@@ -449,3 +449,11 @@ construit.
 L'Aventure a été jouée de bout en bout avec le code de l'application contre le serveur (invité refusé, puis deux
 parties complètes). Un invité se voit désormais proposer la création de compte. Pas d'essai sur téléphone.
 
+## β 0.7.2 : 2026-11-28
+
+`https://brindoujunior.com/perfectionnement-beta-0.7.2.apk`. Depuis la 0.7.0 : toutes les difficultés de l'Aventure
+sont jouables (l'écran prenait `duChapitre` pour « jouable » ; il signifie seulement que le chapitre a assez de
+cartes à lui, sinon toute la Bible sert), illustrations chargées dès le lancement, création de compte corrigée
+(afficher le mot de passe, repères en direct, bouton visible avec le clavier), écran Aventure repeint et tenant sur
+360 × 640. 48 tests. Pas encore vu sur téléphone : la barre de boutons Android et l'étoile de « ★ gagnée ».
+
