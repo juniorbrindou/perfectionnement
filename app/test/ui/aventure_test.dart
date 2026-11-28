@@ -14,7 +14,8 @@ void main() {
     tester.view.devicePixelRatio = 2.75;
     addTearDown(tester.view.reset);
     await tester.runAsync(loadFonts);
-    await tester.runAsync(() => Session.instance.bank());
+    // Comme main() : seules les illustrations sont chargées. L'écran ne doit rien attendre d'autre.
+    await tester.runAsync(() => Session.instance.loadIllustrations());
     Player.instance.update((p) {
       p.talents = 90;
       p.adventureStars = {
@@ -28,6 +29,8 @@ void main() {
     expect(find.text('La Genèse'), findsOneWidget);
     expect(find.text('Niveau 3 · L\'arche de Noé'), findsOneWidget);
     expect(find.text('5 étoiles sur 24'), findsOneWidget);
+    expect(find.text('bientôt'), findsNothing);
+    expect(Session.instance.illustration(const ['Genèse']), isNotNull);
     if (Platform.environment['CAPTURE'] == '1') {
       await expectLater(find.byType(MaterialApp), matchesGoldenFile('captures/aventure.png'));
     }

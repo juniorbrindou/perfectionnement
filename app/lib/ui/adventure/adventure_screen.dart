@@ -40,9 +40,6 @@ class _AdventureScreenState extends State<AdventureScreen> {
   String _difficulty = 'lait';
   bool _busy = false;
 
-  /// Difficultés jouables par niveau (assez de cartes en ligne), selon le serveur.
-  Map<String, dynamic> _playable = const {};
-
   @override
   void initState() {
     super.initState();
@@ -62,13 +59,12 @@ class _AdventureScreenState extends State<AdventureScreen> {
     if (!mounted) return;
     setState(() => _chapters = chapters);
     _select(Adventure.currentLevel(Player.instance.adventureStars, _levelCount));
-    // Progression et difficultés jouables à jour depuis le serveur.
+    // Progression à jour depuis le serveur.
     try {
       final r = await Online.instance.rpc('arcade', {'action': 'etat'});
       final stars = (r['etoiles'] as Map?)?.map((k, v) => MapEntry('$k', v as List)) ?? const <String, List>{};
       await Online.instance.setAdventureStars(stars);
       if (!mounted) return;
-      setState(() => _playable = (r['duChapitre'] as Map?)?.cast<String, dynamic>() ?? const {});
       _select(Adventure.currentLevel(stars, _levelCount));
     } catch (_) {
       // Hors ligne : la carte s'affiche avec la progression gardée.
@@ -87,8 +83,6 @@ class _AdventureScreenState extends State<AdventureScreen> {
       _difficulty = const ['lait', 'manne', 'solide'].firstWhere((d) => !won.contains(d), orElse: () => 'lait');
     });
   }
-
-  bool _canPlay(int level, String difficulty) => (_playable['$level'] as Map?)?[difficulty] != false;
 
   /// L'Aventure demande un compte (PRD §3.1) : on propose de le créer au lieu de refuser.
   Future<void> _askAccount() async {
@@ -116,10 +110,6 @@ class _AdventureScreenState extends State<AdventureScreen> {
     }
     if (!Online.instance.hasAccount) {
       await _askAccount();
-      return;
-    }
-    if (!_canPlay(_selected, _difficulty)) {
-      showToast(context, 'Pas encore assez de questions pour cette difficulté.');
       return;
     }
     final stake = Reglages.instance.miseArcade(_difficulty);
@@ -335,12 +325,12 @@ class _AdventureScreenState extends State<AdventureScreen> {
                 for (final (d, label) in const [('lait', 'Lait'), ('manne', 'Manne'), ('solide', 'Solide')]) ...[
                   if (d != 'lait') SizedBox(width: 8 * k),
                   Opacity(
-                    opacity: _canPlay(level, d) ? 1 : 0.45,
+                    opacity: 1,
                     child: DifficultyCard(
                       size: 0.66,
                       difficulty: d,
                       label: label,
-                      help: won.contains(d) ? '★ gagnée' : (_canPlay(level, d) ? 'à gagner' : 'bientôt'),
+                      help: won.contains(d) ? '★ gagnée' : 'à gagner',
                       helpColor: won.contains(d) ? const Color(0xFF2F8A3A) : null,
                       stake: Reglages.instance.miseArcade(d),
                       selected: d == _difficulty,

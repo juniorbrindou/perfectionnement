@@ -35,11 +35,7 @@ class Session {
       texts[0] = jsonEncode(server['cartes']);
       texts[1] = jsonEncode(server['depart']);
     }
-    final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
-    _illustrations = {
-      for (final a in manifest.listAssets())
-        if (a.startsWith('assets/illustrations/') && a.endsWith('.jpg')) a,
-    };
+    await loadIllustrations();
     return _bank = QuestionBank.parse(
       cardsJson: texts[0],
       startersJson: texts[1],
@@ -67,6 +63,16 @@ class Session {
       debugPrint('Cartes du serveur illisibles : $e');
       return null;
     }
+  }
+
+  /// Liste des illustrations présentes : nécessaire à tout écran qui montre un livre.
+  Future<void> loadIllustrations() async {
+    if (_illustrations.isNotEmpty) return;
+    final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
+    _illustrations = {
+      for (final a in manifest.listAssets())
+        if (a.startsWith('assets/illustrations/') && a.endsWith('.jpg')) a,
+    };
   }
 
   /// Illustration d'un livre (« 1 Rois » → assets/illustrations/1_rois.jpg), ou null s'il n'en a pas.

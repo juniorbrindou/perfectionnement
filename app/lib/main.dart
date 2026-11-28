@@ -6,6 +6,7 @@ import 'ui/home_screen.dart';
 import 'ui/theme.dart';
 import 'state/sound.dart';
 import 'ui/splash.dart';
+import 'state/session.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,6 +21,7 @@ void main() async {
   // La musique attend la fin de l'animation de démarrage.
   Sound.instance.beginIntro();
   await Sound.instance.start();
+  await Session.instance.loadIllustrations();
   runApp(const PerfectionnementApp());
   // Compte gardé sur le téléphone, puis connexion au serveur en invité.
   Online.instance.start();
