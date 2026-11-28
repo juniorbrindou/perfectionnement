@@ -14,6 +14,7 @@ import '../online/duel_match_screen.dart';
 import '../online/online_screen.dart';
 import '../theme.dart';
 import '../toast.dart';
+import '../profile/profile_screen.dart';
 
 /// L'aventure contre le Scribe (docs/maquettes/aventure.html, piste C « le livre du chapitre ») :
 /// les niveaux du chapitre en petites cartes, puis le panneau du niveau choisi avec ses trois
@@ -89,10 +90,32 @@ class _AdventureScreenState extends State<AdventureScreen> {
 
   bool _canPlay(int level, String difficulty) => (_playable['$level'] as Map?)?[difficulty] != false;
 
+  /// L'Aventure demande un compte (PRD §3.1) : on propose de le créer au lieu de refuser.
+  Future<void> _askAccount() async {
+    final create = await showDialog<bool>(
+      context: context,
+      builder: (c) => AlertDialog(
+        title: const Text('Crée ton compte'),
+        content: const Text('L’Aventure demande un compte. Ton pseudo, tes talents et ton niveau sont conservés.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Plus tard')),
+          FilledButton(onPressed: () => Navigator.pop(c, true), child: const Text('Créer mon compte')),
+        ],
+      ),
+    );
+    if (create != true || !mounted) return;
+    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProfileScreen()));
+    if (mounted) setState(() {});
+  }
+
   Future<void> _play() async {
     if (_busy || _selected < 1) return;
     if (!Online.instance.isOnline) {
       showToast(context, 'L’aventure se joue en ligne : vérifie ta connexion.');
+      return;
+    }
+    if (!Online.instance.hasAccount) {
+      await _askAccount();
       return;
     }
     if (!_canPlay(_selected, _difficulty)) {
