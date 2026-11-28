@@ -769,6 +769,8 @@ test("réglages : bornes et entiers vérifiés", function () {
 });
 
 test("réglages : appliqués aux règles, puis remis par défaut", function () {
+  // Comme Nakama après InitModule : les objets globaux sont figés.
+  vm.runInContext("[MISES_DUEL, MISES_ARCADE, CHANCES_IA, REGLAGES].forEach(Object.freeze)", g);
   g.appliquerReglages(g.valeursEnVigueur({ mise_arcade_manne: 7, ia_chance_solide: 80, xp_defaite: 0 }));
   assert.strictEqual(g.mise("arcade", "manne"), 7);
   assert.strictEqual(g.CHANCES_IA.solide, 0.8);

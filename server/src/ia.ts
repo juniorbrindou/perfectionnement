@@ -1,7 +1,7 @@
 // L'IA de l'arcade, « le Scribe » (PRD §3.1).
 
 /** Chance de trouver la bonne réponse parmi 4 propositions. */
-const CHANCES_IA: { [difficulte: string]: number } = { lait: 0.65, manne: 0.55, solide: 0.45 };
+let CHANCES_IA: { [difficulte: string]: number } = { lait: 0.65, manne: 0.55, solide: 0.45 };
 /** Question de départ : chance de répondre juste et délai de réponse (s). */
 let CHANCE_DEPART_IA = 0.7;
 const DEPART_IA_MIN_S = 3;

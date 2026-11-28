@@ -3,8 +3,8 @@
 
 let CAPITAL_DEPART = 100;
 let PAIN_QUOTIDIEN = 10;
-const MISES_DUEL: { [difficulte: string]: number } = { lait: 5, manne: 20, solide: 50 };
-const MISES_ARCADE: { [difficulte: string]: number } = { lait: 2, manne: 5, solide: 10 };
+let MISES_DUEL: { [difficulte: string]: number } = { lait: 5, manne: 20, solide: 50 };
+let MISES_ARCADE: { [difficulte: string]: number } = { lait: 2, manne: 5, solide: 10 };
 const JOUR_MS = 24 * 60 * 60 * 1000;
 
 /** Jour civil UTC d'un instant, au format AAAA-MM-JJ (la Côte d'Ivoire est en UTC). */

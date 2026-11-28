@@ -88,12 +88,9 @@ function appliquerReglages(v: { [cle: string]: number }): void {
   reglagesValeurs = v;
   CAPITAL_DEPART = v["capital_depart"];
   PAIN_QUOTIDIEN = v["pain_quotidien"];
-  MISES_ARCADE["lait"] = v["mise_arcade_lait"];
-  MISES_ARCADE["manne"] = v["mise_arcade_manne"];
-  MISES_ARCADE["solide"] = v["mise_arcade_solide"];
-  MISES_DUEL["lait"] = v["mise_duel_lait"];
-  MISES_DUEL["manne"] = v["mise_duel_manne"];
-  MISES_DUEL["solide"] = v["mise_duel_solide"];
+  // Nakama fige les objets globaux après InitModule : on remplace l'objet entier, sans jamais le modifier.
+  MISES_ARCADE = { lait: v["mise_arcade_lait"], manne: v["mise_arcade_manne"], solide: v["mise_arcade_solide"] };
+  MISES_DUEL = { lait: v["mise_duel_lait"], manne: v["mise_duel_manne"], solide: v["mise_duel_solide"] };
   SALON_COUT = v["salon_cout"];
   DELAI_DEPART_S = v["arcade_depart_s"];
   DELAI_CHOISIR_S = v["arcade_choisir_s"];
@@ -106,9 +103,7 @@ function appliquerReglages(v: { [cle: string]: number }): void {
   REVANCHE_S = v["duel_revanche_s"];
   XP_VICTOIRE = v["xp_victoire"];
   XP_DEFAITE = v["xp_defaite"];
-  CHANCES_IA["lait"] = v["ia_chance_lait"] / 100;
-  CHANCES_IA["manne"] = v["ia_chance_manne"] / 100;
-  CHANCES_IA["solide"] = v["ia_chance_solide"] / 100;
+  CHANCES_IA = { lait: v["ia_chance_lait"] / 100, manne: v["ia_chance_manne"] / 100, solide: v["ia_chance_solide"] / 100 };
   CHANCE_DEPART_IA = v["ia_depart_chance"] / 100;
   SALON_MEMBRES_MAX = v["salon_membres_max"];
   SALON_QUESTIONS_MIN = v["salon_questions_min"];
