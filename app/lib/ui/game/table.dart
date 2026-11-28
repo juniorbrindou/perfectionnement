@@ -71,14 +71,43 @@ class GoldButton extends StatefulWidget {
   final double height;
   final double fontSize;
 
-  const GoldButton(this.text, {super.key, this.onPressed, this.height = 48, this.fontSize = 20});
+  /// Picto devant le texte (facultatif).
+  final Widget? icon;
+
+  /// Version brillante : verni, reflets en biais et halo doré (le bouton principal d'un écran).
+  final bool shiny;
+
+  const GoldButton(
+    this.text, {
+    super.key,
+    this.onPressed,
+    this.height = 48,
+    this.fontSize = 20,
+    this.icon,
+    this.shiny = false,
+  });
 
   @override
   State<GoldButton> createState() => _GoldButtonState();
 }
 
-class _GoldButtonState extends State<GoldButton> {
+class _GoldButtonState extends State<GoldButton> with SingleTickerProviderStateMixin {
   bool _down = false;
+
+  /// Reflet qui glisse de gauche à droite sur le bouton brillant, puis une pause.
+  AnimationController? _sheen;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.shiny) _sheen = AnimationController(vsync: this, duration: const Duration(milliseconds: 3200))..repeat();
+  }
+
+  @override
+  void dispose() {
+    _sheen?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,15 +127,25 @@ class _GoldButtonState extends State<GoldButton> {
             height: widget.height,
             alignment: Alignment.center,
             padding: EdgeInsets.symmetric(horizontal: widget.height * 0.5),
+            foregroundDecoration: widget.shiny ? _ShinyDecoration(widget.height, _sheen!) : null,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(widget.height / 2),
-              gradient: const LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                stops: [0, 0.55, 1],
-                colors: [Color(0xFFFFE48A), Color(0xFFF6B92F), Color(0xFFE0961A)],
-              ),
+              border: widget.shiny ? Border.all(color: const Color(0xFFFFF1B8), width: 1.2) : null,
+              gradient: widget.shiny
+                  ? const LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      stops: [0, 0.5, 0.85, 1],
+                      colors: [Color(0xFFFFEFB0), Color(0xFFF8CF5C), Color(0xFFEBB23A), Color(0xFFD9962A)],
+                    )
+                  : const LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      stops: [0, 0.55, 1],
+                      colors: [Color(0xFFFFE48A), Color(0xFFF6B92F), Color(0xFFE0961A)],
+                    ),
               boxShadow: [
+                if (widget.shiny) BoxShadow(color: const Color(0x99FFC94A), blurRadius: widget.height * 0.45),
                 BoxShadow(color: const Color(0xFF9A5D0E), offset: Offset(0, widget.height * 0.06)),
                 BoxShadow(
                   color: const Color(0x73000000),
@@ -115,7 +154,11 @@ class _GoldButtonState extends State<GoldButton> {
                 ),
               ],
             ),
-            child: Text(widget.text, style: titleStyle(widget.fontSize, Palette.ink)),
+            child: _withIcon(
+              widget.icon,
+              Text(widget.text, style: titleStyle(widget.fontSize, Palette.ink)),
+              widget.height,
+            ),
           ),
         ),
       ),
@@ -130,7 +173,9 @@ class NightButton extends StatelessWidget {
   final double height;
   final double fontSize;
 
-  const NightButton(this.text, {super.key, required this.onPressed, this.height = 48, this.fontSize = 18});
+  final Widget? icon;
+
+  const NightButton(this.text, {super.key, required this.onPressed, this.height = 48, this.fontSize = 18, this.icon});
 
   @override
   Widget build(BuildContext context) => GestureDetector(
@@ -144,7 +189,7 @@ class NightButton extends StatelessWidget {
         color: const Color(0xD906122F),
         border: Border.all(color: const Color(0x99F2C14E), width: 1.5),
       ),
-      child: Text(text, style: titleStyle(fontSize, goldLight)),
+      child: _withIcon(icon, Text(text, style: titleStyle(fontSize, goldLight)), height),
     ),
   );
 }
@@ -414,5 +459,151 @@ class HandFan extends StatelessWidget {
         },
       ),
     );
+  }
+}
+
+Widget _withIcon(Widget? icon, Widget text, double height) => icon == null
+    ? text
+    : Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          icon,
+          SizedBox(width: height * 0.22),
+          Flexible(child: text),
+        ],
+      );
+
+/// Deux épées croisées (bouton « Trouver un adversaire »).
+class CrossedSwords extends StatelessWidget {
+  final double size;
+
+  const CrossedSwords({super.key, required this.size});
+
+  @override
+  Widget build(BuildContext context) => CustomPaint(size: Size.square(size), painter: _SwordsPainter());
+}
+
+class _SwordsPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final s = size.width;
+    final blade = Paint()
+      ..color = const Color(0xFF3A2412)
+      ..strokeWidth = s * 0.1
+      ..strokeCap = StrokeCap.round;
+    final guard = Paint()
+      ..color = const Color(0xFFB07A1E)
+      ..strokeWidth = s * 0.1
+      ..strokeCap = StrokeCap.round;
+    final grip = Paint()
+      ..color = const Color(0xFFF6D27A)
+      ..strokeWidth = s * 0.12
+      ..strokeCap = StrokeCap.round;
+    // Lame de haut à gauche vers bas à droite, et l'autre en miroir.
+    for (final flip in [false, true]) {
+      Offset p(double x, double y) => Offset(flip ? s - x * s : x * s, y * s);
+      canvas.drawLine(p(0.12, 0.1), p(0.7, 0.68), blade);
+      canvas.drawLine(p(0.58, 0.8), p(0.8, 0.58), guard);
+      canvas.drawLine(p(0.76, 0.76), p(0.9, 0.9), grip);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_SwordsPainter old) => false;
+}
+
+/// Vernis du bouton brillant : deux reflets en biais et un filet de lumière en bas.
+class _ShinyDecoration extends Decoration {
+  final double height;
+  final Animation<double> sheen;
+
+  const _ShinyDecoration(this.height, this.sheen);
+
+  @override
+  BoxPainter createBoxPainter([VoidCallback? onChanged]) {
+    if (onChanged != null) sheen.addListener(onChanged);
+    return _ShinyPainter(height, sheen, onChanged);
+  }
+}
+
+class _ShinyPainter extends BoxPainter {
+  final double height;
+  final Animation<double> sheen;
+  _ShinyPainter(this.height, this.sheen, VoidCallback? onChanged) : super(onChanged);
+
+  @override
+  void dispose() {
+    if (onChanged != null) sheen.removeListener(onChanged!);
+    super.dispose();
+  }
+
+  @override
+  void paint(Canvas canvas, Offset offset, ImageConfiguration configuration) {
+    final size = configuration.size;
+    if (size == null) return;
+    final rect = offset & size;
+    final pill = RRect.fromRectAndRadius(rect, Radius.circular(size.height / 2));
+    canvas.save();
+    canvas.clipRRect(pill);
+    // Reflet du haut, en biais.
+    final h = size.height;
+    void streak(double x, double w, double alpha) {
+      final p = Path()
+        ..moveTo(rect.left + x, rect.top)
+        ..lineTo(rect.left + x + w, rect.top)
+        ..lineTo(rect.left + x + w - h * 0.7, rect.bottom)
+        ..lineTo(rect.left + x - h * 0.7, rect.bottom)
+        ..close();
+      canvas.drawPath(p, Paint()..color = Colors.white.withValues(alpha: alpha));
+    }
+
+    streak(size.width * 0.52, h * 0.55, 0.18);
+    streak(size.width * 0.52 + h * 0.75, h * 0.25, 0.14);
+    streak(size.width * 0.75, h * 0.45, 0.10);
+    // Lustre du haut.
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(rect.left + h * 0.3, rect.top + h * 0.06, size.width - h * 0.6, h * 0.38),
+        Radius.circular(h * 0.2),
+      ),
+      Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Colors.white.withValues(alpha: 0.35), Colors.white.withValues(alpha: 0)],
+        ).createShader(Rect.fromLTWH(rect.left, rect.top, size.width, h * 0.45)),
+    );
+    // Lumière qui traverse le bouton : rapide (40 % du cycle), puis pause.
+    final t = sheen.value / 0.4;
+    if (t < 1) {
+      final x = rect.left - h * 1.5 + (size.width + h * 3) * Curves.easeInOut.transform(t);
+      final band = Rect.fromLTWH(x - h * 0.9, rect.top, h * 1.8, h);
+      canvas.save();
+      canvas.translate(band.center.dx, band.center.dy);
+      canvas.skew(-0.45, 0);
+      canvas.translate(-band.center.dx, -band.center.dy);
+      canvas.drawRect(
+        band,
+        Paint()
+          ..blendMode = BlendMode.plus
+          ..shader = const LinearGradient(
+            colors: [Color(0x00FFFFFF), Color(0x66FFF8DC), Color(0xCCFFFFFF), Color(0x66FFF8DC), Color(0x00FFFFFF)],
+            stops: [0, 0.35, 0.5, 0.65, 1],
+          ).createShader(band),
+      );
+      canvas.restore();
+    }
+    // Filet de lumière en bas.
+    canvas.drawLine(
+      Offset(rect.left + size.width * 0.3, rect.bottom - h * 0.1),
+      Offset(rect.right - size.width * 0.3, rect.bottom - h * 0.1),
+      Paint()
+        ..strokeWidth = 1.5
+        ..shader = const LinearGradient(
+          colors: [Color(0x00FFF6D0), Color(0xE6FFF6D0), Color(0x00FFF6D0)],
+        ).createShader(Rect.fromLTWH(rect.left + size.width * 0.3, 0, size.width * 0.4, 1))
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1.2),
+    );
+    canvas.restore();
   }
 }

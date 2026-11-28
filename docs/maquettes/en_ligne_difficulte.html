@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>En ligne : choix de la difficulté</title>
+<style>
+@font-face { font-family: "Lilita"; src: url("../../assets/fonts/LilitaOne-Regular.ttf"); }
+@font-face { font-family: "Nunito"; src: url("../../assets/fonts/Nunito.ttf"); font-weight: 200 1000; }
+@font-face { font-family: "Garamond"; src: url("../../assets/fonts/EBGaramond.ttf"); font-weight: 400 800; }
+:root { --or: #f2c14e; --or-clair: #ffe39a; --pale: #c9d2ee; --encre: #1d2a4a; }
+* { margin: 0; box-sizing: border-box; }
+body { background: #1c1c22; font-family: "Nunito", sans-serif; color: #fff; padding: 28px 24px 50px; }
+h1 { font: 28px "Lilita"; }
+.intro { color: #b9bccb; margin: 6px 0 24px; max-width: 1200px; line-height: 1.45; font-size: 14px; }
+.rangee { display: flex; gap: 30px; flex-wrap: wrap; align-items: flex-start; }
+.piste h2 { font: 20px "Lilita"; color: var(--or); }
+.piste > p { color: #b9bccb; font-size: 12.5px; line-height: 1.4; width: 360px; margin: 4px 0 12px; min-height: 52px; }
+
+.tel { position: relative; width: 360px; height: 780px; border-radius: 32px; overflow: hidden;
+  background: radial-gradient(ellipse 120% 70% at 50% 4%, #1b3a86, #0b1f4d 45%, #06122f 82%);
+  box-shadow: 0 0 0 9px #0a0a0d, 0 0 0 10px #333, 0 26px 50px rgba(0,0,0,.6); }
+.tel::before { content: ""; position: absolute; inset: 0; opacity: .7;
+  background-image: radial-gradient(1.2px 1.2px at 12% 18%, #fff 50%, transparent), radial-gradient(1px 1px at 78% 9%, #fff 50%, transparent),
+    radial-gradient(1.4px 1.4px at 64% 27%, #ffe9b0 50%, transparent), radial-gradient(1px 1px at 30% 36%, #fff 50%, transparent),
+    radial-gradient(1.2px 1.2px at 88% 40%, #fff 50%, transparent), radial-gradient(1px 1px at 6% 48%, #ffe9b0 50%, transparent); }
+.paysage { position: absolute; left: 0; right: 0; bottom: 0; height: 112px; background: url("../../assets/duel/paysage.png") center top/cover; }
+.paysage::before { content: ""; position: absolute; inset: 0; background: linear-gradient(#06122f, rgba(6,18,47,0) 35%); }
+.barre { position: absolute; top: 18px; left: 14px; right: 14px; display: flex; align-items: center; gap: 10px; z-index: 5; }
+.retour { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font: 22px "Lilita"; color: var(--or-clair);
+  background: radial-gradient(circle at 40% 35%, #1d3266, #0c1838); box-shadow: 0 0 0 2px var(--or); }
+.barre b { font: 21px "Lilita"; flex: 1; }
+.bourse { display: flex; align-items: center; gap: 5px; height: 32px; padding: 0 12px 0 6px; border-radius: 16px; background: rgba(6,18,47,.8);
+  box-shadow: inset 0 0 0 1.5px rgba(242,193,78,.6); font: 17px "Lilita"; color: var(--or-clair); }
+.piece { width: 22px; height: 22px; background: url("../../assets/duel/pieces.png") center/contain no-repeat; display: inline-block; flex: none; }
+.contenu { position: absolute; left: 18px; right: 18px; top: 74px; bottom: 124px; display: flex; flex-direction: column; align-items: center; z-index: 4; }
+.titre { font: 21px "Lilita"; color: var(--or-clair); text-shadow: 0 2px 5px #000; }
+.filet { width: 190px; height: 10px; margin: 6px 0 0; display: flex; align-items: center; gap: 6px; }
+.filet::before, .filet::after { content: ""; flex: 1; height: 1.5px; background: linear-gradient(90deg, transparent, var(--or)); }
+.filet::after { background: linear-gradient(90deg, var(--or), transparent); }
+.filet i { width: 7px; height: 7px; background: var(--or); transform: rotate(45deg); }
+.bouton { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; height: 56px; border-radius: 28px; font: 21px "Lilita"; color: #3a2412;
+  background: linear-gradient(#ffe48a, #f6b92f 55%, #e0961a); box-shadow: 0 3px 0 #9a5d0e, 0 8px 16px rgba(0,0,0,.45), inset 0 1px 0 #fff6cf; }
+.bouton.nuit { height: 50px; font-size: 18px; color: var(--or-clair); background: rgba(6,18,47,.82); box-shadow: inset 0 0 0 1.5px rgba(242,193,78,.65); }
+.ou { display: flex; align-items: center; gap: 10px; width: 100%; margin: 16px 0 10px; font-size: 13.5px; font-weight: 800; color: var(--pale); }
+.ou::before, .ou::after { content: ""; flex: 1; height: 1px; background: rgba(242,193,78,.4); }
+.epees { font-size: 20px; }
+svg.p { fill: currentColor; }
+
+/* ---------- A · Trois cartes du jeu ---------- */
+.a-cartes { display: flex; gap: 9px; margin-top: 22px; }
+.a-carte { position: relative; width: 100px; height: 184px; border-radius: 10px; padding: 3px; background: #13234a;
+  box-shadow: inset 0 0 0 1px #b8924c, 0 8px 18px rgba(0,0,0,.6); }
+.a-carte .in { height: 100%; border-radius: 8px; overflow: hidden; border: 1px solid #c9a35a; display: flex; flex-direction: column; align-items: center;
+  background: radial-gradient(ellipse at 50% 80%, #f8f2e6, #efe6d4); }
+.a-carte .haut { width: 100%; height: 92px; position: relative; background: var(--img) center 45%/cover; }
+.a-carte .haut::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: var(--c); }
+.a-carte .rond { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; color: #f3ead6;
+  background: radial-gradient(circle at 40% 35%, #1d3266, #0c1838); box-shadow: 0 0 0 2px #c9a35a, 0 3px 8px rgba(0,0,0,.5); }
+.a-carte .rond svg { width: 24px; height: 24px; }
+.a-carte b { font: 700 21px/1 "Garamond"; color: var(--encre); margin-top: 10px; }
+.a-carte .mise { display: flex; align-items: center; gap: 4px; margin-top: 10px; font: 20px "Lilita"; color: #6b4310; }
+.a-carte .mise .piece { width: 20px; height: 20px; }
+.a-carte .aide { font-size: 10.5px; font-weight: 800; color: #8a7a66; margin-top: 4px; }
+.a-carte.on { transform: translateY(-12px); box-shadow: inset 0 0 0 1px #ffe39a, 0 0 0 2.5px #ffe39a, 0 0 28px rgba(255,214,110,.8), 0 14px 22px rgba(0,0,0,.55); }
+.a-carte.on::after { content: "✓"; position: absolute; top: -11px; left: 50%; margin-left: -13px; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
+  font: 15px "Lilita"; color: #3a2412; background: linear-gradient(#ffe48a, #e0961a); box-shadow: 0 0 0 1.5px #6b4310, 0 2px 5px rgba(0,0,0,.5); }
+
+/* ---------- B · Trois sceaux dorés ---------- */
+.b-sceaux { display: flex; justify-content: center; gap: 14px; margin-top: 34px; }
+.b-sceau { display: flex; flex-direction: column; align-items: center; width: 92px; }
+.b-sceau .disque { width: 86px; height: 86px; border-radius: 50%; display: grid; place-items: center; color: #fff4dc; position: relative;
+  background: radial-gradient(circle at 38% 32%, var(--c1), var(--c2) 70%); box-shadow: 0 0 0 3px #c9a35a, 0 0 0 6px rgba(6,18,47,.9), 0 0 0 7.5px #8a5a12, 0 10px 20px rgba(0,0,0,.6); }
+.b-sceau .disque svg { width: 38px; height: 38px; }
+.b-sceau b { font: 20px "Lilita"; margin-top: 14px; }
+.b-sceau .mise { display: flex; align-items: center; gap: 4px; font: 18px "Lilita"; color: var(--or-clair); margin-top: 2px; }
+.b-sceau .mise .piece { width: 18px; height: 18px; }
+.b-sceau small { font-size: 11px; font-weight: 800; color: var(--pale); margin-top: 2px; }
+.b-sceau.on .disque { transform: scale(1.12); box-shadow: 0 0 0 3px #ffe39a, 0 0 0 6px rgba(6,18,47,.9), 0 0 0 7.5px #f2c14e, 0 0 36px rgba(255,214,110,.85), 0 10px 20px rgba(0,0,0,.6); }
+.b-sceau.on b { color: var(--or-clair); }
+.b-halo { width: 100%; margin-top: 24px; padding: 12px 14px; border-radius: 16px; text-align: center; background: rgba(6,18,47,.7); box-shadow: inset 0 0 0 1px rgba(242,193,78,.35); }
+.b-halo b { font: 17px "Lilita"; color: var(--or-clair); } .b-halo span { display: block; font-size: 12.5px; font-weight: 800; color: var(--pale); margin-top: 2px; }
+
+/* ---------- C · Trois parchemins en liste ---------- */
+.c-liste { width: 100%; display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
+.c-ligne { display: flex; align-items: center; gap: 12px; height: 74px; padding: 0 14px 0 10px; border-radius: 16px; color: var(--encre);
+  background: radial-gradient(ellipse at 30% 30%, #fdf6e6, #efdfbd); box-shadow: 0 0 0 1.5px #b8924c, 0 6px 14px rgba(0,0,0,.45); position: relative; }
+.c-ligne::before { content: ""; position: absolute; left: 0; top: 12px; bottom: 12px; width: 4px; border-radius: 2px; background: var(--c); }
+.c-ligne .rond { width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; flex: none; color: #f3ead6; margin-left: 6px;
+  background: radial-gradient(circle at 40% 35%, #1d3266, #0c1838); box-shadow: 0 0 0 2px #c9a35a; }
+.c-ligne .rond svg { width: 26px; height: 26px; }
+.c-ligne b { font: 700 22px/1 "Garamond"; display: block; } .c-ligne small { font-size: 12px; font-weight: 800; color: #7a6a56; }
+.c-ligne .mise { margin-left: auto; display: flex; align-items: center; gap: 5px; font: 22px "Lilita"; color: #6b4310; }
+.c-ligne.on { background: radial-gradient(ellipse at 30% 30%, #fff8e0, #f6dc9c); box-shadow: 0 0 0 2.5px #f2c14e, 0 0 22px rgba(255,214,110,.6), 0 6px 14px rgba(0,0,0,.45); }
+.c-ligne.on::after { content: "✓"; position: absolute; right: -8px; top: -8px; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+  font: 14px "Lilita"; color: #3a2412; background: linear-gradient(#ffe48a, #e0961a); box-shadow: 0 0 0 1.5px #6b4310; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+  <symbol id="lait" viewBox="0 0 24 24"><path d="M12 3 C12 3 6.5 10 6.5 14 a5.5 5.5 0 0 0 11 0 C17.5 10 12 3 12 3Z"/></symbol>
+  <symbol id="manne" viewBox="0 0 24 24"><ellipse cx="8" cy="9" rx="2.6" ry="2.2"/><ellipse cx="15.5" cy="7.5" rx="2.3" ry="2"/><ellipse cx="12" cy="14" rx="2.8" ry="2.4"/><ellipse cx="6.5" cy="16.5" rx="2" ry="1.8"/><ellipse cx="17.5" cy="15" rx="2.2" ry="1.9"/></symbol>
+  <symbol id="solide" viewBox="0 0 24 24"><path d="M4 15.5 C3 9 8 6.5 12 6.5 S21 9 20 15.5 C19.7 17.3 18.5 18 17 18 H7 C5.5 18 4.3 17.3 4 15.5Z"/></symbol>
+  <symbol id="epees" viewBox="0 0 24 24"><path d="M4 4 L15 15 M20 4 L9 15" stroke="#3a2412" stroke-width="2.4" stroke-linecap="round" fill="none"/><path d="M13 17 L17 13 M7 13 L11 17" stroke="#8a5a12" stroke-width="2.6" stroke-linecap="round" fill="none"/><path d="M16.5 16.5 L19.5 19.5 M7.5 16.5 L4.5 19.5" stroke="#5a3216" stroke-width="2.6" stroke-linecap="round" fill="none"/></symbol>
+  <symbol id="groupe" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.2"/><circle cx="5.5" cy="10" r="2.4"/><circle cx="18.5" cy="10" r="2.4"/><path d="M6 20 c0-3.8 2.7-6 6-6 s6 2.2 6 6Z"/><path d="M1.5 19 c0-3 1.7-4.6 4.2-4.6 1 0 1.8 .2 2.5 .7 -1.3 1.2-2 2.6-2.2 3.9Z"/><path d="M22.5 19 c0-3-1.7-4.6-4.2-4.6 -1 0-1.8 .2-2.5 .7 1.3 1.2 2 2.6 2.2 3.9Z"/></symbol>
+</defs></svg>
+
+<h1>En ligne : choix de la difficulté</h1>
+<p class="intro">Trois propositions, à partir de ce qui était bon dans ton image : une couleur pour chaque difficulté, la difficulté choisie bien marquée
+(halo doré et ✓), la mise en gros avec ses pièces, un titre doré avec son filet, des pictos sur les boutons (épées, groupe) et « Ou joue avec tes amis »
+entre deux filets. Le reste de l'écran est le même dans les trois.</p>
+
+<div class="rangee" id="r"></div>
+
+<script>
+const diffs = [
+  { id: 'lait', img: 'lait', nom: 'Lait', mise: 5, aide: 'pour commencer', c: '#4fae5c', c1: '#6fcf7c', c2: '#2e7d3a' },
+  { id: 'manne', img: 'manne', nom: 'Manne', mise: 20, aide: 'les habitués', c: '#3f78d8', c1: '#6f9cf0', c2: '#24499e' },
+  { id: 'solide', img: 'pain', nom: 'Solide', mise: 50, aide: 'les connaisseurs', c: '#8a5bc4', c1: '#ad84e0', c2: '#55307f' },
+];
+const pic = id => `<svg class="p"><use href="#${id}"/></svg>`;
+const bas = `<div style="flex:1"></div>
+  <div class="bouton"><svg width="28" height="28"><use href="#epees"/></svg>Trouver un adversaire</div>
+  <div class="ou">Ou joue avec tes amis</div>
+  <div class="bouton nuit"><svg class="p" width="24" height="24" style="color:#ffe39a"><use href="#groupe"/></svg>Les salons</div>`;
+const tel = corps => `<div class="tel"><div class="paysage"></div>
+  <div class="barre"><div class="retour">‹</div><b>Jouer en ligne</b><div class="bourse"><i class="piece"></i>90</div></div>
+  <div class="contenu"><div class="titre">Choisis ta difficulté</div><div class="filet"><i></i></div>${corps}${bas}</div></div>`;
+
+const A = `<div class="a-cartes">${diffs.map((d, i) => `<div class="a-carte${i === 1 ? ' on' : ''}" style="--c:${d.c}"><div class="in">
+  <div class="haut" style="--img:url('../../assets/duel/${d.img}.jpg')"></div><b>${d.nom}</b>
+  <div class="mise"><i class="piece"></i>${d.mise}</div><div class="aide">${d.aide}</div></div></div>`).join('')}</div>`;
+
+const B = `<div class="b-sceaux">${diffs.map((d, i) => `<div class="b-sceau${i === 1 ? ' on' : ''}" style="--c1:${d.c1};--c2:${d.c2}">
+  <div class="disque">${pic(d.id)}</div><b>${d.nom}</b><div class="mise"><i class="piece"></i>${d.mise}</div><small>${d.aide}</small></div>`).join('')}</div>`;
+
+const C = `<div class="c-liste">${diffs.map((d, i) => `<div class="c-ligne${i === 1 ? ' on' : ''}" style="--c:${d.c}">
+  <div class="rond">${pic(d.id)}</div><div><b>${d.nom}</b><small>${d.aide}</small></div>
+  <div class="mise"><i class="piece"></i>${d.mise}</div></div>`).join('')}</div>`;
+
+const pistes = [
+  ['A · Trois cartes du jeu, avec les vraies images', "Le haut de chaque carte est l'image de sa difficulté : le lait, la manne, le pain. Le liseré de couleur reste sous l'image. Manne choisie.", A],
+  ['A · La même, Lait choisi', "La carte choisie se soulève, halo doré et ✓.", A.replace('a-carte on', 'a-carte').replace('a-carte"', 'a-carte on"')],
+];
+document.getElementById('r').innerHTML = pistes.map(([t, p, c]) => `<div class="piste"><h2>${t}</h2><p>${p}</p>${tel(c)}</div>`).join('');
+</script>
+</body>
+</html>
