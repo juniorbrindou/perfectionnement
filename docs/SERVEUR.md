@@ -400,3 +400,20 @@ générées par `tools/cartes_structure.py` : 68 en ligne, 67 pour la partie à 
 - Une fois une réserve modifiée au back-office, relancer le script ne suffit plus : importer le fichier.
 - À améliorer côté application : le pictogramme de cette catégorie reprend pour l'instant celui des personnages, et
   les cartes sans livre n'ont pas d'illustration.
+
+## Application Flutter : profil et connexions (2026-11-28)
+
+`app/lib/ui/profile/profile_screen.dart`, porté de `scripts/ui/profile.gd` : changement de pseudo, compte e-mail
+rattaché au compte invité, reprise d'un compte (sans jamais en créer) et connexion Google (`google_sign_in` 7,
+`serverClientId` = client Web). 4 tests à 360 points de large, compilation Android vérifiée.
+
+- **Google ne marche qu'avec un APK signé par une clé déclarée** : le client Android de publication l'est déjà pour
+  `com.juniorbrindou.perfectionnement`. La version β du serveur (`….flutter`, clé de test du serveur, SHA-1
+  `E2:1F:67:0E:71:9E:D5:A2:75:C8:A3:BB:31:79:7C:97:C2:AD:B7:DC`) demanderait son propre client Android dans
+  Google Cloud, à ajouter ensuite à `google_auth.client_ids`.
+- **Publication** : déposer `app/android/key.properties` (non versionné : `storeFile`, `storePassword`, `keyAlias`,
+  `keyPassword`). Sans lui, la release est une β qui s'installe à côté. Les brouillons de la partie à deux ne sont
+  inclus en release qu'avec `--dart-define=BROUILLONS=true`, et **toutes les cartes sont encore en brouillon**.
+- Sur le serveur de build (Linux), `app/data` et `app/assets` sont des liens vers la racine, comme les jonctions
+  Windows.
+

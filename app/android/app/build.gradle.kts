@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
@@ -6,7 +8,7 @@ plugins {
 
 // Clé de publication : android/key.properties (non versionné) avec storeFile, storePassword,
 // keyAlias, keyPassword. Sans lui, la release est une version β qui s'installe à côté du jeu publié.
-val keyProperties = java.util.Properties().apply {
+val keyProperties = Properties().apply {
     val file = rootProject.file("key.properties")
     if (file.exists()) file.inputStream().use { load(it) }
 }

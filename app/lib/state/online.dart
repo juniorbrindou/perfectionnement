@@ -5,6 +5,7 @@ import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:nakama/nakama.dart';
 // ignore: implementation_imports
 import 'package:nakama/src/models/response_error.dart';
@@ -28,6 +29,10 @@ class Online {
   static const port = 443;
   static const leaderboardId = 'xp';
 
+  /// Identifiant OAuth « Application Web » (public, il est dans chaque APK) : l'audience des
+  /// jetons Google que le serveur accepte.
+  static const googleWebClientId = '492954893860-3abik9silaiiea1toaf5nt473dj9bc1d.apps.googleusercontent.com';
+
   /// Même fichier que le greffon Nakama de la version Godot (user://nakama_device_id) :
   /// installée par-dessus, la version Flutter retrouve le même compte invité.
   static const deviceIdFile = 'nakama_device_id';
@@ -36,6 +41,8 @@ class Online {
 
   /// Code gRPC « déjà existant » : le pseudo tiré au sort est pris.
   static const _alreadyExists = 6;
+  static const _notFound = 5;
+  static const _unauthenticated = 16;
 
   final Player _player = Player.instance;
   final _rng = Random();
@@ -53,6 +60,7 @@ class Online {
   bool googleLinked = false;
   String lastError = '';
   String _breadDate = '';
+  bool _googleReady = false;
 
   bool get isOnline => _player.connection == Connection.online;
   bool get hasAccount => email.isNotEmpty || googleLinked;
@@ -218,6 +226,114 @@ class Online {
   Future<void> setAdventureStars(Map<String, List> stars) async {
     _player.update((p) => p.adventureStars = stars);
     await _saveCache();
+  }
+
+  // ---------------------------------------------------------------- Compte
+  // Chaque fonction renvoie un message d'erreur à afficher, ou null si c'est fait.
+
+  /// Change le pseudo.
+  Future<String?> changeUsername(String name) async {
+    final problem = Pseudo.problem(name);
+    if (problem != null) return problem;
+    if (!await _ensureSession()) return 'Pas de connexion au serveur.';
+    try {
+      await _client.updateAccount(session: _session!, username: name.trim());
+    } on ResponseError catch (e) {
+      return e.code == _alreadyExists ? 'Ce pseudo est déjà pris.' : _message(e);
+    } catch (e) {
+      return _message(e);
+    }
+    await refreshAccount();
+    return null;
+  }
+
+  /// Rattache une adresse e-mail au compte invité : pseudo, talents et XP sont conservés.
+  Future<String?> linkEmail(String address, String password) async {
+    if (!address.contains('@')) return 'Cette adresse e-mail n’est pas valide.';
+    if (password.length < 8) return 'Le mot de passe doit faire au moins 8 caractères.';
+    if (!await _ensureSession()) return 'Pas de connexion au serveur.';
+    try {
+      await _client.linkEmail(session: _session!, email: address.trim(), password: password);
+    } on ResponseError catch (e) {
+      return e.code == _alreadyExists ? 'Cette adresse est déjà utilisée par un autre compte.' : _message(e);
+    } catch (e) {
+      return _message(e);
+    }
+    await refreshAccount();
+    return null;
+  }
+
+  /// Retrouve un compte e-mail existant (nouveau téléphone). Ne crée jamais de compte.
+  Future<String?> loginEmail(String address, String password) async {
+    if (address.trim().isEmpty || password.isEmpty) return 'Saisis ton adresse et ton mot de passe.';
+    try {
+      await _adopt(await _client.authenticateEmail(email: address.trim(), password: password, create: false));
+      return null;
+    } on ResponseError catch (e) {
+      return e.code == _notFound || e.code == _unauthenticated ? 'Adresse ou mot de passe incorrect.' : _message(e);
+    } catch (e) {
+      return _message(e);
+    }
+  }
+
+  /// Connexion Google : le compte invité du téléphone est rattaché à Google. Si ce compte
+  /// Google a déjà son compte de jeu, on bascule dessus (cas d'un nouveau téléphone).
+  Future<String?> signInGoogle() async {
+    final String token;
+    try {
+      final google = GoogleSignIn.instance;
+      if (!_googleReady) {
+        await google.initialize(serverClientId: googleWebClientId);
+        _googleReady = true;
+      }
+      final account = await google.authenticate();
+      final idToken = account.authentication.idToken;
+      await google.signOut(); // Le choix du compte reste proposé la prochaine fois.
+      if (idToken == null) return 'Google n’a pas renvoyé de jeton.';
+      token = idToken;
+    } on GoogleSignInException catch (e) {
+      if (e.code == GoogleSignInExceptionCode.canceled) return 'Connexion Google annulée.';
+      return 'Connexion Google impossible : ${e.description ?? e.code.name}';
+    } catch (e) {
+      return 'Connexion Google impossible sur cet appareil.';
+    }
+    try {
+      if (await _ensureSession()) {
+        try {
+          await _client.linkGoogle(session: _session!, token: token);
+          await refreshAccount();
+          return null;
+        } on ResponseError catch (e) {
+          if (e.code != _alreadyExists) rethrow;
+        }
+      }
+      await _adopt(await _client.authenticateGoogle(token: token, create: false));
+      return null;
+    } catch (e) {
+      return _message(e);
+    }
+  }
+
+  /// Bascule sur un autre compte : rien de l'ancien ne doit rester affiché.
+  Future<void> _adopt(Session session) async {
+    _session = session;
+    await _saveSession();
+    wallet = {};
+    email = '';
+    googleLinked = false;
+    _breadDate = '';
+    _player.update((p) {
+      p.username = '';
+      p.xp = 0;
+      p.talents = 0;
+      p.rankPlace = 0;
+      p.adventureStars = {};
+      p.breadToday = false;
+      p.breadGain = 0;
+    });
+    await refreshAccount();
+    _setConnection(Connection.online);
+    unawaited(claimBread());
   }
 
   // ---------------------------------------------------------------- Session

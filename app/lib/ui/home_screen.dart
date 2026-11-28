@@ -16,6 +16,7 @@ import 'sky_clouds.dart';
 import 'theme.dart';
 import 'toast.dart';
 import 'top_bar.dart';
+import 'profile/profile_screen.dart';
 
 /// Écran d'accueil, d'après l'illustration validée (assets/accueil/accueil.png).
 ///
@@ -79,6 +80,8 @@ class _HomeScreenState extends State<HomeScreen> {
   void _toast(String text) => showToast(context, text);
 
   // Écrans pas encore réécrits en Flutter.
+  void _profile() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProfileScreen()));
+
   void _go(String screen) => _toast('« $screen » arrive dans une prochaine étape de la réécriture.');
 
   @override
@@ -198,7 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       behavior: HitTestBehavior.opaque,
                       onTap: () => switch (message) {
                         'classement' => _go('Classement'),
-                        'profil' => _go('Profil'),
+                        'profil' => _profile(),
                         _ => _toast(message),
                       },
                     ),
@@ -299,7 +302,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 left: 0,
                 right: 0,
                 top: 0,
-                child: TopBar(onProfile: () => _go('Profil'), onMessage: _toast),
+                child: TopBar(onProfile: _profile, onMessage: _toast),
               ),
             ],
           );
