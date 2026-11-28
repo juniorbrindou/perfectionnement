@@ -27,7 +27,7 @@ interface Reserve { cartes: FicheCarte[]; depart: FicheDepart[]; }
 const COLLECTION_CARTES = "cartes";
 const RESERVES = ["en_ligne", "telephone"];
 const STATUTS = ["brouillon", "valide", "retiree"];
-const CATEGORIES_CARTES = ["personnages", "miracles", "paraboles", "lieux_evenements"];
+const CATEGORIES_CARTES = ["personnages", "miracles", "paraboles", "lieux_evenements", "structure"];
 const LIVRES_AT = [
   "Genèse", "Exode", "Lévitique", "Nombres", "Deutéronome", "Josué", "Juges", "Ruth",
   "1 Samuel", "2 Samuel", "1 Rois", "2 Rois", "1 Chroniques", "2 Chroniques", "Esdras",
@@ -90,8 +90,10 @@ function problemesCarte(c: FicheCarte): string[] {
   const e: string[] = [];
   if (!/^[A-Za-z0-9_-]{2,40}$/.test(c.id)) e.push("identifiant manquant ou invalide (lettres, chiffres, - et _)");
   if (DIFFICULTES.indexOf(c.difficulty) < 0) e.push("difficulté inconnue");
-  if (c.testament !== "AT" && c.testament !== "NT") e.push("testament : AT ou NT");
-  if (c.books.length === 0) e.push("aucun livre");
+  // Une question sur la structure de la Bible peut n'appartenir à aucun livre ni testament.
+  const generale = c.category === "structure";
+  if (c.testament !== "AT" && c.testament !== "NT" && !(generale && c.testament === "")) e.push("testament : AT ou NT");
+  if (c.books.length === 0 && !generale) e.push("aucun livre");
   c.books.forEach(function (b) {
     if (LIVRES_AT.indexOf(b) < 0 && LIVRES_NT.indexOf(b) < 0) e.push("livre inconnu : " + b);
   });

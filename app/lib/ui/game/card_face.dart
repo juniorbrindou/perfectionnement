@@ -244,7 +244,7 @@ class CardFace extends StatelessWidget {
           child: PictoIcon(pictoForCategory(data.category), size: 5.6 * u, stroke: 1.3),
         ),
       ),
-      if (!hideBook)
+      if (!hideBook && data.books.isNotEmpty)
         Positioned(
           left: 0,
           right: 0,

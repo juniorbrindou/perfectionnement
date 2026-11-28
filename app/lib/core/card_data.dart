@@ -4,12 +4,13 @@ import 'bible_books.dart';
 class CardData {
   static const difficulties = ['lait', 'manne', 'solide'];
   static const difficultyLabels = {'lait': 'Lait', 'manne': 'Manne', 'solide': 'Nourriture solide'};
-  static const categories = ['personnages', 'miracles', 'paraboles', 'lieux_evenements'];
+  static const categories = ['personnages', 'miracles', 'paraboles', 'lieux_evenements', 'structure'];
   static const categoryLabels = {
     'personnages': 'Personnages',
     'miracles': 'Miracles',
     'paraboles': 'Paraboles',
     'lieux_evenements': 'Lieux et événements',
+    'structure': 'Structure de la Bible',
   };
   static const testaments = ['AT', 'NT'];
   static const wrongCount = 5;
@@ -68,8 +69,10 @@ class CardData {
     final errors = <String>[];
     if (id.isEmpty) errors.add('id manquant');
     if (!difficulties.contains(difficulty)) errors.add('difficulté inconnue : $difficulty');
-    if (!testaments.contains(testament)) errors.add('testament inconnu : $testament');
-    if (books.isEmpty) errors.add('aucun livre');
+    // Une question sur la structure de la Bible peut n'appartenir à aucun livre ni testament.
+    final general = category == 'structure';
+    if (!testaments.contains(testament) && !(general && testament.isEmpty)) errors.add('testament inconnu : $testament');
+    if (books.isEmpty && !general) errors.add('aucun livre');
     for (final b in books) {
       if (!BibleBooks.exists(b)) errors.add('livre inconnu : $b');
     }

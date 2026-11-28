@@ -384,3 +384,19 @@ maintenant les objets comme Nakama.
 Vérifié depuis l'adresse publique (données de test supprimées ensuite) : accès refusé sans mot de passe et aux
 joueurs, fiches invalides ou communes aux deux réserves refusées, création, modification, corbeille, import de 400
 cartes à l'essai, et une partie d'arcade qui sert la question de départ créée dans l'écran. Page contrôlée à 375 px.
+
+## Cartes « Structure de la Bible » : ajoutées le 2026-11-28
+
+135 cartes de catégorie `structure` (12 faits, 66 « combien de chapitres », 50 « quel livre vient après », 7 groupes),
+générées par `tools/cartes_structure.py` : 68 en ligne, 67 pour la partie à deux, toutes en `brouillon`.
+
+- Cette catégorie peut n'avoir **ni livre ni testament** (`books: []`, `testament: ""`), quand l'image du livre
+  trahirait la réponse. Serveur, application, back-office et `card_data.gd` l'acceptent.
+- **Une carte Structure au plus par main** (`composerMains` côté serveur, `DeckBuilder` côté application), sauf si
+  la réserve ne contient pas assez d'autres cartes.
+- Écartées, car la réponse se discute dans la Louis Segond : le plus long verset (Jérémie 21:7 en nombre de lettres,
+  1 Chroniques 29:2 en nombre de mots, Esther 8:9 en hébreu et en anglais) et le livre au plus grand nombre de mots
+  (Psaumes en français, Jérémie en hébreu).
+- Une fois une réserve modifiée au back-office, relancer le script ne suffit plus : importer le fichier.
+- À améliorer côté application : le pictogramme de cette catégorie reprend pour l'instant celui des personnages, et
+  les cartes sans livre n'ont pas d'illustration.

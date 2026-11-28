@@ -142,7 +142,7 @@ let ouverte = null;      // { nouvelle, json }
 const cochees = new Set();
 const $ = (id) => document.getElementById(id);
 const DIFF = { lait: "Lait", manne: "Manne", solide: "Nourriture solide" };
-const CATEG = { personnages: "Personnages", miracles: "Miracles", paraboles: "Paraboles", lieux_evenements: "Lieux et événements" };
+const CATEG = { personnages: "Personnages", miracles: "Miracles", paraboles: "Paraboles", lieux_evenements: "Lieux et événements", structure: "Structure de la Bible" };
 const STATUT = { brouillon: "Brouillon", valide: "Validée", retiree: "Corbeille" };
 
 function el(nom, attrs = {}, ...enfants) {
@@ -262,7 +262,7 @@ function formulaire(f) {
     const liste = el("datalist", { id: "livres" });
     etat.livres.forEach((l) => liste.append(el("option", { value: l })));
     livres.querySelector("input").setAttribute("list", "livres");
-    z.append(el("div", { className: "deux" }, livres, champ("testament", "Testament", f.testament || "AT", { AT: "Ancien", NT: "Nouveau" })), liste);
+    z.append(el("div", { className: "deux" }, livres, champ("testament", "Testament", f.testament ?? "AT", { AT: "Ancien", NT: "Nouveau", "": "Aucun (structure)" })), liste);
     z.append(champ("story", "Récit (identifiant, ex. deluge)", f.story || ""));
     const recits = el("datalist", { id: "recits" });
     [...new Set(etat.cartes.map((c) => c.story))].sort().forEach((s) => recits.append(el("option", { value: s })));

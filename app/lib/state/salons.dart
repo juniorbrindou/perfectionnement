@@ -119,6 +119,7 @@ const _categories = {
   'miracles': 'Miracles',
   'paraboles': 'Paraboles',
   'lieux_evenements': 'Lieux et événements',
+  'structure': 'Structure de la Bible',
 };
 
 int _int(Object? v, [int fallback = 0]) => v is num ? v.toInt() : int.tryParse('$v') ?? fallback;

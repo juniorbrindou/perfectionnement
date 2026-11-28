@@ -4,12 +4,13 @@ extends RefCounted
 
 const DIFFICULTIES: Array[String] = ["lait", "manne", "solide"]
 const DIFFICULTY_LABELS := {"lait": "Lait", "manne": "Manne", "solide": "Nourriture solide"}
-const CATEGORIES: Array[String] = ["personnages", "miracles", "paraboles", "lieux_evenements"]
+const CATEGORIES: Array[String] = ["personnages", "miracles", "paraboles", "lieux_evenements", "structure"]
 const CATEGORY_LABELS := {
 	"personnages": "Personnages",
 	"miracles": "Miracles",
 	"paraboles": "Paraboles",
 	"lieux_evenements": "Lieux et événements",
+	"structure": "Structure de la Bible",
 }
 const TESTAMENTS: Array[String] = ["AT", "NT"]
 const WRONG_COUNT := 5
@@ -64,9 +65,9 @@ func problems() -> Array[String]:
 		errors.append("id manquant")
 	if not difficulty in DIFFICULTIES:
 		errors.append("difficulté inconnue : %s" % difficulty)
-	if not testament in TESTAMENTS:
+	if not testament in TESTAMENTS and not (category == "structure" and testament == ""):
 		errors.append("testament inconnu : %s" % testament)
-	if books.is_empty():
+	if books.is_empty() and category != "structure":
 		errors.append("aucun livre")
 	for b in books:
 		if not BibleBooks.exists(b):

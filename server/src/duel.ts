@@ -143,6 +143,31 @@ function repondreTempsEcoule(e: EtatDuel, alea: Alea): ResultatCoup {
   return repondre(e, fausses[entier(alea, 0, fausses.length - 1)]);
 }
 
+/** Cartes « Structure de la Bible » au plus par main : elles sont nombreuses et écraseraient le reste. */
+const STRUCTURE_PAR_MAIN = 1;
+
+/** Sert deux mains dans l'ordre donné, en limitant les cartes Structure tant que la réserve le permet. */
+function composerMains(ordre: CarteSource[]): CarteSource[][] {
+  const prises: boolean[] = [];
+  const mains: CarteSource[][] = [[], []];
+  mains.forEach(function (main) {
+    let structure = 0;
+    for (let i = 0; i < ordre.length && main.length < TAILLE_MAIN; i++) {
+      const estStructure = ordre[i].category === "structure";
+      if (prises[i] || (estStructure && structure >= STRUCTURE_PAR_MAIN)) continue;
+      if (estStructure) structure++;
+      prises[i] = true;
+      main.push(ordre[i]);
+    }
+  });
+  mains.forEach(function (main) {
+    for (let i = 0; i < ordre.length && main.length < TAILLE_MAIN; i++) {
+      if (!prises[i]) { prises[i] = true; main.push(ordre[i]); }
+    }
+  });
+  return mains;
+}
+
 /** Deux mains sans doublon, en évitant les cartes vues récemment tant que la réserve le permet. */
 function distribuer(reserve: CarteSource[], recentes: { [id: string]: boolean }, alea: Alea): CarteSource[][] {
   if (reserve.length < TAILLE_MAIN * 2) throw new Error("Pas assez de cartes.");
@@ -150,6 +175,5 @@ function distribuer(reserve: CarteSource[], recentes: { [id: string]: boolean },
   const vues = reserve.filter(function (c) { return !!recentes[c.id]; });
   melanger(neuves, alea);
   melanger(vues, alea);
-  const ordre = neuves.concat(vues);
-  return [ordre.slice(0, TAILLE_MAIN), ordre.slice(TAILLE_MAIN, TAILLE_MAIN * 2)];
+  return composerMains(neuves.concat(vues));
 }

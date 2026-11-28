@@ -830,4 +830,18 @@ test("cartes : une carte retirée n'est plus tirée mais reste lisible par id", 
   g.installerCartes(semence.en_ligne);
 });
 
+test("structure : une carte au plus par main, sauf réserve trop pauvre", function () {
+  const c = function (i, cat) { return { id: "x" + i, category: cat }; };
+  const structure = Array.from({ length: 20 }, function (_, i) { return c(i, "structure"); });
+  const autres = Array.from({ length: 10 }, function (_, i) { return c(100 + i, "miracles"); });
+  const nb = function (m) { return m.filter(function (x) { return x.category === "structure"; }).length; };
+  const mains = g.composerMains(structure.concat(autres));
+  assert.strictEqual(mains[0].length + mains[1].length, 10);
+  assert.strictEqual(nb(mains[0]), 1);
+  assert.strictEqual(nb(mains[1]), 1);
+  assert.strictEqual(new Set(mains[0].concat(mains[1]).map(function (x) { return x.id; })).size, 10);
+  const pauvre = g.composerMains(structure.slice(0, 8).concat(autres.slice(0, 2)));
+  assert.strictEqual(pauvre[0].length + pauvre[1].length, 10);
+});
+
 console.log("\n" + ok + " tests serveur réussis");

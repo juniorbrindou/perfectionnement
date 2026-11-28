@@ -29,6 +29,7 @@ class _SalonCreateScreenState extends State<SalonCreateScreen> {
     'miracles': 'Miracles',
     'paraboles': 'Paraboles',
     'lieux_evenements': 'Lieux et événements',
+    'structure': 'Structure de la Bible',
   };
 
   final _name = TextEditingController();
