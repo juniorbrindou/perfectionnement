@@ -37,7 +37,8 @@ class Session {
       cardsJson: texts[0],
       startersJson: texts[1],
       storiesJson: texts[2],
-      includeDrafts: kDebugMode || kProfileMode,
+      // --dart-define=BROUILLONS=true : version β, tant que les cartes ne sont pas validées.
+      includeDrafts: kDebugMode || kProfileMode || const bool.fromEnvironment('BROUILLONS'),
     );
   }
 
