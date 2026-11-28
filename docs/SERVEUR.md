@@ -439,3 +439,13 @@ lues via `cartes_telephone` et gardées sur le téléphone, pictogramme « livre
 exclure : PRD §6.5, à revoir avec les salons sans code), la modération (PRD §10), le choix des musiques (une seule
 piste), la suppression du compte depuis l'application (exigée par Google Play).
 
+## Version β publiée : 2026-11-28
+
+`https://brindoujunior.com/perfectionnement-beta-0.7.0.apk` (commit `91ed787`, paquet `….flutter`, « Perfectionnement β »,
+clé de test du serveur, `--dart-define=BROUILLONS=true`). Elle s'installe à côté du jeu publié. Fichiers dans
+`/var/www/perfectionnement-releases`, servis par nginx (site `brindoujunior`). Fichier servi identique au fichier
+construit.
+
+L'Aventure a été jouée de bout en bout avec le code de l'application contre le serveur (invité refusé, puis deux
+parties complètes). Un invité se voit désormais proposer la création de compte. Pas d'essai sur téléphone.
+
