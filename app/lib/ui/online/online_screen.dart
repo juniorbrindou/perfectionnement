@@ -488,7 +488,11 @@ class DifficultyCard extends StatelessWidget {
   final String difficulty;
   final String label;
   final String help;
-  final int stake;
+  /// Mise en talents (duel), ou rien.
+  final int? stake;
+
+  /// Étoiles gagnées dans cette difficulté (Aventure), ou rien.
+  final int? stars;
   final bool selected;
   final VoidCallback onTap;
 
@@ -499,7 +503,8 @@ class DifficultyCard extends StatelessWidget {
     required this.difficulty,
     required this.label,
     required this.help,
-    required this.stake,
+    this.stake,
+    this.stars,
     required this.selected,
     required this.onTap,
   });
@@ -566,9 +571,20 @@ class DifficultyCard extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Image.asset('assets/duel/pieces.png', width: (compact ? 16 : 20) * k, height: (compact ? 16 : 20) * k),
-                        SizedBox(width: 4 * k),
-                        Text('$stake', style: titleStyle((compact ? 16 : 20) * k, const Color(0xFF6B4310))),
+                        if (stake != null) ...[
+                          Image.asset('assets/duel/pieces.png', width: (compact ? 16 : 20) * k, height: (compact ? 16 : 20) * k),
+                          SizedBox(width: 4 * k),
+                          Text('$stake', style: titleStyle((compact ? 16 : 20) * k, const Color(0xFF6B4310))),
+                        ],
+                        if (stars != null)
+                          for (var i = 0; i < 3; i++)
+                            Image.asset(
+                              'assets/aventure/etoile.png',
+                              width: (compact ? 17 : 20) * k,
+                              height: (compact ? 17 : 20) * k,
+                              color: i < stars! ? null : const Color(0x401D2A4A),
+                              colorBlendMode: i < stars! ? null : BlendMode.srcIn,
+                            ),
                       ],
                     ),
                     SizedBox(height: (compact ? 1 : 3) * k),

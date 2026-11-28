@@ -19,7 +19,7 @@ Future<void> loadIcons() async {
   await loader.load();
 }
 
-Future<void> open(WidgetTester tester, Map<String, List> stars) async {
+Future<void> open(WidgetTester tester, Map<String, Map<String, int>> stars) async {
   // Un fichier lu par un test précédent resterait attendu dans son horloge simulée.
   rootBundle.clear();
   await tester.runAsync(loadFonts);
@@ -47,12 +47,12 @@ void main() {
     tester.view.devicePixelRatio = 2.75;
     addTearDown(tester.view.reset);
     await open(tester, {
-      '1': ['lait', 'manne', 'solide'],
-      '2': ['lait', 'manne'],
+      '1': {'lait': 1, 'manne': 1, 'solide': 1},
+      '2': {'lait': 2, 'manne': 0, 'solide': 0},
     });
     expect(find.text('La Genèse'), findsOneWidget);
     expect(find.text('Niveau 3 · L\'arche de Noé'), findsOneWidget);
-    expect(find.text('5 étoiles sur 24'), findsOneWidget);
+    expect(find.text('5 étoiles sur 72'), findsOneWidget);
     expect(find.text('bientôt'), findsNothing);
     expect(Session.instance.illustration(const ['Genèse']), isNotNull);
     await capture(tester, 'aventure');
@@ -62,7 +62,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.text('Niveau 2 · Le jardin d\'Éden'), findsOneWidget);
-    expect(find.text('★ gagnée'), findsNWidgets(2));
+    expect(find.text('à améliorer'), findsOneWidget);
     await capture(tester, 'aventure_niveau_2');
 
     // Un niveau fermé ne se choisit pas.
@@ -84,14 +84,14 @@ void main() {
       addTearDown(tester.platformDispatcher.clearAllTestValues);
       await open(tester, {});
       expect(tester.takeException(), isNull);
-      expect(find.text('0 étoile sur 24'), findsOneWidget);
+      expect(find.text('0 étoile sur 72'), findsOneWidget);
 
       // Rien à faire défiler.
       expect(tester.state<ScrollableState>(find.byType(Scrollable)).position.maxScrollExtent, 0);
       // Aucun nom de niveau tronqué, et aucun cadenas sur un nom.
       final names = [
         'La création', 'Le jardin d\'Éden', 'L\'arche de Noé', 'La tour de Babel', //
-        'Abraham', 'Isaac et Rébecca', 'Jacob', 'Joseph',
+        'Abraham', 'Isaac et Rebecca', 'Jacob', 'Joseph',
       ];
       final locks = find.byIcon(Icons.lock_rounded);
       expect(locks, findsNWidgets(7));

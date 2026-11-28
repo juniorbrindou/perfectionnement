@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import '../core/adventure.dart';
+
 enum Connection { offline, connecting, online }
 
 /// Le joueur tel que l'interface l'affiche : compte, progression, talents, pain quotidien.
@@ -19,8 +21,8 @@ class Player extends ChangeNotifier {
   bool breadToday = false;
   int breadGain = 0;
 
-  /// Étoiles de l'aventure, par niveau (« 1 » → [étoiles]).
-  Map<String, List> adventureStars = {};
+  /// Étoiles de l'aventure : par étape, de 0 à 3 par difficulté (« 1 » → {lait: 2}).
+  AdventureStars adventureStars = {};
 
   /// Compte connu : reçu du serveur ou gardé sur le téléphone.
   bool get isKnown => username.isNotEmpty;

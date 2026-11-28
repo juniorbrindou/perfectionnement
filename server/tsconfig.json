@@ -20,6 +20,7 @@
     "./src/salons.ts",
     "./src/reglages.ts",
     "./src/cartes.ts",
+    "./src/aventure.ts",
     "./src/main.ts"
   ]
 }

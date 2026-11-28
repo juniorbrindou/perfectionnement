@@ -868,4 +868,55 @@ test("salons : un invité ne peut ni créer ni demander", function () {
   assert.throws(function () { salonRpc(nk, "invite-1", { action: "demander", id: "x" }); }, function (e) { return e.message.indexOf("compte") >= 0; });
 });
 
+// ---------------------------------------------------------------- Aventure en quiz
+
+test("aventure : étoiles selon les seuils, ouverture, reprise des anciennes victoires", function () {
+  g.appliquerReglages(g.valeursEnVigueur({}));
+  assert.deepStrictEqual([6, 7, 8, 9, 10].map(function (n) { return g.etoilesPour("lait", n); }), [0, 1, 1, 2, 3]);
+  assert.deepStrictEqual([4, 5, 7, 8, 9, 10].map(function (n) { return g.etoilesPour("solide", n); }), [0, 1, 1, 2, 2, 3]);
+  g.appliquerReglages(g.valeursEnVigueur({ aventure_questions: 5 }));
+  assert.strictEqual(g.etoilesPour("lait", 5), 3, "un seuil au-delà du total devient le total");
+  g.appliquerReglages(g.valeursEnVigueur({}));
+  assert.strictEqual(g.etapeOuverte({}, 1), true);
+  assert.strictEqual(g.etapeOuverte({ "1": { lait: 0 } }, 2), false);
+  assert.strictEqual(g.etapeOuverte({ "1": { solide: 1 } }, 2), true);
+  assert.strictEqual(g.etapeOuverte({}, 99), false);
+  assert.deepStrictEqual(copie(g.depuisAncienne({ "1": ["lait", "solide"], "2": [] })), { "1": { lait: 1, solide: 1 } });
+});
+
+test("aventure : une partie de 10 questions, réponse révélée après coup, délai compté faux", function () {
+  const cartes = Array.from({ length: 12 }, function (_, i) {
+    return Object.assign(copie(modele), { id: "Q" + i, question: "Question " + i + " ?", answer: "Bonne " + i, wrongs: ["a", "b", "c", "d", "e"], story: "creation" });
+  });
+  vm.runInContext("[CARTES, CARTES_TOUTES]", g);
+  g.installerCartes({ cartes: cartes, depart: semence.en_ligne.depart });
+  const p = g.nouvellePartieQuiz(1, "lait", cartes, Math.random);
+  assert.strictEqual(p.questions.length, 10);
+  let t = 1000;
+  for (let i = 0; i < 10; i++) {
+    const q = g.questionQuiz(p, t);
+    assert.strictEqual(q.numero, i + 1);
+    assert.strictEqual(q.propositions.length, 4);
+    assert.ok(!("answer" in q) && !("id" in q), "pas de réponse avant de répondre");
+    const bonne = cartes.filter(function (c) { return c.question === q.question; })[0].answer;
+    assert.ok(q.propositions.indexOf(bonne) >= 0);
+    const choix = i < 8 ? bonne : q.propositions.filter(function (x) { return x !== bonne; })[0];
+    const r = g.repondreQuiz(p, i === 7 ? bonne : choix, i === 7 ? t + 40000 : t + 1000);
+    assert.strictEqual(r.bonne, bonne);
+    if (i === 7) assert.strictEqual(r.tempsEcoule, true);
+    assert.throws(function () { g.repondreQuiz(p, bonne, t); });
+    t += 2000;
+  }
+  assert.strictEqual(p.finie, true);
+  assert.strictEqual(p.bonnes, 7);
+  assert.strictEqual(g.etoilesPour("lait", p.bonnes), 1);
+  g.installerCartes(semence.en_ligne);
+});
+
+test("aventure : les données de data/ couvrent les 8 étapes avec leurs récits", function () {
+  const niveaux = vm.runInContext("AVENTURE.chapitres[0].niveaux", g);
+  assert.strictEqual(niveaux.length, 8);
+  niveaux.forEach(function (n) { assert.ok(n.recits && n.recits.length > 0, "récits du niveau " + n.id); });
+});
+
 console.log("\n" + ok + " tests serveur réussis");

@@ -3,16 +3,69 @@
     {
       "nom": "Chapitre 1 : la Genèse",
       "resume": "8 niveaux, de la création à Joseph",
-      "livres": ["Genèse"],
+      "livres": [
+        "Genèse"
+      ],
       "niveaux": [
-        {"id": 1, "nom": "La création"},
-        {"id": 2, "nom": "Le jardin d'Éden"},
-        {"id": 3, "nom": "L'arche de Noé"},
-        {"id": 4, "nom": "La tour de Babel"},
-        {"id": 5, "nom": "Abraham"},
-        {"id": 6, "nom": "Isaac et Rébecca"},
-        {"id": 7, "nom": "Jacob"},
-        {"id": 8, "nom": "Joseph"}
+        {
+          "id": 1,
+          "nom": "La création",
+          "recits": [
+            "creation"
+          ]
+        },
+        {
+          "id": 2,
+          "nom": "Le jardin d'Éden",
+          "recits": [
+            "eden"
+          ]
+        },
+        {
+          "id": 3,
+          "nom": "L'arche de Noé",
+          "recits": [
+            "deluge"
+          ]
+        },
+        {
+          "id": 4,
+          "nom": "La tour de Babel",
+          "recits": [
+            "babel"
+          ]
+        },
+        {
+          "id": 5,
+          "nom": "Abraham",
+          "recits": [
+            "abraham",
+            "abraham_sara"
+          ]
+        },
+        {
+          "id": 6,
+          "nom": "Isaac et Rebecca",
+          "recits": [
+            "isaac_rebecca"
+          ]
+        },
+        {
+          "id": 7,
+          "nom": "Jacob",
+          "recits": [
+            "jacob",
+            "fils_jacob"
+          ]
+        },
+        {
+          "id": 8,
+          "nom": "Joseph",
+          "recits": [
+            "joseph",
+            "joseph_vendu"
+          ]
+        }
       ]
     }
   ]

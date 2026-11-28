@@ -8,7 +8,7 @@ interface CarteSource {
   testament?: string; category?: string; question?: string; reference?: string; explanation?: string; story?: string;
 }
 interface QuestionDepartSource { id: string; question?: string; answer: string; wrongs: string[]; }
-interface NiveauSource { id: number; nom: string; }
+interface NiveauSource { id: number; nom: string; recits?: string[]; }
 interface ChapitreSource { nom: string; resume: string; livres: string[]; niveaux: NiveauSource[]; }
 interface AventureSource { chapitres: ChapitreSource[]; }
 

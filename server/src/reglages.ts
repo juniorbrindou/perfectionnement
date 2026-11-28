@@ -48,6 +48,20 @@ const REGLAGES: Reglage[] = [
   { cle: "ia_chance_solide", groupe: "Le Scribe", libelle: "Réussite avec 4 propositions · Nourriture solide", unite: "%", defaut: 45, min: 0, max: 100 },
   { cle: "ia_depart_chance", groupe: "Le Scribe", libelle: "Réussite à la question de départ", unite: "%", defaut: 70, min: 0, max: 100 },
 
+  { cle: "aventure_questions", groupe: "Aventure", libelle: "Questions par partie", unite: "questions", defaut: 10, min: 3, max: 30 },
+  { cle: "aventure_delai_s", groupe: "Aventure", libelle: "Délai pour répondre", unite: "s", defaut: 30, min: 5, max: 180 },
+  { cle: "aventure_lait_1", groupe: "Aventure", libelle: "Lait · bonnes réponses pour ★", unite: "", defaut: 7, min: 1, max: 30 },
+  { cle: "aventure_lait_2", groupe: "Aventure", libelle: "Lait · bonnes réponses pour ★★", unite: "", defaut: 9, min: 1, max: 30 },
+  { cle: "aventure_lait_3", groupe: "Aventure", libelle: "Lait · bonnes réponses pour ★★★", unite: "", defaut: 10, min: 1, max: 30 },
+  { cle: "aventure_manne_1", groupe: "Aventure", libelle: "Manne · bonnes réponses pour ★", unite: "", defaut: 6, min: 1, max: 30 },
+  { cle: "aventure_manne_2", groupe: "Aventure", libelle: "Manne · bonnes réponses pour ★★", unite: "", defaut: 8, min: 1, max: 30 },
+  { cle: "aventure_manne_3", groupe: "Aventure", libelle: "Manne · bonnes réponses pour ★★★", unite: "", defaut: 10, min: 1, max: 30 },
+  { cle: "aventure_solide_1", groupe: "Aventure", libelle: "Solide · bonnes réponses pour ★", unite: "", defaut: 5, min: 1, max: 30 },
+  { cle: "aventure_solide_2", groupe: "Aventure", libelle: "Solide · bonnes réponses pour ★★", unite: "", defaut: 8, min: 1, max: 30 },
+  { cle: "aventure_solide_3", groupe: "Aventure", libelle: "Solide · bonnes réponses pour ★★★", unite: "", defaut: 10, min: 1, max: 30 },
+  { cle: "aventure_xp_bonne", groupe: "Aventure", libelle: "XP par bonne réponse", unite: "XP", defaut: 3, min: 0, max: 100 },
+  { cle: "aventure_talents_etoile", groupe: "Aventure", libelle: "Talents par étoile nouvelle", unite: "talents", defaut: 2, min: 0, max: 100 },
+
   { cle: "cartes_brouillons", groupe: "Cartes", libelle: "Jouer aussi les brouillons (1 : oui, 0 : validées seules)", unite: "", defaut: 1, min: 0, max: 1 },
 
   { cle: "salon_membres_max", groupe: "Salons", libelle: "Membres au maximum", unite: "joueurs", defaut: 50, min: 2, max: 500 },
@@ -95,6 +109,15 @@ function appliquerReglages(v: { [cle: string]: number }): void {
   MISES_DUEL = { lait: v["mise_duel_lait"], manne: v["mise_duel_manne"], solide: v["mise_duel_solide"] };
   SALON_COUT = v["salon_cout"];
   BROUILLONS_JOUABLES = v["cartes_brouillons"];
+  QUIZ_QUESTIONS = v["aventure_questions"];
+  QUIZ_DELAI_S = v["aventure_delai_s"];
+  QUIZ_XP_BONNE = v["aventure_xp_bonne"];
+  QUIZ_TALENTS_ETOILE = v["aventure_talents_etoile"];
+  QUIZ_SEUILS = {
+    lait: [v["aventure_lait_1"], v["aventure_lait_2"], v["aventure_lait_3"]],
+    manne: [v["aventure_manne_1"], v["aventure_manne_2"], v["aventure_manne_3"]],
+    solide: [v["aventure_solide_1"], v["aventure_solide_2"], v["aventure_solide_3"]],
+  };
   DELAI_DEPART_S = v["arcade_depart_s"];
   DELAI_CHOISIR_S = v["arcade_choisir_s"];
   DELAI_REPONDRE_S = v["arcade_repondre_s"];

@@ -28,7 +28,7 @@ void main() {
       p.talents = 120;
       p.breadToday = true;
       p.breadGain = 10;
-      p.adventureStars = {'1': [1, 2, 3], '2': [1]};
+      p.adventureStars = {'1': {'lait': 3, 'manne': 1, 'solide': 2}, '2': {'lait': 1}};
     });
 
     await tester.pumpWidget(const PerfectionnementApp());

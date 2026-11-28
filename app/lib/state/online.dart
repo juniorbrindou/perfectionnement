@@ -11,6 +11,7 @@ import 'package:nakama/nakama.dart';
 import 'package:nakama/src/models/response_error.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../core/adventure.dart';
 import '../core/pseudo.dart';
 import 'player.dart';
 import 'reglages.dart';
@@ -239,7 +240,7 @@ class Online {
   }
 
   /// Nouvelles étoiles de l'aventure, gardées pour le prochain lancement.
-  Future<void> setAdventureStars(Map<String, List> stars) async {
+  Future<void> setAdventureStars(AdventureStars stars) async {
     _player.update((p) => p.adventureStars = stars);
     await _saveCache();
   }
@@ -420,7 +421,7 @@ class Online {
         p.xp = _int(wallet['xp']);
         p.talents = _int(wallet['talents']);
         p.rankPlace = _int(d['place']);
-        p.adventureStars = (d['etoiles'] as Map?)?.map((k, v) => MapEntry('$k', v as List)) ?? {};
+        p.adventureStars = Adventure.parse(d['etoiles']);
         p.breadToday = _breadDate == _today();
       });
     } catch (_) {

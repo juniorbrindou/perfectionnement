@@ -29,6 +29,7 @@ function InitModule(ctx: nkruntime.Context, logger: nkruntime.Logger, nk: nkrunt
   initializer.registerAfterAuthenticateGoogle(apresAuthGoogle);
   initializer.registerRpc("pain_quotidien", rpcPainQuotidien);
   initializer.registerRpc("arcade", rpcArcade);
+  initializer.registerRpc("aventure", rpcAventure);
   initializer.registerRpc("duel_ami", rpcDuelAmi);
   initializer.registerRpc("salon", rpcSalon);
   initializer.registerRpc("reglages", rpcReglages);
@@ -48,7 +49,7 @@ function InitModule(ctx: nkruntime.Context, logger: nkruntime.Logger, nk: nkrunt
   });
   // Classement général par XP (créé s'il n'existe pas ; le serveur seul y écrit).
   nk.leaderboardCreate(CLASSEMENT_XP, true, nkruntime.SortOrder.DESCENDING, nkruntime.Operator.SET, null, null, true);
-  logger.info("Module Perfectionnement chargé (talents, pain quotidien, arcade, XP, duels en ligne, salons, réglages, cartes).");
+  logger.info("Module Perfectionnement chargé (talents, pain quotidien, arcade, XP, duels en ligne, salons, réglages, cartes, aventure).");
 }
 
 // Nakama appelle InitModule par son nom : on le garde référencé pour qu'il ne soit pas éliminé.

@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../core/adventure.dart';
-import '../../state/arcade_match.dart';
+import '../../state/quiz.dart';
 import '../../state/online.dart';
 import '../../state/player.dart';
 import '../../state/reglages.dart';
 import '../../state/session.dart';
 import '../game/table.dart';
-import '../online/duel_match_screen.dart';
+import 'quiz_screen.dart';
 import '../online/online_screen.dart';
 import '../theme.dart';
 import '../toast.dart';
@@ -61,11 +61,10 @@ class _AdventureScreenState extends State<AdventureScreen> {
     _select(Adventure.currentLevel(Player.instance.adventureStars, _levelCount));
     // Progression à jour depuis le serveur.
     try {
-      final r = await Online.instance.rpc('arcade', {'action': 'etat'});
-      final stars = (r['etoiles'] as Map?)?.map((k, v) => MapEntry('$k', v as List)) ?? const <String, List>{};
-      await Online.instance.setAdventureStars(stars);
+      final r = await Quiz.state();
       if (!mounted) return;
-      _select(Adventure.currentLevel(stars, _levelCount));
+      setState(() => _questions = r.questions);
+      _select(Adventure.currentLevel(r.stars, _levelCount));
     } catch (_) {
       // Hors ligne : la carte s'affiche avec la progression gardée.
     }
@@ -73,14 +72,20 @@ class _AdventureScreenState extends State<AdventureScreen> {
 
   int get _levelCount => _chapters.fold(0, (n, c) => n + c.levels.length);
 
-  Map<String, List> get _stars => Player.instance.adventureStars;
+  AdventureStars get _stars => Player.instance.adventureStars;
+
+  /// Questions disponibles par étape et difficulté, selon le serveur (vide : pas encore lu).
+  Map _questions = const {};
+
+  bool _ready(int level, String difficulty) {
+    final n = (_questions['$level'] as Map?)?[difficulty];
+    return n == null || (n as num) >= Reglages.instance['aventure_questions'];
+  }
 
   void _select(int level) {
     setState(() {
       _selected = level;
-      final won = _stars['$level'] ?? const [];
-      // Première difficulté pas encore gagnée.
-      _difficulty = const ['lait', 'manne', 'solide'].firstWhere((d) => !won.contains(d), orElse: () => 'lait');
+      _difficulty = Adventure.suggestedDifficulty(_stars, level);
     });
   }
 
@@ -112,22 +117,26 @@ class _AdventureScreenState extends State<AdventureScreen> {
       await _askAccount();
       return;
     }
-    final stake = Reglages.instance.miseArcade(_difficulty);
-    if (Player.instance.talents < stake) {
-      showToast(context, 'Il te faut $stake talents pour cette difficulté.');
+    if (!_ready(_selected, _difficulty)) {
+      showToast(context, 'Cette étape n’a pas encore ses questions dans cette difficulté.');
       return;
     }
+    final name = _chapters.expand((c) => c.levels).firstWhere((l) => l.$1 == _selected, orElse: () => (_selected, '')).$2;
     setState(() => _busy = true);
-    final match = ArcadeMatch(_selected, _difficulty);
-    final error = await match.start();
-    if (!mounted) return;
-    setState(() => _busy = false);
-    if (error != null) {
-      showToast(context, error);
+    final quiz = Quiz(_selected, _difficulty);
+    try {
+      final first = await quiz.start();
+      if (!mounted) return;
+      setState(() => _busy = false);
+      await Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => QuizScreen(quiz: quiz, first: first, levelName: 'Niveau $_selected · $name'),
+      ));
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _busy = false);
+      showToast(context, Online.describe(e));
       return;
     }
-    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => DuelMatchScreen(source: match)));
-    match.dispose();
     if (mounted) _select(Adventure.currentLevel(_stars, _levelCount));
   }
 
@@ -296,8 +305,8 @@ class _AdventureScreenState extends State<AdventureScreen> {
 
   /// L'enseigne du chapitre, en bois comme le ruban du titre du jeu.
   Widget _chapterSign(_Chapter c, int number, double k) {
-    final total = c.levels.length * 3;
-    final won = c.levels.fold<int>(0, (n, l) => n + (_stars['${l.$1}'] ?? const []).length);
+    final total = c.levels.length * 9;
+    final won = c.levels.fold<int>(0, (n, l) => n + Adventure.levelTotal(_stars, l.$1));
     final title = c.name.contains(':') ? c.name.split(':').last.trim() : c.name;
     final cap = title.isEmpty ? title : title[0].toUpperCase() + title.substring(1);
     return Container(
@@ -353,7 +362,7 @@ class _AdventureScreenState extends State<AdventureScreen> {
         art: art,
         // Chaque niveau montre un autre détail de la peinture du livre.
         artAlignment: _details[i % _details.length],
-        stars: _stars['$level'] ?? const [],
+        stars: [for (final d in Adventure.difficulties) if (Adventure.stars(_stars, level, d) > 0) d],
         open: open,
         selected: level == _selected,
         onTap: () {
@@ -394,7 +403,6 @@ class _AdventureScreenState extends State<AdventureScreen> {
   Widget _panel(double k) {
     final level = _selected;
     final name = _chapters.expand((c) => c.levels).firstWhere((l) => l.$1 == level, orElse: () => (level, '')).$2;
-    final won = _stars['$level'] ?? const [];
     final bottom = MediaQuery.paddingOf(context).bottom;
     return Container(
       padding: const EdgeInsets.only(top: 1.5),
@@ -422,7 +430,7 @@ class _AdventureScreenState extends State<AdventureScreen> {
             ),
             FittedBox(
               fit: BoxFit.scaleDown,
-              child: Text('Contre le Scribe · choisis ta difficulté', style: bodyStyle(11.5 * k, paleText)),
+              child: Text('Le Scribe te pose ${Reglages.instance['aventure_questions']} questions · choisis ta difficulté', style: bodyStyle(11.5 * k, paleText)),
             ),
             SizedBox(height: 14 * k),
             ListenableBuilder(
@@ -436,9 +444,11 @@ class _AdventureScreenState extends State<AdventureScreen> {
                         compact: true,
                         difficulty: d,
                         label: label,
-                        help: won.contains(d) ? '★ gagnée' : 'à gagner',
-                        helpColor: won.contains(d) ? const Color(0xFF24732F) : null,
-                        stake: Reglages.instance.miseArcade(d),
+                        help: !_ready(level, d)
+                            ? 'bientôt'
+                            : switch (Adventure.stars(_stars, level, d)) { 3 => 'parfait', 0 => 'à gagner', _ => 'à améliorer' },
+                        helpColor: Adventure.stars(_stars, level, d) == 3 ? const Color(0xFF24732F) : null,
+                        stars: Adventure.stars(_stars, level, d),
                         selected: d == _difficulty,
                         onTap: () => setState(() => _difficulty = d),
                       ),

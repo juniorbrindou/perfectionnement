@@ -2134,5 +2134,5285 @@
     "explanation": "Dans la Louis Segond : après les épîtres viennent l'Apocalypse.",
     "story": "structure",
     "status": "brouillon"
+  },
+  {
+    "id": "AV-1-L-01",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "Qu'est-ce que Dieu fit exister au premier jour ?",
+    "answer": "La lumière",
+    "wrongs": [
+      "Les étoiles",
+      "Les poissons",
+      "Les plantes",
+      "L'homme",
+      "Les oiseaux"
+    ],
+    "reference": "Genèse 1:3-5",
+    "explanation": "Dieu dit : Que la lumière soit ! Et la lumière fut. Ce fut le premier jour.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-1-L-02",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel jour Dieu créa-t-il l'homme ?",
+    "answer": "Le sixième jour",
+    "wrongs": [
+      "Le premier jour",
+      "Le troisième jour",
+      "Le quatrième jour",
+      "Le cinquième jour",
+      "Le septième jour"
+    ],
+    "reference": "Genèse 1:26-31",
+    "explanation": "Dieu créa l'homme et la femme, puis il y eut un soir et un matin : ce fut le sixième jour.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-1-L-03",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "À l'image de qui Dieu créa-t-il l'homme ?",
+    "answer": "À l'image de Dieu",
+    "wrongs": [
+      "À l'image des animaux",
+      "À l'image du soleil",
+      "À l'image des étoiles",
+      "À l'image de la terre",
+      "À l'image des arbres"
+    ],
+    "reference": "Genèse 1:27",
+    "explanation": "Dieu créa l'homme à son image, il le créa à l'image de Dieu.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-1-L-04",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "Quels animaux Dieu créa-t-il le même jour que les grands poissons ?",
+    "answer": "Les oiseaux",
+    "wrongs": [
+      "Le bétail",
+      "Les reptiles",
+      "Les animaux terrestres",
+      "Les chameaux",
+      "Les brebis"
+    ],
+    "reference": "Genèse 1:20-23",
+    "explanation": "Au cinquième jour, Dieu créa les grands poissons, les animaux des eaux et tout oiseau ailé.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-1-L-05",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Que fit Dieu au septième jour ?",
+    "answer": "Il se reposa",
+    "wrongs": [
+      "Il créa l'homme",
+      "Il fit les étoiles",
+      "Il sépara les eaux",
+      "Il créa les poissons",
+      "Il planta les arbres"
+    ],
+    "reference": "Genèse 2:2",
+    "explanation": "Dieu acheva son œuvre et se reposa au septième jour de toute son œuvre.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-1-L-06",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "Selon le tout premier verset de la Bible, qu'est-ce que Dieu créa au commencement ?",
+    "answer": "Les cieux et la terre",
+    "wrongs": [
+      "La lumière et les ténèbres",
+      "Le soleil et la lune",
+      "L'homme et la femme",
+      "Les mers et les fleuves",
+      "Les anges et les chérubins"
+    ],
+    "reference": "Genèse 1:1",
+    "explanation": "Au commencement, Dieu créa les cieux et la terre.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-1-L-07",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Quel nom Dieu donna-t-il à la lumière ?",
+    "answer": "Jour",
+    "wrongs": [
+      "Nuit",
+      "Ciel",
+      "Matin",
+      "Soleil",
+      "Clarté"
+    ],
+    "reference": "Genèse 1:5",
+    "explanation": "Dieu appela la lumière jour, et il appela les ténèbres nuit.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-1-L-08",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "Pourquoi Dieu plaça-t-il les luminaires dans l'étendue du ciel ?",
+    "answer": "Pour éclairer la terre",
+    "wrongs": [
+      "Pour arroser la terre",
+      "Pour guider les oiseaux",
+      "Pour réchauffer les mers",
+      "Pour orner le jardin",
+      "Pour nourrir les plantes"
+    ],
+    "reference": "Genèse 1:14-17",
+    "explanation": "Dieu plaça les luminaires dans l'étendue du ciel pour éclairer la terre et présider au jour et à la nuit.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-1-L-09",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "Au troisième jour, qu'est-ce que la terre produisit sur l'ordre de Dieu ?",
+    "answer": "La verdure et les arbres",
+    "wrongs": [
+      "Le bétail et les reptiles",
+      "Les oiseaux",
+      "Les grands poissons",
+      "Les luminaires",
+      "L'homme et la femme"
+    ],
+    "reference": "Genèse 1:11-13",
+    "explanation": "La terre produisit de la verdure, de l'herbe et des arbres fruitiers : ce fut le troisième jour.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-1-L-10",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Au sixième jour, que dit le texte de tout ce que Dieu avait fait ?",
+    "answer": "Cela était très bon",
+    "wrongs": [
+      "Cela était inachevé",
+      "Cela était imparfait",
+      "Cela était sans valeur",
+      "Cela était à refaire",
+      "Cela était mauvais"
+    ],
+    "reference": "Genèse 1:31",
+    "explanation": "Dieu vit tout ce qu'il avait fait et voici, cela était très bon.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-1-M-01",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Comment Dieu appela-t-il l'étendue qui sépare les eaux ?",
+    "answer": "Ciel",
+    "wrongs": [
+      "Terre",
+      "Mers",
+      "Abîme",
+      "Jour",
+      "Nuée"
+    ],
+    "reference": "Genèse 1:6-8",
+    "explanation": "Dieu fit l'étendue entre les eaux et il l'appela ciel : ce fut le second jour.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-1-M-02",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Quel nom Dieu donna-t-il au sec ?",
+    "answer": "Terre",
+    "wrongs": [
+      "Ciel",
+      "Mers",
+      "Abîme",
+      "Pays",
+      "Désert"
+    ],
+    "reference": "Genèse 1:9-10",
+    "explanation": "Dieu appela le sec terre, et il appela l'amas des eaux mers.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-1-M-03",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Comment était la terre au commencement, avant la lumière ?",
+    "answer": "Informe et vide",
+    "wrongs": [
+      "Couverte de forêts",
+      "Brûlante et sèche",
+      "Peuplée d'animaux",
+      "Pleine de montagnes",
+      "Couverte de glace"
+    ],
+    "reference": "Genèse 1:2",
+    "explanation": "La terre était informe et vide, et des ténèbres couvraient la surface de l'abîme.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-1-M-04",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Que donna Dieu à l'homme pour nourriture, selon Genèse 1 ?",
+    "answer": "Herbes et fruits portant semence",
+    "wrongs": [
+      "La chair des animaux",
+      "Les poissons de la mer",
+      "La manne du ciel",
+      "Le lait des troupeaux",
+      "Le miel sauvage"
+    ],
+    "reference": "Genèse 1:29",
+    "explanation": "Dieu donna à l'homme toute herbe portant de la semence et tout arbre portant du fruit pour nourriture.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-1-M-05",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Comment Dieu appela-t-il l'amas des eaux ?",
+    "answer": "Mers",
+    "wrongs": [
+      "Abîme",
+      "Fleuves",
+      "Lacs",
+      "Ciel",
+      "Sources"
+    ],
+    "reference": "Genèse 1:10",
+    "explanation": "Dieu appela le sec terre, et il appela l'amas des eaux mers.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-1-M-06",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Qu'est-ce que Dieu bénit et sanctifia ?",
+    "answer": "Le septième jour",
+    "wrongs": [
+      "Le premier jour",
+      "Le sixième jour",
+      "Le jardin d'Éden",
+      "La lumière",
+      "L'étendue du ciel"
+    ],
+    "reference": "Genèse 2:3",
+    "explanation": "Dieu bénit le septième jour et le sanctifia, parce qu'en ce jour il se reposa de toute son œuvre.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-1-M-07",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Qu'y avait-il à la surface de l'abîme au commencement ?",
+    "answer": "Des ténèbres",
+    "wrongs": [
+      "De la lumière",
+      "Des montagnes",
+      "Des arbres",
+      "Des poissons",
+      "Des nuées"
+    ],
+    "reference": "Genèse 1:2",
+    "explanation": "La terre était informe et vide : il y avait des ténèbres à la surface de l'abîme.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-1-M-08",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Qu'est-ce qui se mouvait au-dessus des eaux, au commencement ?",
+    "answer": "L'esprit de Dieu",
+    "wrongs": [
+      "Un serpent",
+      "Une colombe",
+      "Un ange",
+      "Un chérubin",
+      "Une nuée"
+    ],
+    "reference": "Genèse 1:2",
+    "explanation": "Au commencement, l'esprit de Dieu se mouvait au-dessus des eaux.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-1-M-09",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "Au deuxième jour, pourquoi Dieu fit-il une étendue entre les eaux ?",
+    "answer": "Pour séparer les eaux d'avec les eaux",
+    "wrongs": [
+      "Pour éclairer la terre",
+      "Pour arroser le sol",
+      "Pour retenir la pluie",
+      "Pour marquer les saisons",
+      "Pour nourrir les poissons"
+    ],
+    "reference": "Genèse 1:6-8",
+    "explanation": "Dieu fit l'étendue pour séparer les eaux d'en dessous d'avec les eaux d'au-dessus.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-1-M-10",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel ordre Dieu donna-t-il à l'homme et à la femme en les bénissant ?",
+    "answer": "Remplir la terre et l'assujettir",
+    "wrongs": [
+      "Bâtir une ville et une tour",
+      "Offrir des sacrifices",
+      "Nommer les étoiles",
+      "Ne jamais manger de fruits",
+      "Garder la mer"
+    ],
+    "reference": "Genèse 1:28",
+    "explanation": "Dieu les bénit et leur dit : Soyez féconds, multipliez, remplissez la terre, et l'assujettissez.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-1-S-01",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "Quel jour Dieu fit-il les luminaires du ciel ?",
+    "answer": "Le quatrième jour",
+    "wrongs": [
+      "Le premier jour",
+      "Le second jour",
+      "Le troisième jour",
+      "Le cinquième jour",
+      "Le sixième jour"
+    ],
+    "reference": "Genèse 1:14-19",
+    "explanation": "Dieu fit les deux grands luminaires et les étoiles : ce fut le quatrième jour.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-1-S-02",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "Quel jour Dieu créa-t-il les grands poissons ?",
+    "answer": "Le cinquième jour",
+    "wrongs": [
+      "Le second jour",
+      "Le troisième jour",
+      "Le quatrième jour",
+      "Le sixième jour",
+      "Le premier jour"
+    ],
+    "reference": "Genèse 1:21-23",
+    "explanation": "Dieu créa les grands poissons et les oiseaux : ce fut le cinquième jour.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-1-S-03",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "En rassemblant les eaux au troisième jour, qu'est-ce que Dieu fit paraître ?",
+    "answer": "Le sec",
+    "wrongs": [
+      "L'étendue",
+      "La lumière",
+      "Les luminaires",
+      "L'abîme",
+      "Les nuées"
+    ],
+    "reference": "Genèse 1:9",
+    "explanation": "Dieu dit : Que les eaux se rassemblent en un seul lieu, et que le sec paraisse.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-1-S-04",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "Combien de grands luminaires Dieu fit-il ?",
+    "answer": "Deux",
+    "wrongs": [
+      "Un",
+      "Trois",
+      "Quatre",
+      "Sept",
+      "Douze"
+    ],
+    "reference": "Genèse 1:16",
+    "explanation": "Dieu fit les deux grands luminaires : le plus grand pour présider au jour, le plus petit pour présider à la nuit.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-1-S-05",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "Quel rôle Dieu donna-t-il au plus petit des deux grands luminaires ?",
+    "answer": "Présider à la nuit",
+    "wrongs": [
+      "Présider au jour",
+      "Arroser la terre",
+      "Séparer les eaux",
+      "Éclairer le jardin",
+      "Annoncer le matin"
+    ],
+    "reference": "Genèse 1:16",
+    "explanation": "Le plus grand luminaire préside au jour, le plus petit à la nuit.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-1-S-06",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Qui reçut la toute première bénédiction de Dieu dans le récit de la création ?",
+    "answer": "Les animaux des eaux et les oiseaux",
+    "wrongs": [
+      "L'homme et la femme",
+      "Le septième jour",
+      "Le bétail et les reptiles",
+      "Les arbres fruitiers",
+      "Les luminaires du ciel"
+    ],
+    "reference": "Genèse 1:21-22",
+    "explanation": "Au cinquième jour, Dieu bénit les animaux des eaux et les oiseaux ; l'homme et la femme sont bénis au sixième jour.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-1-S-07",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Les luminaires devaient servir de signes pour marquer quoi ?",
+    "answer": "Les époques, les jours, les années",
+    "wrongs": [
+      "Les fêtes et les sabbats",
+      "Les naissances des rois",
+      "Les heures de prière",
+      "Les semailles et moissons",
+      "Les guerres et les famines"
+    ],
+    "reference": "Genèse 1:14",
+    "explanation": "Les luminaires sont des signes pour marquer les époques, les jours et les années.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-1-S-08",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "Au quatrième jour, que fit Dieu en plus des deux grands luminaires ?",
+    "answer": "Les étoiles",
+    "wrongs": [
+      "Les nuages",
+      "Les oiseaux",
+      "Les comètes",
+      "L'arc-en-ciel",
+      "Les anges"
+    ],
+    "reference": "Genèse 1:16",
+    "explanation": "Dieu fit les deux grands luminaires ; il fit aussi les étoiles.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-1-S-09",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "Quels animaux la terre produisit-elle au sixième jour ?",
+    "answer": "Bétail, reptiles et bêtes terrestres",
+    "wrongs": [
+      "Poissons, oiseaux et reptiles",
+      "Bétail, oiseaux et poissons",
+      "Oiseaux, insectes et bétail",
+      "Grands poissons et oiseaux",
+      "Chevaux, chameaux et ânes"
+    ],
+    "reference": "Genèse 1:24-25",
+    "explanation": "La terre produisit des animaux vivants : du bétail, des reptiles et des animaux terrestres.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-1-S-10",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Que donna Dieu pour nourriture aux animaux de la terre ?",
+    "answer": "Toute herbe verte",
+    "wrongs": [
+      "La chair des autres bêtes",
+      "Les poissons de la mer",
+      "La poussière de la terre",
+      "Le sang des animaux",
+      "Les grains de blé"
+    ],
+    "reference": "Genèse 1:30",
+    "explanation": "À tout animal de la terre et à tout oiseau du ciel, Dieu donna toute herbe verte pour nourriture.",
+    "story": "creation",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-2-L-01",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "De quoi l'Éternel Dieu forma-t-il l'homme ?",
+    "answer": "De la poussière de la terre",
+    "wrongs": [
+      "D'une côte",
+      "De l'eau du fleuve",
+      "D'une pierre",
+      "Du bois d'un arbre",
+      "De la lumière"
+    ],
+    "reference": "Genèse 2:7",
+    "explanation": "L'Éternel Dieu forma l'homme de la poussière de la terre et souffla dans ses narines un souffle de vie.",
+    "story": "eden",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-2-L-02",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "De quoi l'Éternel Dieu forma-t-il la femme ?",
+    "answer": "D'une côte de l'homme",
+    "wrongs": [
+      "De la poussière du sol",
+      "D'une branche d'arbre",
+      "De l'argile du fleuve",
+      "D'un souffle de vent",
+      "D'une goutte de sang"
+    ],
+    "reference": "Genèse 2:21-22",
+    "explanation": "Dieu fit tomber un profond sommeil sur l'homme, prit une de ses côtes et en forma une femme.",
+    "story": "eden",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-2-L-03",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel animal parla à la femme dans le jardin ?",
+    "answer": "Le serpent",
+    "wrongs": [
+      "Le lion",
+      "Le corbeau",
+      "La colombe",
+      "L'âne",
+      "Le bélier"
+    ],
+    "reference": "Genèse 3:1",
+    "explanation": "Le serpent, le plus rusé des animaux des champs, dit à la femme : Dieu a-t-il réellement dit... ?",
+    "story": "eden",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-2-L-04",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "De quel arbre l'Éternel défendit-il à l'homme de manger ?",
+    "answer": "L'arbre de la connaissance",
+    "wrongs": [
+      "Le figuier",
+      "L'olivier",
+      "Le grenadier",
+      "Le cèdre",
+      "Le palmier"
+    ],
+    "reference": "Genèse 2:16-17",
+    "explanation": "Tu ne mangeras pas de l'arbre de la connaissance du bien et du mal, car le jour où tu en mangeras, tu mourras.",
+    "story": "eden",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-2-L-05",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel nom Adam donna-t-il à sa femme ?",
+    "answer": "Ève",
+    "wrongs": [
+      "Sara",
+      "Ada",
+      "Tsilla",
+      "Naama",
+      "Rébecca"
+    ],
+    "reference": "Genèse 3:20",
+    "explanation": "Adam donna à sa femme le nom d'Ève, car elle a été la mère de tous les vivants.",
+    "story": "eden",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-2-L-06",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Comment s'appelaient les deux premiers fils d'Adam et Ève ?",
+    "answer": "Caïn et Abel",
+    "wrongs": [
+      "Seth et Énosch",
+      "Jabal et Jubal",
+      "Sem et Japhet",
+      "Hénoc et Irad",
+      "Ésaü et Jacob"
+    ],
+    "reference": "Genèse 4:1-2",
+    "explanation": "Ève enfanta Caïn, puis son frère Abel.",
+    "story": "eden",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-2-L-07",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Qui tua son frère Abel ?",
+    "answer": "Caïn",
+    "wrongs": [
+      "Seth",
+      "Lémec",
+      "Hénoc",
+      "Adam",
+      "Tubal-Caïn"
+    ],
+    "reference": "Genèse 4:8",
+    "explanation": "Comme ils étaient dans les champs, Caïn se jeta sur son frère Abel, et le tua.",
+    "story": "eden",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-2-L-08",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel était le métier d'Abel ?",
+    "answer": "Berger",
+    "wrongs": [
+      "Laboureur",
+      "Forgeron",
+      "Chasseur",
+      "Pêcheur",
+      "Musicien"
+    ],
+    "reference": "Genèse 4:2",
+    "explanation": "Abel fut berger, et Caïn fut laboureur.",
+    "story": "eden",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-2-L-09",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Avec quoi Adam et sa femme se firent-ils des ceintures ?",
+    "answer": "Des feuilles de figuier",
+    "wrongs": [
+      "Des feuilles de vigne",
+      "Des feuilles d'olivier",
+      "De l'écorce de cèdre",
+      "Du lin tissé",
+      "Des feuilles de palmier"
+    ],
+    "reference": "Genèse 3:7",
+    "explanation": "Leurs yeux s'ouvrirent ; ils cousirent des feuilles de figuier et s'en firent des ceintures.",
+    "story": "eden",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-2-L-10",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Où l'Éternel Dieu planta-t-il un jardin pour y mettre l'homme ?",
+    "answer": "En Éden",
+    "wrongs": [
+      "En Égypte",
+      "À Babel",
+      "En Canaan",
+      "À Nod",
+      "À Ur"
+    ],
+    "reference": "Genèse 2:8",
+    "explanation": "L'Éternel Dieu planta un jardin en Éden, du côté de l'orient, et il y mit l'homme qu'il avait formé.",
+    "story": "eden",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-2-M-01",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Qui l'Éternel plaça-t-il à l'orient du jardin pour garder le chemin de l'arbre de vie ?",
+    "answer": "Les chérubins",
+    "wrongs": [
+      "Un lion",
+      "Des soldats",
+      "Le serpent",
+      "Une muraille",
+      "Des géants"
+    ],
+    "reference": "Genèse 3:24",
+    "explanation": "Dieu mit à l'orient du jardin d'Éden les chérubins qui agitent une épée flamboyante.",
+    "story": "eden",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-2-M-02",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel était le métier de Caïn ?",
+    "answer": "Laboureur",
+    "wrongs": [
+      "Berger",
+      "Forgeron",
+      "Chasseur",
+      "Pêcheur",
+      "Potier"
+    ],
+    "reference": "Genèse 4:2",
+    "explanation": "Abel fut berger, et Caïn fut laboureur.",
+    "story": "eden",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-2-M-03",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Quelle offrande Caïn présenta-t-il à l'Éternel ?",
+    "answer": "Des fruits de la terre",
+    "wrongs": [
+      "Les premiers-nés du troupeau",
+      "Un agneau sans défaut",
+      "De l'encens",
+      "Du pain et du vin",
+      "De l'huile d'olive"
+    ],
+    "reference": "Genèse 4:3-4",
+    "explanation": "Caïn offrit des fruits de la terre ; Abel offrit des premiers-nés de son troupeau.",
+    "story": "eden",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-2-M-04",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "Que fit l'Éternel pour que personne ne tue Caïn ?",
+    "answer": "Il mit un signe sur Caïn",
+    "wrongs": [
+      "Il lui donna une épée",
+      "Il l'entoura de chérubins",
+      "Il lui bâtit une ville",
+      "Il le cacha dans une grotte",
+      "Il le ramena en Éden"
+    ],
+    "reference": "Genèse 4:15",
+    "explanation": "L'Éternel mit un signe sur Caïn pour que quiconque le trouverait ne le tuât point.",
+    "story": "eden",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-2-M-05",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Dans quel pays Caïn alla-t-il habiter ?",
+    "answer": "La terre de Nod",
+    "wrongs": [
+      "Le pays de Havila",
+      "Le pays de Cusch",
+      "L'Assyrie",
+      "Le pays de Canaan",
+      "L'Égypte"
+    ],
+    "reference": "Genèse 4:16",
+    "explanation": "Caïn s'éloigna de la face de l'Éternel et habita dans la terre de Nod, à l'orient d'Éden.",
+    "story": "eden",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-2-M-06",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel fils Ève reçut-elle à la place d'Abel ?",
+    "answer": "Seth",
+    "wrongs": [
+      "Hénoc",
+      "Énosch",
+      "Irad",
+      "Lémec",
+      "Jabal"
+    ],
+    "reference": "Genèse 4:25",
+    "explanation": "Ève l'appela Seth, car, dit-elle, Dieu m'a donné un autre fils à la place d'Abel.",
+    "story": "eden",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-2-M-07",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Quels vêtements l'Éternel Dieu fit-il pour Adam et sa femme ?",
+    "answer": "Des habits de peau",
+    "wrongs": [
+      "Des tuniques de lin",
+      "Des manteaux de laine",
+      "Des robes de soie",
+      "Des habits de coton",
+      "Des ceintures d'or"
+    ],
+    "reference": "Genèse 3:21",
+    "explanation": "L'Éternel Dieu fit à Adam et à sa femme des habits de peau, et il les en revêtit.",
+    "story": "eden",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-2-M-08",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Selon le serpent, que se passerait-il si la femme mangeait du fruit défendu ?",
+    "answer": "Ses yeux s'ouvriraient",
+    "wrongs": [
+      "Elle mourrait le jour même",
+      "Elle serait chassée du jardin",
+      "Elle perdrait la parole",
+      "Elle deviendrait poussière",
+      "Elle aurait de nombreux enfants"
+    ],
+    "reference": "Genèse 3:4-5",
+    "explanation": "Le serpent dit : Vous ne mourrez point ; le jour où vous en mangerez, vos yeux s'ouvriront.",
+    "story": "eden",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-2-M-09",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "À quoi l'Éternel condamna-t-il le serpent ?",
+    "answer": "À marcher sur son ventre",
+    "wrongs": [
+      "À perdre la parole",
+      "À vivre au fond des eaux",
+      "À être changé en pierre",
+      "À ne plus voir le soleil",
+      "À perdre ses yeux"
+    ],
+    "reference": "Genèse 3:14",
+    "explanation": "Tu seras maudit, tu marcheras sur ton ventre, et tu mangeras de la poussière tous les jours de ta vie.",
+    "story": "eden",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-2-M-10",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "Que fit Dieu tomber sur l'homme avant de prendre une de ses côtes ?",
+    "answer": "Un profond sommeil",
+    "wrongs": [
+      "Une grande pluie",
+      "Une lumière vive",
+      "Une forte fièvre",
+      "Une vision",
+      "Un feu du ciel"
+    ],
+    "reference": "Genèse 2:21",
+    "explanation": "L'Éternel Dieu fit tomber un profond sommeil sur l'homme, qui s'endormit, et il prit une de ses côtes.",
+    "story": "eden",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-2-S-01",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "En combien de bras se divisait le fleuve qui sortait d'Éden ?",
+    "answer": "Quatre",
+    "wrongs": [
+      "Deux",
+      "Trois",
+      "Cinq",
+      "Sept",
+      "Douze"
+    ],
+    "reference": "Genèse 2:10",
+    "explanation": "Un fleuve sortait d'Éden pour arroser le jardin, et de là il se divisait en quatre bras.",
+    "story": "eden",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-2-S-02",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Quel fleuve entoure tout le pays de Havila ?",
+    "answer": "Le Pischon",
+    "wrongs": [
+      "Le Guihon",
+      "Le Hiddékel",
+      "L'Euphrate",
+      "Le Jourdain",
+      "Le Nil"
+    ],
+    "reference": "Genèse 2:11",
+    "explanation": "Le premier bras est le Pischon, qui entoure tout le pays de Havila, où se trouve l'or.",
+    "story": "eden",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-2-S-03",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Quel fleuve d'Éden coule à l'orient de l'Assyrie ?",
+    "answer": "Le Hiddékel",
+    "wrongs": [
+      "Le Pischon",
+      "Le Guihon",
+      "L'Euphrate",
+      "Le Jourdain",
+      "Le Nil"
+    ],
+    "reference": "Genèse 2:14",
+    "explanation": "Le troisième fleuve est le Hiddékel, qui coule à l'orient de l'Assyrie ; le quatrième est l'Euphrate.",
+    "story": "eden",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-2-S-04",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Quel nom Caïn donna-t-il à la ville qu'il bâtit ?",
+    "answer": "Hénoc",
+    "wrongs": [
+      "Nod",
+      "Babel",
+      "Ninive",
+      "Irad",
+      "Sodome"
+    ],
+    "reference": "Genèse 4:17",
+    "explanation": "Caïn bâtit une ville, et il lui donna le nom de son fils Hénoc.",
+    "story": "eden",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-2-S-05",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Qui fut le père de tous ceux qui jouent de la harpe et du chalumeau ?",
+    "answer": "Jubal",
+    "wrongs": [
+      "Jabal",
+      "Tubal-Caïn",
+      "Lémec",
+      "Irad",
+      "Énosch"
+    ],
+    "reference": "Genèse 4:21",
+    "explanation": "Jubal, frère de Jabal, fut le père de tous ceux qui jouent de la harpe et du chalumeau.",
+    "story": "eden",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-2-S-06",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Qui forgeait tous les instruments d'airain et de fer ?",
+    "answer": "Tubal-Caïn",
+    "wrongs": [
+      "Jubal",
+      "Jabal",
+      "Lémec",
+      "Hénoc",
+      "Mehujaël"
+    ],
+    "reference": "Genèse 4:22",
+    "explanation": "Tsilla enfanta Tubal-Caïn, qui forgeait tous les instruments d'airain et de fer.",
+    "story": "eden",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-2-S-07",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Comment s'appelaient les deux femmes de Lémec ?",
+    "answer": "Ada et Tsilla",
+    "wrongs": [
+      "Sara et Agar",
+      "Léa et Rachel",
+      "Milca et Jisca",
+      "Rébecca et Déborah",
+      "Ève et Naama"
+    ],
+    "reference": "Genèse 4:19",
+    "explanation": "Lémec prit deux femmes : le nom de l'une était Ada, et le nom de l'autre Tsilla.",
+    "story": "eden",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-2-S-08",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Combien de fois Lémec dit-il qu'il serait vengé ?",
+    "answer": "Soixante-dix-sept fois",
+    "wrongs": [
+      "Sept fois",
+      "Soixante-dix fois",
+      "Quarante fois",
+      "Cent fois",
+      "Douze fois"
+    ],
+    "reference": "Genèse 4:24",
+    "explanation": "Caïn sera vengé sept fois, et Lémec soixante-dix-sept fois.",
+    "story": "eden",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-2-S-09",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Comment s'appelait le fils de Seth ?",
+    "answer": "Énosch",
+    "wrongs": [
+      "Hénoc",
+      "Irad",
+      "Mehujaël",
+      "Metuschaël",
+      "Lémec"
+    ],
+    "reference": "Genèse 4:26",
+    "explanation": "Seth eut un fils et l'appela Énosch ; alors on commença à invoquer le nom de l'Éternel.",
+    "story": "eden",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-2-S-10",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Quel métal pur trouve-t-on au pays de Havila ?",
+    "answer": "L'or",
+    "wrongs": [
+      "L'argent",
+      "L'airain",
+      "Le fer",
+      "L'étain",
+      "Le plomb"
+    ],
+    "reference": "Genèse 2:11-12",
+    "explanation": "Le Pischon entoure le pays de Havila, où se trouve l'or ; l'or de ce pays est pur.",
+    "story": "eden",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-3-L-01",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Combien de fils Noé engendra-t-il ?",
+    "answer": "Trois",
+    "wrongs": [
+      "Deux",
+      "Quatre",
+      "Cinq",
+      "Sept",
+      "Douze"
+    ],
+    "reference": "Genèse 6:10",
+    "explanation": "Noé engendra trois fils : Sem, Cham et Japhet.",
+    "story": "deluge",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-3-L-02",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Quel oiseau revint vers Noé avec une feuille d'olivier dans son bec ?",
+    "answer": "La colombe",
+    "wrongs": [
+      "Le corbeau",
+      "Le passereau",
+      "L'aigle",
+      "La tourterelle",
+      "Le pélican"
+    ],
+    "reference": "Genèse 8:11",
+    "explanation": "La colombe revint le soir avec une feuille d'olivier arrachée : Noé connut que les eaux avaient diminué.",
+    "story": "deluge",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-3-L-03",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "Quel signe Dieu plaça-t-il dans la nue pour son alliance avec Noé ?",
+    "answer": "Son arc",
+    "wrongs": [
+      "Une étoile",
+      "Un éclair",
+      "Une colonne de feu",
+      "Une colombe blanche",
+      "Un nuage d'or"
+    ],
+    "reference": "Genèse 9:12-13",
+    "explanation": "Dieu dit : J'ai placé mon arc dans la nue, et il servira de signe d'alliance entre moi et la terre.",
+    "story": "deluge",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-3-L-04",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "Pendant combien de jours et de nuits la pluie tomba-t-elle sur la terre ?",
+    "answer": "Quarante",
+    "wrongs": [
+      "Sept",
+      "Douze",
+      "Trente",
+      "Soixante-dix",
+      "Cent"
+    ],
+    "reference": "Genèse 7:12",
+    "explanation": "La pluie tomba sur la terre quarante jours et quarante nuits.",
+    "story": "deluge",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-3-L-05",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Comment s'appelaient les trois fils de Noé ?",
+    "answer": "Sem, Cham et Japhet",
+    "wrongs": [
+      "Caïn, Abel et Seth",
+      "Abram, Nachor et Haran",
+      "Élam, Assur et Aram",
+      "Gomer, Magog et Tubal",
+      "Cusch, Puth et Canaan"
+    ],
+    "reference": "Genèse 6:10",
+    "explanation": "Noé engendra trois fils : Sem, Cham et Japhet ; leur postérité peupla toute la terre.",
+    "story": "deluge",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-3-L-06",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Sur quelles montagnes l'arche s'arrêta-t-elle ?",
+    "answer": "Les montagnes d'Ararat",
+    "wrongs": [
+      "Le mont Sinaï",
+      "Le mont Carmel",
+      "Le mont Hermon",
+      "Le mont Morija",
+      "Le mont Liban"
+    ],
+    "reference": "Genèse 8:4",
+    "explanation": "Le septième mois, le dix-septième jour du mois, l'arche s'arrêta sur les montagnes d'Ararat.",
+    "story": "deluge",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-3-L-07",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "Par quel moyen Dieu fit-il périr toute chair sur la terre au temps de Noé ?",
+    "answer": "Un déluge d'eaux",
+    "wrongs": [
+      "Le feu du ciel",
+      "Une grande famine",
+      "La peste",
+      "Un tremblement de terre",
+      "Des sauterelles"
+    ],
+    "reference": "Genèse 6:17",
+    "explanation": "Dieu dit : Je vais faire venir le déluge d'eaux sur la terre, pour détruire toute chair.",
+    "story": "deluge",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-3-L-08",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Comment les animaux entrèrent-ils dans l'arche auprès de Noé ?",
+    "answer": "Deux à deux",
+    "wrongs": [
+      "Un par un",
+      "Trois par trois",
+      "Quatre par quatre",
+      "Six par six",
+      "Dix par dix"
+    ],
+    "reference": "Genèse 7:9",
+    "explanation": "Les animaux entrèrent dans l'arche auprès de Noé deux à deux, un mâle et une femelle.",
+    "story": "deluge",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-3-L-09",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Que bâtit Noé pour l'Éternel après être sorti de l'arche ?",
+    "answer": "Un autel",
+    "wrongs": [
+      "Une tour",
+      "Une ville",
+      "Un puits",
+      "Un temple",
+      "Une maison"
+    ],
+    "reference": "Genèse 8:20",
+    "explanation": "Noé bâtit un autel à l'Éternel et offrit des holocaustes de bêtes pures et d'oiseaux purs.",
+    "story": "deluge",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-3-L-10",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Qui entra dans l'arche avec Noé ?",
+    "answer": "Sa femme, ses fils et leurs femmes",
+    "wrongs": [
+      "Ses fils seulement",
+      "Sa femme seulement",
+      "Ses fils et ses filles",
+      "Son père et ses frères",
+      "Ses serviteurs"
+    ],
+    "reference": "Genèse 7:7",
+    "explanation": "Noé entra dans l'arche avec ses fils, sa femme et les femmes de ses fils.",
+    "story": "deluge",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-3-M-01",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Quel oiseau Noé lâcha-t-il en premier hors de l'arche ?",
+    "answer": "Le corbeau",
+    "wrongs": [
+      "La colombe",
+      "Le passereau",
+      "L'aigle",
+      "La tourterelle",
+      "Le hibou"
+    ],
+    "reference": "Genèse 8:7-8",
+    "explanation": "Noé lâcha d'abord le corbeau, qui sortit en partant et revenant ; il lâcha ensuite la colombe.",
+    "story": "deluge",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-3-M-02",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "Qui ferma la porte de l'arche sur Noé ?",
+    "answer": "L'Éternel",
+    "wrongs": [
+      "Noé",
+      "Sem",
+      "Cham",
+      "Japhet",
+      "La femme de Noé"
+    ],
+    "reference": "Genèse 7:16",
+    "explanation": "Quand tous furent entrés comme Dieu l'avait ordonné, l'Éternel ferma la porte sur Noé.",
+    "story": "deluge",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-3-M-03",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Qu'est-ce que Noé planta après le déluge ?",
+    "answer": "De la vigne",
+    "wrongs": [
+      "Des oliviers",
+      "Des figuiers",
+      "Du blé",
+      "De l'orge",
+      "Des palmiers"
+    ],
+    "reference": "Genèse 9:20",
+    "explanation": "Noé commença à cultiver la terre et planta de la vigne ; il but du vin et s'enivra.",
+    "story": "deluge",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-3-M-04",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel âge avait Noé lorsque le déluge vint sur la terre ?",
+    "answer": "Six cents ans",
+    "wrongs": [
+      "Cinq cents ans",
+      "Quatre cent quatre-vingts ans",
+      "Sept cents ans",
+      "Neuf cent cinquante ans",
+      "Cent vingt ans"
+    ],
+    "reference": "Genèse 7:6",
+    "explanation": "Noé avait six cents ans lorsque le déluge d'eaux fut sur la terre.",
+    "story": "deluge",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-3-M-05",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "Qui marcha avec Dieu, puis ne fut plus, parce que Dieu le prit ?",
+    "answer": "Hénoc",
+    "wrongs": [
+      "Metuschélah",
+      "Lémec",
+      "Jéred",
+      "Seth",
+      "Énosch"
+    ],
+    "reference": "Genèse 5:24",
+    "explanation": "Hénoc marcha avec Dieu ; puis il ne fut plus, parce que Dieu le prit.",
+    "story": "deluge",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-3-M-06",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Comment s'appelait le père de Noé ?",
+    "answer": "Lémec",
+    "wrongs": [
+      "Metuschélah",
+      "Hénoc",
+      "Jéred",
+      "Seth",
+      "Kénan"
+    ],
+    "reference": "Genèse 5:28-29",
+    "explanation": "Lémec, âgé de cent quatre-vingt-deux ans, engendra un fils et lui donna le nom de Noé.",
+    "story": "deluge",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-3-M-07",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel fils de Noé vit la nudité de son père et le rapporta à ses frères ?",
+    "answer": "Cham",
+    "wrongs": [
+      "Sem",
+      "Japhet",
+      "Canaan",
+      "Lémec",
+      "Seth"
+    ],
+    "reference": "Genèse 9:22",
+    "explanation": "Cham, père de Canaan, vit la nudité de son père et le rapporta dehors à ses deux frères.",
+    "story": "deluge",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-3-M-08",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Qui Noé maudit-il en se réveillant de son vin ?",
+    "answer": "Canaan",
+    "wrongs": [
+      "Sem",
+      "Japhet",
+      "Cusch",
+      "Mitsraïm",
+      "Nimrod"
+    ],
+    "reference": "Genèse 9:24-25",
+    "explanation": "À son réveil, Noé dit : Maudit soit Canaan ! Qu'il soit l'esclave des esclaves de ses frères !",
+    "story": "deluge",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-3-M-09",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Comment Sem et Japhet couvrirent-ils leur père sans voir sa nudité ?",
+    "answer": "En marchant à reculons",
+    "wrongs": [
+      "En se bandant les yeux",
+      "En éteignant la lampe",
+      "En attendant la nuit",
+      "En envoyant un serviteur",
+      "En se cachant sous un voile"
+    ],
+    "reference": "Genèse 9:23",
+    "explanation": "Sem et Japhet mirent le manteau sur leurs épaules, marchèrent à reculons et couvrirent leur père.",
+    "story": "deluge",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-3-M-10",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Que Dieu défendit-il de manger avec la chair après le déluge ?",
+    "answer": "Son sang",
+    "wrongs": [
+      "Sa graisse",
+      "Ses os",
+      "Sa peau",
+      "Ses entrailles",
+      "Sa moelle"
+    ],
+    "reference": "Genèse 9:3-4",
+    "explanation": "Tout ce qui a vie servira de nourriture, mais vous ne mangerez point de chair avec son âme, avec son sang.",
+    "story": "deluge",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-3-S-01",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "De quel bois Noé devait-il faire l'arche ?",
+    "answer": "De bois de gopher",
+    "wrongs": [
+      "De bois d'acacia",
+      "De bois de cèdre",
+      "De bois de cyprès",
+      "De bois d'olivier",
+      "De bois de sycomore"
+    ],
+    "reference": "Genèse 6:14",
+    "explanation": "Dieu dit à Noé : Fais-toi une arche de bois de gopher, enduite de poix en dedans et en dehors.",
+    "story": "deluge",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-3-S-02",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Quelle était la longueur de l'arche ?",
+    "answer": "Trois cents coudées",
+    "wrongs": [
+      "Cinquante coudées",
+      "Trente coudées",
+      "Cent vingt coudées",
+      "Cent cinquante coudées",
+      "Cinq cents coudées"
+    ],
+    "reference": "Genèse 6:15",
+    "explanation": "L'arche devait avoir trois cents coudées de longueur, cinquante de largeur et trente de hauteur.",
+    "story": "deluge",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-3-S-03",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "Pendant combien de jours les eaux furent-elles grosses sur la terre ?",
+    "answer": "Cent cinquante jours",
+    "wrongs": [
+      "Soixante-dix jours",
+      "Cent jours",
+      "Cent vingt jours",
+      "Deux cents jours",
+      "Trois cents jours"
+    ],
+    "reference": "Genèse 7:24",
+    "explanation": "Les eaux furent grosses sur la terre pendant cent cinquante jours.",
+    "story": "deluge",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-3-S-04",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "De combien de coudées les eaux s'élevèrent-elles au-dessus des montagnes ?",
+    "answer": "Quinze coudées",
+    "wrongs": [
+      "Sept coudées",
+      "Dix coudées",
+      "Trente coudées",
+      "Cinquante coudées",
+      "Cent coudées"
+    ],
+    "reference": "Genèse 7:20",
+    "explanation": "Les eaux s'élevèrent de quinze coudées au-dessus des montagnes, qui furent couvertes.",
+    "story": "deluge",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-3-S-05",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Combien de couples de chaque animal pur l'Éternel dit-il à Noé de prendre ?",
+    "answer": "Sept",
+    "wrongs": [
+      "Deux",
+      "Trois",
+      "Quatre",
+      "Dix",
+      "Douze"
+    ],
+    "reference": "Genèse 7:2",
+    "explanation": "Noé devait prendre sept couples de tous les animaux purs, et une paire de ceux qui ne sont pas purs.",
+    "story": "deluge",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-3-S-06",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel âge avait Noé quand il engendra Sem, Cham et Japhet ?",
+    "answer": "Cinq cents ans",
+    "wrongs": [
+      "Six cents ans",
+      "Quatre cent cinquante ans",
+      "Trois cents ans",
+      "Trois cent cinquante ans",
+      "Cent quatre-vingt-deux ans"
+    ],
+    "reference": "Genèse 5:32",
+    "explanation": "Noé, âgé de cinq cents ans, engendra Sem, Cham et Japhet.",
+    "story": "deluge",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-3-S-07",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Combien d'années Noé vécut-il après le déluge ?",
+    "answer": "Trois cent cinquante ans",
+    "wrongs": [
+      "Deux cent cinquante ans",
+      "Trois cents ans",
+      "Quatre cents ans",
+      "Cinq cents ans",
+      "Cent vingt ans"
+    ],
+    "reference": "Genèse 9:28",
+    "explanation": "Noé vécut, après le déluge, trois cent cinquante ans.",
+    "story": "deluge",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-3-S-08",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel âge avait Noé à sa mort ?",
+    "answer": "Neuf cent cinquante ans",
+    "wrongs": [
+      "Neuf cent soixante-neuf ans",
+      "Neuf cent trente ans",
+      "Neuf cent douze ans",
+      "Sept cent soixante-dix-sept ans",
+      "Six cents ans"
+    ],
+    "reference": "Genèse 9:29",
+    "explanation": "Tous les jours de Noé furent de neuf cent cinquante ans ; puis il mourut.",
+    "story": "deluge",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-3-S-09",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Combien d'années durèrent en tout les jours d'Hénoc ?",
+    "answer": "Trois cent soixante-cinq ans",
+    "wrongs": [
+      "Trois cents ans",
+      "Trois cent soixante ans",
+      "Sept cent soixante-dix-sept ans",
+      "Neuf cent douze ans",
+      "Neuf cent soixante-neuf ans"
+    ],
+    "reference": "Genèse 5:23",
+    "explanation": "Tous les jours d'Hénoc furent de trois cent soixante-cinq ans.",
+    "story": "deluge",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-3-S-10",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Combien de jours Noé attendit-il avant de lâcher la colombe une deuxième fois ?",
+    "answer": "Sept jours",
+    "wrongs": [
+      "Deux jours",
+      "Trois jours",
+      "Dix jours",
+      "Quatorze jours",
+      "Trente jours"
+    ],
+    "reference": "Genèse 8:9-10",
+    "explanation": "Après le premier retour de la colombe, Noé attendit encore sept autres jours et la lâcha de nouveau.",
+    "story": "deluge",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-4-L-01",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Que voulurent bâtir les hommes dans la plaine de Schinear ?",
+    "answer": "Une ville et une tour",
+    "wrongs": [
+      "Un temple et un autel",
+      "Une arche",
+      "Un palais royal",
+      "Une grande muraille",
+      "Un port et des navires"
+    ],
+    "reference": "Genèse 11:2-4",
+    "explanation": "Ils dirent : Bâtissons-nous une ville et une tour dont le sommet touche au ciel.",
+    "story": "babel",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-4-L-02",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Quel nom reçut la ville où l'Éternel confondit le langage de toute la terre ?",
+    "answer": "Babel",
+    "wrongs": [
+      "Ninive",
+      "Ur",
+      "Sodome",
+      "Charan",
+      "Accad"
+    ],
+    "reference": "Genèse 11:9",
+    "explanation": "On l'appela Babel, car c'est là que l'Éternel confondit le langage de toute la terre.",
+    "story": "babel",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-4-L-03",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Combien de langues toute la terre avait-elle avant Babel ?",
+    "answer": "Une seule",
+    "wrongs": [
+      "Deux",
+      "Trois",
+      "Sept",
+      "Douze",
+      "Soixante-dix"
+    ],
+    "reference": "Genèse 11:1",
+    "explanation": "Toute la terre avait une seule langue et les mêmes mots.",
+    "story": "babel",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-4-L-04",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "Que fit l'Éternel au langage des bâtisseurs de Babel ?",
+    "answer": "Il le confondit",
+    "wrongs": [
+      "Il le bénit",
+      "Il le grava dans la pierre",
+      "Il le rendit sacré",
+      "Il l'enseigna aux anges",
+      "Il le purifia"
+    ],
+    "reference": "Genèse 11:7",
+    "explanation": "L'Éternel dit : Confondons leur langage, afin qu'ils n'entendent plus la langue les uns des autres.",
+    "story": "babel",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-4-L-05",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "Que fit l'Éternel des hommes de Babel après avoir confondu leur langage ?",
+    "answer": "Il les dispersa sur la terre",
+    "wrongs": [
+      "Il les fit périr par les eaux",
+      "Il les enferma dans la tour",
+      "Il les rendit esclaves",
+      "Il les frappa d'aveuglement",
+      "Il les changea en pierres"
+    ],
+    "reference": "Genèse 11:8",
+    "explanation": "L'Éternel les dispersa loin de là sur la face de toute la terre, et ils cessèrent de bâtir la ville.",
+    "story": "babel",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-4-L-06",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Pourquoi les hommes voulaient-ils bâtir la ville et la tour ?",
+    "answer": "Pour ne pas être dispersés",
+    "wrongs": [
+      "Pour devenir rois",
+      "Pour honorer Dieu",
+      "Pour vaincre Nimrod",
+      "Pour garder leurs troupeaux",
+      "Pour dominer l'Égypte"
+    ],
+    "reference": "Genèse 11:4",
+    "explanation": "Ils voulaient se faire un nom, afin de ne pas être dispersés sur la face de toute la terre.",
+    "story": "babel",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-4-L-07",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Qu'est-ce qui servit de pierre aux bâtisseurs de Babel ?",
+    "answer": "La brique",
+    "wrongs": [
+      "Le marbre",
+      "Le bois de cèdre",
+      "Le bronze",
+      "Le fer",
+      "L'or"
+    ],
+    "reference": "Genèse 11:3",
+    "explanation": "Ils firent des briques cuites au feu, et la brique leur servit de pierre.",
+    "story": "babel",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-4-L-08",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel fils de Térach avait pour femme Saraï ?",
+    "answer": "Abram",
+    "wrongs": [
+      "Nachor",
+      "Haran",
+      "Lot",
+      "Laban",
+      "Isaac"
+    ],
+    "reference": "Genèse 11:29",
+    "explanation": "Le nom de la femme d'Abram était Saraï, et celui de la femme de Nachor était Milca.",
+    "story": "babel",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-4-L-09",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Comment s'appelait le fils d'Haran, neveu d'Abram ?",
+    "answer": "Lot",
+    "wrongs": [
+      "Nachor",
+      "Laban",
+      "Isaac",
+      "Ismaël",
+      "Béthuel"
+    ],
+    "reference": "Genèse 11:27",
+    "explanation": "Térach engendra Abram, Nachor et Haran. Haran engendra Lot.",
+    "story": "babel",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-4-L-10",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "De quelle ville Térach sortit-il avec Abram, Saraï et Lot ?",
+    "answer": "Ur en Chaldée",
+    "wrongs": [
+      "Babel",
+      "Ninive",
+      "Sodome",
+      "Damas",
+      "Hébron"
+    ],
+    "reference": "Genèse 11:31",
+    "explanation": "Ils sortirent ensemble d'Ur en Chaldée pour aller au pays de Canaan, et vinrent jusqu'à Charan.",
+    "story": "babel",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-4-M-01",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Qui fut un vaillant chasseur devant l'Éternel ?",
+    "answer": "Nimrod",
+    "wrongs": [
+      "Cusch",
+      "Assur",
+      "Héber",
+      "Péleg",
+      "Magog"
+    ],
+    "reference": "Genèse 10:8-9",
+    "explanation": "Nimrod, fils de Cusch, fut un vaillant chasseur devant l'Éternel.",
+    "story": "babel",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-4-M-02",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Dans quel pays se trouvait la plaine où les hommes bâtirent Babel ?",
+    "answer": "Le pays de Schinear",
+    "wrongs": [
+      "Le pays de Canaan",
+      "Le pays d'Égypte",
+      "Le pays de Havila",
+      "Le pays de Moab",
+      "Le pays de Nod"
+    ],
+    "reference": "Genèse 11:2",
+    "explanation": "Partis de l'orient, ils trouvèrent une plaine au pays de Schinear, et ils y habitèrent.",
+    "story": "babel",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-4-M-03",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Qu'est-ce qui servit de ciment aux bâtisseurs de Babel ?",
+    "answer": "Le bitume",
+    "wrongs": [
+      "La chaux",
+      "L'argile",
+      "La poix",
+      "Le plâtre",
+      "La cire"
+    ],
+    "reference": "Genèse 11:3",
+    "explanation": "La brique leur servit de pierre, et le bitume leur servit de ciment.",
+    "story": "babel",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-4-M-04",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Pourquoi l'Éternel descendit-il à Babel ?",
+    "answer": "Pour voir la ville et la tour",
+    "wrongs": [
+      "Pour bénir les bâtisseurs",
+      "Pour parler à Abram",
+      "Pour brûler la ville",
+      "Pour y bâtir un autel",
+      "Pour juger Nimrod"
+    ],
+    "reference": "Genèse 11:5",
+    "explanation": "L'Éternel descendit pour voir la ville et la tour que bâtissaient les fils des hommes.",
+    "story": "babel",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-4-M-05",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Dans quelle ville Térach mourut-il ?",
+    "answer": "À Charan",
+    "wrongs": [
+      "À Ur en Chaldée",
+      "À Babel",
+      "À Ninive",
+      "À Hébron",
+      "À Sodome"
+    ],
+    "reference": "Genèse 11:31-32",
+    "explanation": "Térach et les siens s'établirent à Charan ; les jours de Térach furent de deux cent cinq ans, et il mourut à Charan.",
+    "story": "babel",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-4-M-06",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel fils de Térach mourut en présence de son père ?",
+    "answer": "Haran",
+    "wrongs": [
+      "Abram",
+      "Nachor",
+      "Lot",
+      "Héber",
+      "Serug"
+    ],
+    "reference": "Genèse 11:28",
+    "explanation": "Haran mourut en présence de Térach, son père, au pays de sa naissance, à Ur en Chaldée.",
+    "story": "babel",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-4-M-07",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Comment s'appelait la femme de Nachor, frère d'Abram ?",
+    "answer": "Milca",
+    "wrongs": [
+      "Saraï",
+      "Jisca",
+      "Rébecca",
+      "Agar",
+      "Léa"
+    ],
+    "reference": "Genèse 11:29",
+    "explanation": "La femme de Nachor était Milca, fille d'Haran, père de Milca et de Jisca.",
+    "story": "babel",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-4-M-08",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Que dit le texte de Saraï, la femme d'Abram ?",
+    "answer": "Elle était stérile",
+    "wrongs": [
+      "Elle était aveugle",
+      "Elle était veuve",
+      "Elle était esclave",
+      "Elle était muette",
+      "Elle était malade"
+    ],
+    "reference": "Genèse 11:30",
+    "explanation": "Saraï était stérile : elle n'avait point d'enfants.",
+    "story": "babel",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-4-M-09",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Quelle ville Assur bâtit-il ?",
+    "answer": "Ninive",
+    "wrongs": [
+      "Babel",
+      "Sodome",
+      "Ur",
+      "Jéricho",
+      "Damas"
+    ],
+    "reference": "Genèse 10:11",
+    "explanation": "De ce pays-là sortit Assur ; il bâtit Ninive, Rehoboth Hir, Calach et Résen.",
+    "story": "babel",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-4-M-10",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Pourquoi le fils d'Héber reçut-il le nom de Péleg ?",
+    "answer": "La terre fut partagée de son temps",
+    "wrongs": [
+      "Il naquit pendant le déluge",
+      "Il bâtit la tour de Babel",
+      "Il fut un vaillant chasseur",
+      "Il vécut neuf cents ans",
+      "Il fut le premier roi"
+    ],
+    "reference": "Genèse 10:25",
+    "explanation": "L'un des fils d'Héber fut nommé Péleg, parce que de son temps la terre fut partagée.",
+    "story": "babel",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-4-S-01",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel âge avait Térach quand il engendra Abram, Nachor et Haran ?",
+    "answer": "Soixante-dix ans",
+    "wrongs": [
+      "Soixante-quinze ans",
+      "Quatre-vingt-dix ans",
+      "Cent ans",
+      "Vingt-neuf ans",
+      "Deux cent cinq ans"
+    ],
+    "reference": "Genèse 11:26",
+    "explanation": "Térach, âgé de soixante-dix ans, engendra Abram, Nachor et Haran.",
+    "story": "babel",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-4-S-02",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Combien d'années durèrent les jours de Térach ?",
+    "answer": "Deux cent cinq ans",
+    "wrongs": [
+      "Cent soixante-quinze ans",
+      "Cent vingt ans",
+      "Deux cent trente ans",
+      "Deux cent cinquante ans",
+      "Cent quarante-huit ans"
+    ],
+    "reference": "Genèse 11:32",
+    "explanation": "Les jours de Térach furent de deux cent cinq ans ; et Térach mourut à Charan.",
+    "story": "babel",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-4-S-03",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel fils Sem engendra-t-il deux ans après le déluge ?",
+    "answer": "Arpacschad",
+    "wrongs": [
+      "Élam",
+      "Assur",
+      "Lud",
+      "Aram",
+      "Schélach"
+    ],
+    "reference": "Genèse 11:10",
+    "explanation": "Sem, âgé de cent ans, engendra Arpacschad, deux ans après le déluge.",
+    "story": "babel",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-4-S-04",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel âge avait Sem quand il engendra Arpacschad ?",
+    "answer": "Cent ans",
+    "wrongs": [
+      "Trente ans",
+      "Soixante-dix ans",
+      "Quatre-vingt-dix-huit ans",
+      "Cent vingt ans",
+      "Cent cinquante ans"
+    ],
+    "reference": "Genèse 11:10",
+    "explanation": "Sem, âgé de cent ans, engendra Arpacschad, deux ans après le déluge.",
+    "story": "babel",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-4-S-05",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Comment s'appelait le frère de Péleg ?",
+    "answer": "Jokthan",
+    "wrongs": [
+      "Rehu",
+      "Schélach",
+      "Serug",
+      "Almodad",
+      "Ophir"
+    ],
+    "reference": "Genèse 10:25",
+    "explanation": "Il naquit à Héber deux fils : Péleg, et son frère Jokthan.",
+    "story": "babel",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-4-S-06",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Qui fut le premier-né de Canaan ?",
+    "answer": "Sidon",
+    "wrongs": [
+      "Heth",
+      "Cusch",
+      "Gomer",
+      "Javan",
+      "Élam"
+    ],
+    "reference": "Genèse 10:15",
+    "explanation": "Canaan engendra Sidon, son premier-né, et Heth.",
+    "story": "babel",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-4-S-07",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "De quels descendants de Mitsraïm sont sortis les Philistins ?",
+    "answer": "Des Casluhim",
+    "wrongs": [
+      "Des Ludim",
+      "Des Anamim",
+      "Des Lehabim",
+      "Des Naphtuhim",
+      "Des Patrusim"
+    ],
+    "reference": "Genèse 10:13-14",
+    "explanation": "Mitsraïm engendra entre autres les Casluhim, d'où sont sortis les Philistins.",
+    "story": "babel",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-4-S-08",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Qui fut le père de Nimrod ?",
+    "answer": "Cusch",
+    "wrongs": [
+      "Mitsraïm",
+      "Puth",
+      "Canaan",
+      "Assur",
+      "Gomer"
+    ],
+    "reference": "Genèse 10:8",
+    "explanation": "Cusch engendra Nimrod ; c'est lui qui commença à être puissant sur la terre.",
+    "story": "babel",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-4-S-09",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Combien de fils de Japhet sont nommés dans la table des peuples ?",
+    "answer": "Sept",
+    "wrongs": [
+      "Trois",
+      "Quatre",
+      "Cinq",
+      "Six",
+      "Douze"
+    ],
+    "reference": "Genèse 10:2",
+    "explanation": "Les fils de Japhet furent : Gomer, Magog, Madaï, Javan, Tubal, Méschec et Tiras.",
+    "story": "babel",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-4-S-10",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Qui fut le père de Térach ?",
+    "answer": "Nachor",
+    "wrongs": [
+      "Serug",
+      "Rehu",
+      "Péleg",
+      "Héber",
+      "Haran"
+    ],
+    "reference": "Genèse 11:24",
+    "explanation": "Nachor, âgé de vingt-neuf ans, engendra Térach.",
+    "story": "babel",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-5-L-01",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel nouveau nom Dieu donna-t-il à Abram ?",
+    "answer": "Abraham",
+    "wrongs": [
+      "Abimélec",
+      "Abiram",
+      "Aram",
+      "Abner",
+      "Absalom"
+    ],
+    "reference": "Genèse 17:5",
+    "explanation": "On ne t'appellera plus Abram ; ton nom sera Abraham, car Dieu le rend père d'une multitude de nations.",
+    "story": "abraham",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-5-L-02",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel fils naquit à Abraham et Sara dans leur vieillesse ?",
+    "answer": "Isaac",
+    "wrongs": [
+      "Ismaël",
+      "Jacob",
+      "Ésaü",
+      "Joseph",
+      "Lot"
+    ],
+    "reference": "Genèse 21:2-3",
+    "explanation": "Sara enfanta un fils à Abraham dans sa vieillesse, et Abraham lui donna le nom d'Isaac.",
+    "story": "abraham",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-5-L-03",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel neveu d'Abram partit avec lui de Charan vers Canaan ?",
+    "answer": "Lot",
+    "wrongs": [
+      "Nachor",
+      "Laban",
+      "Haran",
+      "Éliézer",
+      "Ismaël"
+    ],
+    "reference": "Genèse 12:4-5",
+    "explanation": "Abram prit Saraï, sa femme, et Lot, fils de son frère, et ils partirent pour le pays de Canaan.",
+    "story": "abraham",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-5-L-04",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "Que devint la femme de Lot quand elle regarda en arrière ?",
+    "answer": "Une statue de sel",
+    "wrongs": [
+      "Une colonne de pierre",
+      "Un tas de cendre",
+      "Un arbre desséché",
+      "Une colonne de fumée",
+      "Une statue d'argile"
+    ],
+    "reference": "Genèse 19:26",
+    "explanation": "La femme de Lot regarda en arrière, et elle devint une statue de sel.",
+    "story": "abraham",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-5-L-05",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "Sur quelles villes l'Éternel fit-il pleuvoir du soufre et du feu ?",
+    "answer": "Sodome et Gomorrhe",
+    "wrongs": [
+      "Ninive et Babylone",
+      "Jéricho et Aï",
+      "Tyr et Sidon",
+      "Sichem et Hébron",
+      "Béthel et Dan"
+    ],
+    "reference": "Genèse 19:24",
+    "explanation": "L'Éternel fit pleuvoir du ciel sur Sodome et sur Gomorrhe du soufre et du feu.",
+    "story": "abraham",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-5-L-06",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Quel animal Abraham offrit-il en holocauste à la place d'Isaac ?",
+    "answer": "Un bélier",
+    "wrongs": [
+      "Un veau",
+      "Un bouc",
+      "Une génisse",
+      "Une colombe",
+      "Un taureau"
+    ],
+    "reference": "Genèse 22:13",
+    "explanation": "Abraham vit un bélier retenu dans un buisson par les cornes et l'offrit en holocauste à la place de son fils.",
+    "story": "abraham",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-5-L-07",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quelle servante égyptienne Saraï donna-t-elle pour femme à Abram ?",
+    "answer": "Agar",
+    "wrongs": [
+      "Ketura",
+      "Milca",
+      "Bilha",
+      "Zilpa",
+      "Débora"
+    ],
+    "reference": "Genèse 16:1-3",
+    "explanation": "Saraï, qui n'avait pas d'enfants, prit Agar, sa servante égyptienne, et la donna pour femme à Abram.",
+    "story": "abraham",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-5-L-08",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel fils Agar enfanta-t-elle à Abram ?",
+    "answer": "Ismaël",
+    "wrongs": [
+      "Isaac",
+      "Madian",
+      "Moab",
+      "Ésaü",
+      "Ben-Ammi"
+    ],
+    "reference": "Genèse 16:15",
+    "explanation": "Agar enfanta un fils à Abram, qui lui donna le nom d'Ismaël.",
+    "story": "abraham",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-5-L-09",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel âge avait Abraham à la naissance d'Isaac ?",
+    "answer": "100 ans",
+    "wrongs": [
+      "75 ans",
+      "86 ans",
+      "99 ans",
+      "90 ans",
+      "120 ans"
+    ],
+    "reference": "Genèse 21:5",
+    "explanation": "Abraham était âgé de cent ans à la naissance d'Isaac, son fils.",
+    "story": "abraham",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-5-L-10",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Dans quel pays Abram descendit-il à cause d'une famine ?",
+    "answer": "En Égypte",
+    "wrongs": [
+      "En Mésopotamie",
+      "En Assyrie",
+      "Au pays de Moab",
+      "En Édom",
+      "En Chaldée"
+    ],
+    "reference": "Genèse 12:10",
+    "explanation": "Il y eut une grande famine dans le pays, et Abram descendit en Égypte pour y séjourner.",
+    "story": "abraham",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-5-M-01",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel nouveau nom Dieu donna-t-il à Saraï ?",
+    "answer": "Sara",
+    "wrongs": [
+      "Rebecca",
+      "Milca",
+      "Rachel",
+      "Léa",
+      "Ada"
+    ],
+    "reference": "Genèse 17:15",
+    "explanation": "Dieu dit à Abraham : tu ne donneras plus à Saraï le nom de Saraï, mais son nom sera Sara.",
+    "story": "abraham",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-5-M-02",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Combien d'hommes apparurent à Abraham près des chênes de Mamré ?",
+    "answer": "Trois",
+    "wrongs": [
+      "Deux",
+      "Quatre",
+      "Cinq",
+      "Sept",
+      "Douze"
+    ],
+    "reference": "Genèse 18:1-2",
+    "explanation": "Assis à l'entrée de sa tente, Abraham leva les yeux et vit trois hommes debout près de lui.",
+    "story": "abraham",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-5-M-03",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel roi de Salem apporta du pain et du vin à Abram ?",
+    "answer": "Melchisédek",
+    "wrongs": [
+      "Abimélec",
+      "Kedorlaomer",
+      "Béra",
+      "Amraphel",
+      "Pharaon"
+    ],
+    "reference": "Genèse 14:18-20",
+    "explanation": "Melchisédek, roi de Salem et sacrificateur du Dieu Très-Haut, bénit Abram, qui lui donna la dîme de tout.",
+    "story": "abraham",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-5-M-04",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Que fit Sara en entendant qu'elle aurait un fils ?",
+    "answer": "Elle rit en elle-même",
+    "wrongs": [
+      "Elle pleura",
+      "Elle chanta",
+      "Elle s'enfuit",
+      "Elle pria",
+      "Elle se prosterna"
+    ],
+    "reference": "Genèse 18:10-12",
+    "explanation": "Sara écoutait à l'entrée de la tente ; elle rit en elle-même, car elle et Abraham étaient vieux.",
+    "story": "abraham",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-5-M-05",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Quel signe de son alliance Dieu ordonna-t-il à Abraham ?",
+    "answer": "La circoncision",
+    "wrongs": [
+      "L'arc-en-ciel",
+      "Le sabbat",
+      "Le jeûne",
+      "La dîme",
+      "L'onction d'huile"
+    ],
+    "reference": "Genèse 17:10-11",
+    "explanation": "Tout mâle parmi vous sera circoncis ; ce sera un signe d'alliance entre moi et vous.",
+    "story": "abraham",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-5-M-06",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Dans quel pays Dieu envoya-t-il Abraham offrir Isaac ?",
+    "answer": "Morija",
+    "wrongs": [
+      "Moab",
+      "Galaad",
+      "Basan",
+      "Édom",
+      "Madian"
+    ],
+    "reference": "Genèse 22:2",
+    "explanation": "Va-t'en au pays de Morija, et là offre-le en holocauste sur l'une des montagnes que je te dirai.",
+    "story": "abraham",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-5-M-07",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "À quel roi de Guérar Abraham dit-il que Sara était sa sœur ?",
+    "answer": "Abimélec",
+    "wrongs": [
+      "Pharaon",
+      "Melchisédek",
+      "Béra",
+      "Kedorlaomer",
+      "Amraphel"
+    ],
+    "reference": "Genèse 20:2",
+    "explanation": "Abraham disait de Sara : c'est ma sœur, et Abimélec, roi de Guérar, fit enlever Sara.",
+    "story": "abraham",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-5-M-08",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "À combien de justes Abraham s'arrêta-t-il en intercédant pour Sodome ?",
+    "answer": "Dix",
+    "wrongs": [
+      "Cinquante",
+      "Quarante",
+      "Trente",
+      "Vingt",
+      "Cinq"
+    ],
+    "reference": "Genèse 18:32",
+    "explanation": "Peut-être s'y trouvera-t-il dix justes. Et l'Éternel dit : je ne la détruirai point, à cause de ces dix justes.",
+    "story": "abraham",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-5-M-09",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Dans quelle caverne Abraham enterra-t-il Sara ?",
+    "answer": "La caverne de Macpéla",
+    "wrongs": [
+      "La caverne d'Adullam",
+      "La caverne de Makkéda",
+      "La caverne d'En-Guédi",
+      "La caverne de Sichem",
+      "La caverne de Béthel"
+    ],
+    "reference": "Genèse 23:19",
+    "explanation": "Abraham enterra Sara, sa femme, dans la caverne du champ de Macpéla, vis-à-vis de Mamré, qui est Hébron.",
+    "story": "abraham",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-5-M-10",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "Que vit Agar dans le désert quand Dieu lui ouvrit les yeux ?",
+    "answer": "Un puits d'eau",
+    "wrongs": [
+      "Un figuier",
+      "Un troupeau",
+      "Une caravane",
+      "Un buisson ardent",
+      "Une tente"
+    ],
+    "reference": "Genèse 21:19",
+    "explanation": "Dieu lui ouvrit les yeux, et elle vit un puits d'eau ; elle remplit l'outre et donna à boire à l'enfant.",
+    "story": "abraham",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-5-S-01",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel âge avait Abram lorsqu'il sortit de Charan ?",
+    "answer": "75 ans",
+    "wrongs": [
+      "65 ans",
+      "70 ans",
+      "80 ans",
+      "86 ans",
+      "99 ans"
+    ],
+    "reference": "Genèse 12:4",
+    "explanation": "Abram était âgé de soixante-quinze ans, lorsqu'il sortit de Charan.",
+    "story": "abraham",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-5-S-02",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Combien de serviteurs Abram arma-t-il pour délivrer Lot ?",
+    "answer": "318",
+    "wrongs": [
+      "300",
+      "400",
+      "120",
+      "381",
+      "210"
+    ],
+    "reference": "Genèse 14:14",
+    "explanation": "Abram arma trois cent dix-huit de ses plus braves serviteurs, nés dans sa maison, et poursuivit les rois jusqu'à Dan.",
+    "story": "abraham",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-5-S-03",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Combien d'années vécut Sara ?",
+    "answer": "127 ans",
+    "wrongs": [
+      "120 ans",
+      "100 ans",
+      "137 ans",
+      "147 ans",
+      "175 ans"
+    ],
+    "reference": "Genèse 23:1",
+    "explanation": "La vie de Sara fut de cent vingt-sept ans.",
+    "story": "abraham",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-5-S-04",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Combien de sicles d'argent Abraham pesa-t-il à Éphron pour son champ ?",
+    "answer": "400 sicles",
+    "wrongs": [
+      "30 sicles",
+      "50 sicles",
+      "100 sicles",
+      "200 sicles",
+      "1 000 sicles"
+    ],
+    "reference": "Genèse 23:15-16",
+    "explanation": "Abraham pesa à Éphron quatre cents sicles d'argent pour le champ et la caverne de Macpéla.",
+    "story": "abraham",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-5-S-05",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Qui Abram nomma-t-il comme l'héritier de sa maison, faute d'enfant ?",
+    "answer": "Éliézer de Damas",
+    "wrongs": [
+      "Lot",
+      "Nachor",
+      "Bethuel",
+      "Mamré",
+      "Eschcol"
+    ],
+    "reference": "Genèse 15:2",
+    "explanation": "Je m'en vais sans enfants ; et l'héritier de ma maison, c'est Éliézer de Damas.",
+    "story": "abraham",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-5-S-06",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel âge avait Ismaël lorsqu'il fut circoncis ?",
+    "answer": "13 ans",
+    "wrongs": [
+      "8 ans",
+      "10 ans",
+      "12 ans",
+      "14 ans",
+      "17 ans"
+    ],
+    "reference": "Genèse 17:25",
+    "explanation": "Ismaël, son fils, était âgé de treize ans lorsqu'il fut circoncis.",
+    "story": "abraham",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-5-S-07",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Quel nom Abraham donna-t-il au lieu où il offrit le bélier ?",
+    "answer": "Jehova-Jiré",
+    "wrongs": [
+      "Lachaï-roï",
+      "Beer-Schéba",
+      "Béthel",
+      "Atta-El-roï",
+      "Peniel"
+    ],
+    "reference": "Genèse 22:14",
+    "explanation": "Abraham donna à ce lieu le nom de Jehova-Jiré : à la montagne de l'Éternel il sera pourvu.",
+    "story": "abraham",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-5-S-08",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel nom Agar donna-t-elle à l'Éternel qui lui avait parlé ?",
+    "answer": "Atta-El-roï",
+    "wrongs": [
+      "Jehova-Jiré",
+      "Lachaï-roï",
+      "Jehova-Nissi",
+      "Jehova-Schalom",
+      "Emmanuel"
+    ],
+    "reference": "Genèse 16:13",
+    "explanation": "Elle appela Atta-El-roï le nom de l'Éternel qui lui avait parlé ; le puits fut appelé Lachaï-roï.",
+    "story": "abraham",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-5-S-09",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel roi d'Élam Abram battit-il pour délivrer Lot ?",
+    "answer": "Kedorlaomer",
+    "wrongs": [
+      "Amraphel",
+      "Arjoc",
+      "Tideal",
+      "Béra",
+      "Melchisédek"
+    ],
+    "reference": "Genèse 14:9-17",
+    "explanation": "Abram revint vainqueur de Kedorlaomer, roi d'Élam, et des rois qui étaient avec lui.",
+    "story": "abraham",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-5-S-10",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quelle femme enfanta à Abraham Zimran, Medan et Madian ?",
+    "answer": "Ketura",
+    "wrongs": [
+      "Agar",
+      "Milca",
+      "Réuma",
+      "Basmath",
+      "Judith"
+    ],
+    "reference": "Genèse 25:1-2",
+    "explanation": "Abraham prit encore une femme, nommée Ketura, qui lui enfanta Zimran, Jokschan, Medan, Madian, Jischbak et Schuach.",
+    "story": "abraham",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-6-L-01",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quelle jeune fille devint la femme d'Isaac ?",
+    "answer": "Rebecca",
+    "wrongs": [
+      "Rachel",
+      "Léa",
+      "Sara",
+      "Milca",
+      "Tamar"
+    ],
+    "reference": "Genèse 24:67",
+    "explanation": "Isaac conduisit Rebecca dans la tente de Sara, sa mère ; elle devint sa femme, et il l'aima.",
+    "story": "isaac_rebecca",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-6-L-02",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Comment s'appelaient les jumeaux de Rebecca ?",
+    "answer": "Ésaü et Jacob",
+    "wrongs": [
+      "Caïn et Abel",
+      "Pérets et Zérach",
+      "Ruben et Siméon",
+      "Éphraïm et Manassé",
+      "Isaac et Ismaël"
+    ],
+    "reference": "Genèse 25:24-26",
+    "explanation": "Rebecca avait deux jumeaux dans son ventre : le premier fut nommé Ésaü, et son frère Jacob.",
+    "story": "isaac_rebecca",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-6-L-03",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Contre quoi Ésaü vendit-il son droit d'aînesse à Jacob ?",
+    "answer": "Du pain et du potage de lentilles",
+    "wrongs": [
+      "Un plat de gibier",
+      "Deux chevreaux",
+      "Dix chameaux",
+      "Un champ et un puits",
+      "Une tunique de couleur"
+    ],
+    "reference": "Genèse 25:29-34",
+    "explanation": "Ésaü, accablé de fatigue, vendit son droit d'aînesse, et Jacob lui donna du pain et du potage de lentilles.",
+    "story": "isaac_rebecca",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-6-L-04",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel fils d'Isaac devint un habile chasseur ?",
+    "answer": "Ésaü",
+    "wrongs": [
+      "Jacob",
+      "Ismaël",
+      "Laban",
+      "Joseph",
+      "Nimrod"
+    ],
+    "reference": "Genèse 25:27",
+    "explanation": "Ésaü devint un habile chasseur, un homme des champs ; Jacob restait sous les tentes.",
+    "story": "isaac_rebecca",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-6-L-05",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Qui aida Jacob à se faire passer pour Ésaü auprès d'Isaac ?",
+    "answer": "Rebecca",
+    "wrongs": [
+      "Laban",
+      "Léa",
+      "Rachel",
+      "Sara",
+      "Débora"
+    ],
+    "reference": "Genèse 27:6-17",
+    "explanation": "Rebecca prépara le mets, revêtit Jacob des habits d'Ésaü et lui couvrit les mains de peaux de chevreaux.",
+    "story": "isaac_rebecca",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-6-L-06",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "De quoi Rebecca couvrit-elle les mains de Jacob ?",
+    "answer": "De la peau des chevreaux",
+    "wrongs": [
+      "De laine de brebis",
+      "D'une peau de chameau",
+      "D'un manteau de poil",
+      "De gants de cuir",
+      "D'une peau d'âne"
+    ],
+    "reference": "Genèse 27:16",
+    "explanation": "Elle couvrit ses mains de la peau des chevreaux, et son cou qui était sans poil.",
+    "story": "isaac_rebecca",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-6-L-07",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Quels animaux Rebecca abreuva-t-elle pour le serviteur d'Abraham ?",
+    "answer": "Les chameaux",
+    "wrongs": [
+      "Les ânes",
+      "Les brebis",
+      "Les chevaux",
+      "Les bœufs",
+      "Les chèvres"
+    ],
+    "reference": "Genèse 24:19-20",
+    "explanation": "Rebecca dit : je puiserai aussi pour tes chameaux ; et elle puisa pour tous les chameaux.",
+    "story": "isaac_rebecca",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-6-L-08",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Qui reçut la bénédiction d'Isaac à la place d'Ésaü ?",
+    "answer": "Jacob",
+    "wrongs": [
+      "Laban",
+      "Ismaël",
+      "Joseph",
+      "Ruben",
+      "Benjamin"
+    ],
+    "reference": "Genèse 27:23-29",
+    "explanation": "Isaac ne reconnut pas Jacob, parce que ses mains étaient velues comme celles d'Ésaü, et il le bénit.",
+    "story": "isaac_rebecca",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-6-L-09",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Pour qui le serviteur d'Abraham alla-t-il chercher une femme ?",
+    "answer": "Isaac",
+    "wrongs": [
+      "Ismaël",
+      "Lot",
+      "Jacob",
+      "Nachor",
+      "Laban"
+    ],
+    "reference": "Genèse 24:2-4",
+    "explanation": "Abraham fit jurer à son serviteur d'aller dans sa patrie prendre une femme pour son fils Isaac.",
+    "story": "isaac_rebecca",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-6-L-10",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Lequel de ses fils Rebecca aimait-elle ?",
+    "answer": "Jacob",
+    "wrongs": [
+      "Ésaü",
+      "Ismaël",
+      "Laban",
+      "Joseph",
+      "Benjamin"
+    ],
+    "reference": "Genèse 25:28",
+    "explanation": "Isaac aimait Ésaü, parce qu'il mangeait du gibier ; et Rebecca aimait Jacob.",
+    "story": "isaac_rebecca",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-6-M-01",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel frère de Rebecca courut au-devant du serviteur d'Abraham ?",
+    "answer": "Laban",
+    "wrongs": [
+      "Bethuel",
+      "Nachor",
+      "Lot",
+      "Éliézer",
+      "Uts"
+    ],
+    "reference": "Genèse 24:29",
+    "explanation": "Rebecca avait un frère, nommé Laban, qui courut dehors vers l'homme, près de la source.",
+    "story": "isaac_rebecca",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-6-M-02",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Que le serviteur d'Abraham mit-il au nez de Rebecca ?",
+    "answer": "Un anneau",
+    "wrongs": [
+      "Une perle",
+      "Une chaîne d'or",
+      "Une pierre précieuse",
+      "Un bracelet",
+      "Un ruban de pourpre"
+    ],
+    "reference": "Genèse 24:47",
+    "explanation": "J'ai mis l'anneau à son nez, et les bracelets à ses mains.",
+    "story": "isaac_rebecca",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-6-M-03",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Que fit Rebecca en apprenant que l'homme venant à sa rencontre était Isaac ?",
+    "answer": "Elle se couvrit de son voile",
+    "wrongs": [
+      "Elle courut vers lui",
+      "Elle se prosterna",
+      "Elle pleura",
+      "Elle s'enfuit",
+      "Elle chanta"
+    ],
+    "reference": "Genèse 24:65",
+    "explanation": "Le serviteur répondit : c'est mon seigneur. Alors elle prit son voile, et se couvrit.",
+    "story": "isaac_rebecca",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-6-M-04",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Pourquoi Isaac aimait-il Ésaü ?",
+    "answer": "Il mangeait du gibier",
+    "wrongs": [
+      "Il restait sous les tentes",
+      "Il gardait ses troupeaux",
+      "Il lui obéissait toujours",
+      "Il ressemblait à sa mère",
+      "Il jouait de la harpe"
+    ],
+    "reference": "Genèse 25:28",
+    "explanation": "Isaac aimait Ésaü, parce qu'il mangeait du gibier ; et Rebecca aimait Jacob.",
+    "story": "isaac_rebecca",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-6-M-05",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel nom fut donné à Ésaü à cause du potage roux ?",
+    "answer": "Édom",
+    "wrongs": [
+      "Israël",
+      "Moab",
+      "Aram",
+      "Amalek",
+      "Ammon"
+    ],
+    "reference": "Genèse 25:30",
+    "explanation": "Ésaü demanda à manger de ce roux ; c'est pour cela qu'on lui donna le nom d'Édom.",
+    "story": "isaac_rebecca",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-6-M-06",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Que tenait la main de Jacob à sa naissance ?",
+    "answer": "Le talon d'Ésaü",
+    "wrongs": [
+      "La main d'Ésaü",
+      "Le bras d'Ésaü",
+      "Les cheveux d'Ésaü",
+      "L'épaule d'Ésaü",
+      "Le cou d'Ésaü"
+    ],
+    "reference": "Genèse 25:26",
+    "explanation": "Ensuite sortit son frère, dont la main tenait le talon d'Ésaü ; on lui donna le nom de Jacob.",
+    "story": "isaac_rebecca",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-6-M-07",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Dans quelle ville Rebecca envoya-t-elle Jacob pour fuir Ésaü ?",
+    "answer": "Charan",
+    "wrongs": [
+      "Guérar",
+      "Beer-Schéba",
+      "Hébron",
+      "Sichem",
+      "Ur"
+    ],
+    "reference": "Genèse 27:43",
+    "explanation": "Lève-toi, fuis chez Laban, mon frère, à Charan, jusqu'à ce que la fureur de ton frère s'apaise.",
+    "story": "isaac_rebecca",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-6-M-08",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel roi des Philistins vit Isaac plaisanter avec Rebecca ?",
+    "answer": "Abimélec",
+    "wrongs": [
+      "Picol",
+      "Ahuzath",
+      "Pharaon",
+      "Melchisédek",
+      "Béra"
+    ],
+    "reference": "Genèse 26:8-9",
+    "explanation": "Abimélec, roi des Philistins, regardant par la fenêtre, vit Isaac qui plaisantait avec Rebecca, sa femme.",
+    "story": "isaac_rebecca",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-6-M-09",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Que firent les Philistins des puits creusés du temps d'Abraham ?",
+    "answer": "Ils les comblèrent",
+    "wrongs": [
+      "Ils les empoisonnèrent",
+      "Ils les achetèrent",
+      "Ils les agrandirent",
+      "Ils les vendirent",
+      "Ils les murèrent de pierres"
+    ],
+    "reference": "Genèse 26:15",
+    "explanation": "Les Philistins comblèrent les puits qu'avaient creusés les serviteurs d'Abraham et les remplirent de poussière.",
+    "story": "isaac_rebecca",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-6-M-10",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Combien de chameaux le serviteur d'Abraham emmena-t-il ?",
+    "answer": "Dix",
+    "wrongs": [
+      "Deux",
+      "Cinq",
+      "Sept",
+      "Douze",
+      "Vingt"
+    ],
+    "reference": "Genèse 24:10",
+    "explanation": "Le serviteur prit dix chameaux parmi ceux de son seigneur et partit pour la ville de Nachor.",
+    "story": "isaac_rebecca",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-6-S-01",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel âge avait Isaac quand il prit Rebecca pour femme ?",
+    "answer": "40 ans",
+    "wrongs": [
+      "25 ans",
+      "30 ans",
+      "37 ans",
+      "50 ans",
+      "60 ans"
+    ],
+    "reference": "Genèse 25:20",
+    "explanation": "Isaac était âgé de quarante ans, quand il prit pour femme Rebecca, fille de Bethuel.",
+    "story": "isaac_rebecca",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-6-S-02",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel âge avait Isaac à la naissance d'Ésaü et de Jacob ?",
+    "answer": "60 ans",
+    "wrongs": [
+      "40 ans",
+      "50 ans",
+      "70 ans",
+      "75 ans",
+      "100 ans"
+    ],
+    "reference": "Genèse 25:26",
+    "explanation": "Isaac était âgé de soixante ans, lorsqu'ils naquirent.",
+    "story": "isaac_rebecca",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-6-S-03",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Comment Isaac nomma-t-il le puits pour lequel on ne chercha pas querelle ?",
+    "answer": "Rehoboth",
+    "wrongs": [
+      "Ések",
+      "Sitna",
+      "Schiba",
+      "Lachaï-roï",
+      "Béthel"
+    ],
+    "reference": "Genèse 26:22",
+    "explanation": "Il l'appela Rehoboth, car, dit-il, l'Éternel nous a maintenant mis au large.",
+    "story": "isaac_rebecca",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-6-S-04",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Comment s'appelait le père de Rebecca ?",
+    "answer": "Bethuel",
+    "wrongs": [
+      "Nachor",
+      "Laban",
+      "Térach",
+      "Uts",
+      "Haran"
+    ],
+    "reference": "Genèse 24:24",
+    "explanation": "Rebecca répondit au serviteur : je suis fille de Bethuel, fils de Milca et de Nachor.",
+    "story": "isaac_rebecca",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-6-S-05",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quelles femmes héthiennes Ésaü épousa-t-il à quarante ans ?",
+    "answer": "Judith et Basmath",
+    "wrongs": [
+      "Léa et Rachel",
+      "Ada et Tsilla",
+      "Milca et Jisca",
+      "Bilha et Zilpa",
+      "Agar et Ketura"
+    ],
+    "reference": "Genèse 26:34-35",
+    "explanation": "Ésaü prit pour femmes Judith, fille de Beéri, et Basmath, fille d'Élon, Héthiens ; elles furent un sujet d'amertume pour Isaac et Rebecca.",
+    "story": "isaac_rebecca",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-6-S-06",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Quel poids d'or pesaient les deux bracelets offerts à Rebecca ?",
+    "answer": "Dix sicles",
+    "wrongs": [
+      "Un demi-sicle",
+      "Cinq sicles",
+      "Vingt sicles",
+      "Trente sicles",
+      "Cent sicles"
+    ],
+    "reference": "Genèse 24:22",
+    "explanation": "Le serviteur prit un anneau d'or d'un demi-sicle, et deux bracelets du poids de dix sicles d'or.",
+    "story": "isaac_rebecca",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-6-S-07",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Combien de temps la famille de Rebecca voulait-elle la garder encore ?",
+    "answer": "Une dizaine de jours",
+    "wrongs": [
+      "Trois jours",
+      "Sept jours",
+      "Un mois",
+      "Trois mois",
+      "Une année"
+    ],
+    "reference": "Genèse 24:55",
+    "explanation": "Le frère et la mère dirent : que la jeune fille reste avec nous une dizaine de jours ; ensuite, tu partiras.",
+    "story": "isaac_rebecca",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-6-S-08",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Que récolta Isaac l'année où il sema au pays de Guérar ?",
+    "answer": "Le centuple",
+    "wrongs": [
+      "Le double",
+      "Le triple",
+      "Le septuple",
+      "Le trentuple",
+      "Le quadruple"
+    ],
+    "reference": "Genèse 26:6-12",
+    "explanation": "Isaac sema dans ce pays, et il recueillit cette année le centuple ; car l'Éternel le bénit.",
+    "story": "isaac_rebecca",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-6-S-09",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel chef de l'armée d'Abimélec vint avec lui trouver Isaac ?",
+    "answer": "Picol",
+    "wrongs": [
+      "Ahuzath",
+      "Abner",
+      "Joab",
+      "Benaja",
+      "Amasa"
+    ],
+    "reference": "Genèse 26:26",
+    "explanation": "Abimélec vint de Guérar auprès d'Isaac, avec Ahuzath, son ami, et Picol, chef de son armée.",
+    "story": "isaac_rebecca",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-6-S-10",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "De quel puits Isaac était-il revenu quand Rebecca arriva ?",
+    "answer": "Lachaï-roï",
+    "wrongs": [
+      "Beer-Schéba",
+      "Rehoboth",
+      "Ések",
+      "Sitna",
+      "Schiba"
+    ],
+    "reference": "Genèse 24:62",
+    "explanation": "Isaac était revenu du puits de Lachaï-roï, et il habitait dans le pays du midi.",
+    "story": "isaac_rebecca",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-7-L-01",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "Qu'est-ce que Jacob vit en songe la nuit où il dormit sur une pierre ?",
+    "answer": "Une échelle touchant au ciel",
+    "wrongs": [
+      "Un buisson ardent",
+      "Une colonne de feu",
+      "Un arc-en-ciel",
+      "Une tour jusqu'au ciel",
+      "Un char de feu"
+    ],
+    "reference": "Genèse 28:11-12",
+    "explanation": "Jacob vit en songe une échelle appuyée sur la terre, dont le sommet touchait au ciel ; les anges de Dieu y montaient et descendaient.",
+    "story": "jacob",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-7-L-02",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Quel nom Jacob donna-t-il au lieu de son songe de l'échelle ?",
+    "answer": "Béthel",
+    "wrongs": [
+      "Peniel",
+      "Mahanaïm",
+      "Succoth",
+      "Sichem",
+      "Hébron"
+    ],
+    "reference": "Genèse 28:19",
+    "explanation": "Jacob appela ce lieu Béthel, « maison de Dieu » ; la ville s'appelait auparavant Luz.",
+    "story": "jacob",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-7-L-03",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quelle fille de Laban Jacob aimait-il ?",
+    "answer": "Rachel",
+    "wrongs": [
+      "Léa",
+      "Dina",
+      "Bilha",
+      "Zilpa",
+      "Rebecca"
+    ],
+    "reference": "Genèse 29:18",
+    "explanation": "Jacob aimait Rachel, la cadette, et proposa à Laban de le servir sept ans pour elle.",
+    "story": "jacob",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-7-L-04",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Combien d'années Jacob servit-il Laban d'abord pour obtenir Rachel ?",
+    "answer": "Sept ans",
+    "wrongs": [
+      "Trois ans",
+      "Cinq ans",
+      "Dix ans",
+      "Douze ans",
+      "Vingt ans"
+    ],
+    "reference": "Genèse 29:18-20",
+    "explanation": "Jacob servit sept années pour Rachel, et elles furent à ses yeux comme quelques jours, parce qu'il l'aimait.",
+    "story": "jacob",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-7-L-05",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quelle fille Laban donna-t-il à Jacob à la place de Rachel, le soir des noces ?",
+    "answer": "Léa",
+    "wrongs": [
+      "Bilha",
+      "Zilpa",
+      "Dina",
+      "Rebecca",
+      "Mahalath"
+    ],
+    "reference": "Genèse 29:23-25",
+    "explanation": "Laban amena Léa, l'aînée, à Jacob ; le lendemain matin, Jacob découvrit qu'il avait été trompé.",
+    "story": "jacob",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-7-L-06",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel fils Rachel enfanta-t-elle elle-même en premier ?",
+    "answer": "Joseph",
+    "wrongs": [
+      "Benjamin",
+      "Ruben",
+      "Juda",
+      "Lévi",
+      "Siméon"
+    ],
+    "reference": "Genèse 30:22-24",
+    "explanation": "Dieu se souvint de Rachel et la rendit féconde ; elle appela son fils Joseph.",
+    "story": "jacob",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-7-L-07",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel frère Jacob craignait-il de rencontrer en revenant au pays de Canaan ?",
+    "answer": "Ésaü",
+    "wrongs": [
+      "Laban",
+      "Ismaël",
+      "Nachor",
+      "Lot",
+      "Isaac"
+    ],
+    "reference": "Genèse 32:11",
+    "explanation": "Jacob pria Dieu de le délivrer de la main d'Ésaü, son frère, qui venait à sa rencontre.",
+    "story": "jacob",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-7-L-08",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel nouveau nom Jacob reçut-il après avoir lutté jusqu'au lever de l'aurore ?",
+    "answer": "Israël",
+    "wrongs": [
+      "Abraham",
+      "Édom",
+      "Isaac",
+      "Juda",
+      "Benjamin"
+    ],
+    "reference": "Genèse 32:28",
+    "explanation": "Ton nom ne sera plus Jacob, mais Israël, car tu as lutté avec Dieu et avec des hommes, et tu as été vainqueur.",
+    "story": "jacob",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-7-L-09",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Comment Ésaü accueillit-il Jacob lors de leurs retrouvailles ?",
+    "answer": "Il l'embrassa et ils pleurèrent",
+    "wrongs": [
+      "Il le frappa de l'épée",
+      "Il le chassa du pays",
+      "Il le fit prisonnier",
+      "Il refusa de le voir",
+      "Il lui reprit la bénédiction"
+    ],
+    "reference": "Genèse 33:4",
+    "explanation": "Ésaü courut à sa rencontre, l'embrassa, se jeta à son cou et le baisa. Et ils pleurèrent.",
+    "story": "jacob",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-7-L-10",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel fils Rachel mit-elle au monde en mourant, près d'Éphrata ?",
+    "answer": "Benjamin",
+    "wrongs": [
+      "Joseph",
+      "Juda",
+      "Ruben",
+      "Dan",
+      "Lévi"
+    ],
+    "reference": "Genèse 35:16-18",
+    "explanation": "Rachel mourante l'appela Ben-Oni, mais son père l'appela Benjamin.",
+    "story": "jacob",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-7-M-01",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Qu'est-ce que Jacob versa sur la pierre de son chevet, dressée à Béthel ?",
+    "answer": "De l'huile",
+    "wrongs": [
+      "Du vin",
+      "Du sang",
+      "De l'eau",
+      "Du lait",
+      "Du miel"
+    ],
+    "reference": "Genèse 28:18",
+    "explanation": "Jacob dressa la pierre dont il avait fait son chevet pour monument, et versa de l'huile sur son sommet.",
+    "story": "jacob",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-7-M-02",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Que fit Jacob au puits pour abreuver le troupeau de Rachel ?",
+    "answer": "Il roula la pierre du puits",
+    "wrongs": [
+      "Il creusa un nouveau puits",
+      "Il frappa le rocher",
+      "Il appela les bergers",
+      "Il paya les bergers",
+      "Il pria pour la pluie"
+    ],
+    "reference": "Genèse 29:10",
+    "explanation": "Jacob s'approcha, roula la pierre de dessus l'ouverture du puits et abreuva le troupeau de Laban.",
+    "story": "jacob",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-7-M-03",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quelle servante Laban donna-t-il à Rachel ?",
+    "answer": "Bilha",
+    "wrongs": [
+      "Zilpa",
+      "Agar",
+      "Débora",
+      "Dina",
+      "Mahalath"
+    ],
+    "reference": "Genèse 29:29",
+    "explanation": "Laban donna pour servante à Rachel, sa fille, Bilha, sa servante.",
+    "story": "jacob",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-7-M-04",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Qui était le premier-né de Jacob ?",
+    "answer": "Ruben",
+    "wrongs": [
+      "Siméon",
+      "Lévi",
+      "Juda",
+      "Joseph",
+      "Dan"
+    ],
+    "reference": "Genèse 29:32",
+    "explanation": "Léa enfanta un premier fils et l'appela Ruben ; il est nommé premier-né de Jacob.",
+    "story": "jacob",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-7-M-05",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Comment s'appelait la fille que Léa enfanta à Jacob ?",
+    "answer": "Dina",
+    "wrongs": [
+      "Tamar",
+      "Rachel",
+      "Débora",
+      "Basmath",
+      "Ada"
+    ],
+    "reference": "Genèse 30:21",
+    "explanation": "Après ses six fils, Léa enfanta une fille, qu'elle appela Dina.",
+    "story": "jacob",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-7-M-06",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Qu'est-ce que Rachel déroba à son père au moment de partir ?",
+    "answer": "Les théraphim",
+    "wrongs": [
+      "Sa coupe d'argent",
+      "Son anneau d'or",
+      "Son bâton",
+      "Ses habits de fête",
+      "Son trésor d'argent"
+    ],
+    "reference": "Genèse 31:19",
+    "explanation": "Tandis que Laban était allé tondre ses brebis, Rachel déroba les théraphim de son père.",
+    "story": "jacob",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-7-M-07",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Où Rachel cacha-t-elle les théraphim pendant que Laban fouillait sa tente ?",
+    "answer": "Sous le bât du chameau",
+    "wrongs": [
+      "Dans un sac de blé",
+      "Dans la tente de Léa",
+      "Dans une citerne",
+      "Sous une pierre",
+      "Dans un coffre"
+    ],
+    "reference": "Genèse 31:34",
+    "explanation": "Rachel avait mis les théraphim sous le bât du chameau et s'était assise dessus ; Laban ne trouva rien.",
+    "story": "jacob",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-7-M-08",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Avec combien d'hommes Ésaü marchait-il à la rencontre de Jacob ?",
+    "answer": "Quatre cents",
+    "wrongs": [
+      "Deux cents",
+      "Trois cents",
+      "Cent",
+      "Mille",
+      "Six cents"
+    ],
+    "reference": "Genèse 32:6",
+    "explanation": "Les messagers rapportèrent qu'Ésaü venait à la rencontre de Jacob avec quatre cents hommes.",
+    "story": "jacob",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-7-M-09",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "Où l'homme qui lutta avec Jacob le frappa-t-il ?",
+    "answer": "À la hanche",
+    "wrongs": [
+      "À la tête",
+      "À l'épaule",
+      "Au talon",
+      "Au bras",
+      "À la main"
+    ],
+    "reference": "Genèse 32:25",
+    "explanation": "L'homme le frappa à l'emboîture de la hanche, qui se démit ; ensuite Jacob boitait de la hanche.",
+    "story": "jacob",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-7-M-10",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quels fils de Jacob tuèrent les hommes de la ville de Sichem pour venger Dina ?",
+    "answer": "Siméon et Lévi",
+    "wrongs": [
+      "Ruben et Juda",
+      "Dan et Gad",
+      "Juda et Lévi",
+      "Siméon et Ruben",
+      "Aser et Nephthali"
+    ],
+    "reference": "Genèse 34:25",
+    "explanation": "Siméon et Lévi, frères de Dina, prirent leur épée et tuèrent tous les mâles de la ville.",
+    "story": "jacob",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-7-S-01",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Comment s'appelait autrefois la ville que Jacob nomma Béthel ?",
+    "answer": "Luz",
+    "wrongs": [
+      "Sichem",
+      "Hébron",
+      "Charan",
+      "Salem",
+      "Dothan"
+    ],
+    "reference": "Genèse 28:19",
+    "explanation": "Jacob donna à ce lieu le nom de Béthel ; mais la ville s'appelait auparavant Luz.",
+    "story": "jacob",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-7-S-02",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quelle servante Laban donna-t-il à Léa ?",
+    "answer": "Zilpa",
+    "wrongs": [
+      "Bilha",
+      "Agar",
+      "Débora",
+      "Thimna",
+      "Ada"
+    ],
+    "reference": "Genèse 29:24",
+    "explanation": "Laban donna pour servante à Léa, sa fille, Zilpa, sa servante.",
+    "story": "jacob",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-7-S-03",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Combien de fois Laban changea-t-il le salaire de Jacob ?",
+    "answer": "Dix fois",
+    "wrongs": [
+      "Trois fois",
+      "Sept fois",
+      "Deux fois",
+      "Quatre fois",
+      "Douze fois"
+    ],
+    "reference": "Genèse 31:7",
+    "explanation": "Jacob dit à ses femmes que leur père s'était joué de lui et avait changé dix fois son salaire.",
+    "story": "jacob",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-7-S-04",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Combien d'années Jacob passa-t-il en tout chez Laban ?",
+    "answer": "Vingt ans",
+    "wrongs": [
+      "Sept ans",
+      "Quatorze ans",
+      "Douze ans",
+      "Quarante ans",
+      "Trente ans"
+    ],
+    "reference": "Genèse 31:41",
+    "explanation": "Vingt ans : quatorze ans pour les deux filles de Laban, et six ans pour son troupeau.",
+    "story": "jacob",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-7-S-05",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Quel nom Jacob donna-t-il au monceau de pierres dressé avec Laban ?",
+    "answer": "Galed",
+    "wrongs": [
+      "Mahanaïm",
+      "Peniel",
+      "Béthel",
+      "Succoth",
+      "Guilgal"
+    ],
+    "reference": "Genèse 31:47",
+    "explanation": "Laban l'appela Jegar-Sahadutha, et Jacob l'appela Galed, monceau du témoignage.",
+    "story": "jacob",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-7-S-06",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Combien de chèvres Jacob envoya-t-il en présent à Ésaü ?",
+    "answer": "Deux cents",
+    "wrongs": [
+      "Cent",
+      "Trois cents",
+      "Quatre cents",
+      "Vingt",
+      "Cinquante"
+    ],
+    "reference": "Genèse 32:13-14",
+    "explanation": "Pour apaiser Ésaü, Jacob prépara deux cents chèvres et vingt boucs, deux cents brebis et vingt béliers, et d'autres bêtes.",
+    "story": "jacob",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-7-S-07",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Quel nom Jacob donna-t-il au lieu où il vit Dieu face à face ?",
+    "answer": "Peniel",
+    "wrongs": [
+      "Béthel",
+      "Mahanaïm",
+      "Galed",
+      "Succoth",
+      "Luz"
+    ],
+    "reference": "Genèse 32:30",
+    "explanation": "Jacob appela ce lieu Peniel : « J'ai vu Dieu face à face, et mon âme a été sauvée. »",
+    "story": "jacob",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-7-S-08",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Pour quel prix Jacob acheta-t-il une portion de champ devant Sichem ?",
+    "answer": "Cent kesita",
+    "wrongs": [
+      "Quatre cents sicles d'argent",
+      "Vingt sicles d'argent",
+      "Cinquante kesita",
+      "Trente sicles d'argent",
+      "Mille pièces d'argent"
+    ],
+    "reference": "Genèse 33:19",
+    "explanation": "Jacob acheta la portion du champ où il avait dressé sa tente, des fils d'Hamor, pour cent kesita.",
+    "story": "jacob",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-7-S-09",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quelle nourrice de Rebecca mourut et fut enterrée près de Béthel ?",
+    "answer": "Débora",
+    "wrongs": [
+      "Bilha",
+      "Zilpa",
+      "Thimna",
+      "Mahalath",
+      "Basmath"
+    ],
+    "reference": "Genèse 35:8",
+    "explanation": "Débora, nourrice de Rebecca, fut enterrée au-dessous de Béthel, sous le chêne des pleurs.",
+    "story": "jacob",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-7-S-10",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel âge avait Isaac quand il mourut ?",
+    "answer": "Cent quatre-vingts ans",
+    "wrongs": [
+      "Cent soixante-quinze ans",
+      "Cent quarante-sept ans",
+      "Cent trente ans",
+      "Cent vingt ans",
+      "Cent dix ans"
+    ],
+    "reference": "Genèse 35:28-29",
+    "explanation": "Les jours d'Isaac furent de cent quatre-vingts ans ; Ésaü et Jacob, ses fils, l'enterrèrent.",
+    "story": "jacob",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-8-L-01",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel vêtement Jacob fit-il faire pour Joseph, son fils préféré ?",
+    "answer": "Une tunique de plusieurs couleurs",
+    "wrongs": [
+      "Un manteau de fin lin",
+      "Une robe de pourpre",
+      "Un habit de peau",
+      "Une ceinture d'or",
+      "Un vêtement de deuil"
+    ],
+    "reference": "Genèse 37:3",
+    "explanation": "Israël aimait Joseph plus que tous ses autres fils, et il lui fit une tunique de plusieurs couleurs.",
+    "story": "joseph",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-8-L-02",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "Dans son second songe, qu'est-ce qui se prosternait devant Joseph ?",
+    "answer": "Le soleil, la lune et onze étoiles",
+    "wrongs": [
+      "La lune et douze étoiles",
+      "Sept vaches et sept épis",
+      "Le soleil et douze étoiles",
+      "Onze gerbes de blé",
+      "La lune et sept étoiles"
+    ],
+    "reference": "Genèse 37:9",
+    "explanation": "Joseph raconta : le soleil, la lune et onze étoiles se prosternaient devant moi.",
+    "story": "joseph",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-8-L-03",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Où les frères de Joseph le jetèrent-ils avant de le vendre ?",
+    "answer": "Dans une citerne vide",
+    "wrongs": [
+      "Dans un puits plein d'eau",
+      "Dans une fosse aux lions",
+      "Dans le fleuve",
+      "Dans une prison",
+      "Dans une caverne"
+    ],
+    "reference": "Genèse 37:24",
+    "explanation": "Ils le jetèrent dans la citerne ; elle était vide, il n'y avait point d'eau.",
+    "story": "joseph",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-8-L-04",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Dans quel pays les marchands emmenèrent-ils Joseph ?",
+    "answer": "L'Égypte",
+    "wrongs": [
+      "Canaan",
+      "Galaad",
+      "Madian",
+      "Édom",
+      "Moab"
+    ],
+    "reference": "Genèse 37:28",
+    "explanation": "Ses frères le vendirent aux Ismaélites, qui l'emmenèrent en Égypte.",
+    "story": "joseph",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-8-L-05",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Qui accusa faussement Joseph lorsqu'il servait dans la maison de Potiphar ?",
+    "answer": "La femme de Potiphar",
+    "wrongs": [
+      "Le chef des échansons",
+      "Le chef des panetiers",
+      "Le chef de la prison",
+      "Un serviteur de Potiphar",
+      "La fille de Pharaon"
+    ],
+    "reference": "Genèse 39:14-17",
+    "explanation": "Joseph avait refusé ses avances ; elle garda son vêtement et l'accusa auprès de son mari.",
+    "story": "joseph",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-8-L-06",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "Dans le premier songe de Pharaon, quels animaux montaient du fleuve ?",
+    "answer": "Des vaches",
+    "wrongs": [
+      "Des poissons",
+      "Des crocodiles",
+      "Des grenouilles",
+      "Des chevaux",
+      "Des serpents"
+    ],
+    "reference": "Genèse 41:2-3",
+    "explanation": "Sept vaches grasses, puis sept vaches maigres, montèrent hors du fleuve.",
+    "story": "joseph",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-8-L-07",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Combien d'années de famine Joseph annonça-t-il à Pharaon ?",
+    "answer": "Sept",
+    "wrongs": [
+      "Trois",
+      "Cinq",
+      "Dix",
+      "Douze",
+      "Quarante"
+    ],
+    "reference": "Genèse 41:29-30",
+    "explanation": "Sept années de grande abondance seraient suivies de sept années de famine.",
+    "story": "joseph",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-8-L-08",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Qui donna à Joseph le commandement de tout le pays d'Égypte ?",
+    "answer": "Pharaon",
+    "wrongs": [
+      "Potiphar",
+      "Le chef des échansons",
+      "Poti-Phéra",
+      "Jacob",
+      "Le chef de la prison"
+    ],
+    "reference": "Genèse 41:41",
+    "explanation": "Pharaon dit à Joseph : Vois, je te donne le commandement de tout le pays d'Égypte.",
+    "story": "joseph",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-8-L-09",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel frère de Joseph était né de la même mère que lui ?",
+    "answer": "Benjamin",
+    "wrongs": [
+      "Juda",
+      "Ruben",
+      "Siméon",
+      "Lévi",
+      "Dan"
+    ],
+    "reference": "Genèse 43:29",
+    "explanation": "Joseph jeta un regard sur Benjamin, son frère, fils de sa mère.",
+    "story": "joseph",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-8-L-10",
+    "difficulty": "lait",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Quel objet Joseph fit-il cacher dans le sac de Benjamin ?",
+    "answer": "Sa coupe d'argent",
+    "wrongs": [
+      "L'anneau de Pharaon",
+      "Un collier d'or",
+      "Des théraphim",
+      "Un sceptre d'or",
+      "Son cachet"
+    ],
+    "reference": "Genèse 44:2",
+    "explanation": "Joseph ordonna de mettre sa coupe d'argent à l'entrée du sac du plus jeune ; elle fut trouvée chez Benjamin.",
+    "story": "joseph",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-8-M-01",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel frère voulut sauver Joseph en le faisant jeter dans une citerne ?",
+    "answer": "Ruben",
+    "wrongs": [
+      "Juda",
+      "Siméon",
+      "Lévi",
+      "Gad",
+      "Benjamin"
+    ],
+    "reference": "Genèse 37:21-22",
+    "explanation": "Ruben dit : Ne répandez point de sang ; il voulait le délivrer et le faire retourner vers son père.",
+    "story": "joseph",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-8-M-02",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel frère proposa de vendre Joseph aux Ismaélites plutôt que de le tuer ?",
+    "answer": "Juda",
+    "wrongs": [
+      "Ruben",
+      "Siméon",
+      "Lévi",
+      "Dan",
+      "Benjamin"
+    ],
+    "reference": "Genèse 37:26-27",
+    "explanation": "Juda dit : Que gagnerons-nous à tuer notre frère ? Vendons-le aux Ismaélites.",
+    "story": "joseph",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-8-M-03",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Quel animal les frères tuèrent-ils pour tremper la tunique de Joseph dans le sang ?",
+    "answer": "Un bouc",
+    "wrongs": [
+      "Un agneau",
+      "Un veau",
+      "Un bélier",
+      "Une brebis",
+      "Une colombe"
+    ],
+    "reference": "Genèse 37:31",
+    "explanation": "Ils tuèrent un bouc et plongèrent la tunique dans le sang, puis l'envoyèrent à leur père.",
+    "story": "joseph",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-8-M-04",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "À quel officier de Pharaon Joseph fut-il vendu en Égypte ?",
+    "answer": "Potiphar",
+    "wrongs": [
+      "Poti-Phéra",
+      "Hira",
+      "Hamor",
+      "Laban",
+      "Éphron"
+    ],
+    "reference": "Genèse 37:36",
+    "explanation": "Les Madianites le vendirent à Potiphar, officier de Pharaon, chef des gardes.",
+    "story": "joseph",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-8-M-05",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quels officiers de Pharaon furent mis en prison avec Joseph ?",
+    "answer": "L'échanson et le panetier",
+    "wrongs": [
+      "Le scribe et le gardien",
+      "Le médecin et le magicien",
+      "L'échanson et le scribe",
+      "Le panetier et le berger",
+      "Deux magiciens"
+    ],
+    "reference": "Genèse 40:1-3",
+    "explanation": "Le chef des échansons et le chef des panetiers offensèrent Pharaon et furent enfermés là où était Joseph.",
+    "story": "joseph",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-8-M-06",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "miracles",
+    "question": "Selon Joseph, que signifiaient les trois sarments du songe de l'échanson ?",
+    "answer": "Trois jours",
+    "wrongs": [
+      "Trois ans",
+      "Trois mois",
+      "Trois semaines",
+      "Trois rois",
+      "Trois fils"
+    ],
+    "reference": "Genèse 40:12-13",
+    "explanation": "Les trois sarments sont trois jours : encore trois jours, et Pharaon te rétablira dans ta charge.",
+    "story": "joseph",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-8-M-07",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Comment s'appelaient les deux fils de Joseph nés en Égypte ?",
+    "answer": "Manassé et Éphraïm",
+    "wrongs": [
+      "Pérets et Zérach",
+      "Er et Onan",
+      "Ruben et Siméon",
+      "Dan et Nephthali",
+      "Gad et Aser"
+    ],
+    "reference": "Genèse 41:50-52",
+    "explanation": "Avant la famine, Asnath enfanta à Joseph Manassé, le premier-né, puis Éphraïm.",
+    "story": "joseph",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-8-M-08",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Combien de frères de Joseph descendirent la première fois en Égypte acheter du blé ?",
+    "answer": "Dix",
+    "wrongs": [
+      "Onze",
+      "Douze",
+      "Neuf",
+      "Sept",
+      "Cinq"
+    ],
+    "reference": "Genèse 42:3-4",
+    "explanation": "Dix frères de Joseph descendirent ; Jacob garda Benjamin auprès de lui.",
+    "story": "joseph",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-8-M-09",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel frère Joseph fit-il enchaîner et garder en Égypte ?",
+    "answer": "Siméon",
+    "wrongs": [
+      "Ruben",
+      "Juda",
+      "Benjamin",
+      "Lévi",
+      "Issacar"
+    ],
+    "reference": "Genèse 42:24",
+    "explanation": "Joseph prit parmi eux Siméon et le fit enchaîner sous leurs yeux, jusqu'au retour avec Benjamin.",
+    "story": "joseph",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-8-M-10",
+    "difficulty": "manne",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Dans quel pays d'Égypte Israël et sa famille habitèrent-ils ?",
+    "answer": "Gosen",
+    "wrongs": [
+      "On",
+      "Tsoan",
+      "Pithom",
+      "Migdol",
+      "Noph"
+    ],
+    "reference": "Genèse 47:27",
+    "explanation": "Israël habita dans le pays d'Égypte, dans le pays de Gosen ; ils y furent féconds et multiplièrent.",
+    "story": "joseph",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-8-S-01",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel âge avait Joseph quand il faisait paître le troupeau avec ses frères ?",
+    "answer": "Dix-sept ans",
+    "wrongs": [
+      "Douze ans",
+      "Quinze ans",
+      "Vingt ans",
+      "Treize ans",
+      "Trente ans"
+    ],
+    "reference": "Genèse 37:2",
+    "explanation": "Joseph, âgé de dix-sept ans, faisait paître le troupeau avec ses frères.",
+    "story": "joseph",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-8-S-02",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Où Joseph retrouva-t-il ses frères, qu'il cherchait autour de Sichem ?",
+    "answer": "À Dothan",
+    "wrongs": [
+      "À Hébron",
+      "À Béthel",
+      "À Guérar",
+      "À Beer-Schéba",
+      "À Succoth"
+    ],
+    "reference": "Genèse 37:17",
+    "explanation": "Un homme lui dit qu'ils étaient partis pour Dothan ; Joseph les y trouva.",
+    "story": "joseph",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-8-S-03",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Pour combien d'argent Joseph fut-il vendu par ses frères ?",
+    "answer": "Vingt sicles d'argent",
+    "wrongs": [
+      "Trente sicles d'argent",
+      "Dix sicles d'argent",
+      "Quarante sicles d'argent",
+      "Cinquante sicles d'argent",
+      "Cent sicles d'argent"
+    ],
+    "reference": "Genèse 37:28",
+    "explanation": "Ils le vendirent pour vingt sicles d'argent aux Ismaélites, qui l'emmenèrent en Égypte.",
+    "story": "joseph",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-8-S-04",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quels jumeaux Tamar donna-t-elle à Juda ?",
+    "answer": "Pérets et Zérach",
+    "wrongs": [
+      "Er et Onan",
+      "Manassé et Éphraïm",
+      "Schéla et Er",
+      "Hetsron et Hamul",
+      "Ésaü et Jacob"
+    ],
+    "reference": "Genèse 38:27-30",
+    "explanation": "Un fil cramoisi fut attaché à la main de Zérach, mais Pérets sortit le premier.",
+    "story": "joseph",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-8-S-05",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel nom égyptien Pharaon donna-t-il à Joseph ?",
+    "answer": "Tsaphnath-Paenéach",
+    "wrongs": [
+      "Poti-Phéra",
+      "Potiphar",
+      "Beltschatsar",
+      "Abed-Nego",
+      "Mitsraïm"
+    ],
+    "reference": "Genèse 41:45",
+    "explanation": "Pharaon appela Joseph du nom de Tsaphnath-Paenéach et lui donna une femme.",
+    "story": "joseph",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-8-S-06",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Comment s'appelait la femme que Pharaon donna à Joseph ?",
+    "answer": "Asnath",
+    "wrongs": [
+      "Tamar",
+      "Basmath",
+      "Séphora",
+      "Dina",
+      "Ada"
+    ],
+    "reference": "Genèse 41:45",
+    "explanation": "Pharaon donna pour femme à Joseph Asnath, fille de Poti-Phéra, prêtre d'On.",
+    "story": "joseph",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-8-S-07",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel âge avait Joseph quand il se présenta devant Pharaon ?",
+    "answer": "Trente ans",
+    "wrongs": [
+      "Dix-sept ans",
+      "Vingt ans",
+      "Vingt-cinq ans",
+      "Quarante ans",
+      "Trente-sept ans"
+    ],
+    "reference": "Genèse 41:46",
+    "explanation": "Joseph était âgé de trente ans lorsqu'il se présenta devant Pharaon, roi d'Égypte.",
+    "story": "joseph",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-8-S-08",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "lieux_evenements",
+    "question": "Au total, combien de personnes de la famille de Jacob vinrent en Égypte ?",
+    "answer": "Soixante-dix",
+    "wrongs": [
+      "Soixante",
+      "Quarante",
+      "Cinquante",
+      "Cent",
+      "Quatre-vingts"
+    ],
+    "reference": "Genèse 46:27",
+    "explanation": "Avec Joseph et ses deux fils, le total des personnes de la famille de Jacob en Égypte était de soixante-dix.",
+    "story": "joseph",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-8-S-09",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Sur la tête de quel fils de Joseph Jacob posa-t-il sa main droite ?",
+    "answer": "Éphraïm",
+    "wrongs": [
+      "Manassé",
+      "Makir",
+      "Pérets",
+      "Hetsron",
+      "Béla"
+    ],
+    "reference": "Genèse 48:14",
+    "explanation": "Israël posa sa main droite sur Éphraïm, le plus jeune, et la gauche sur Manassé, le premier-né.",
+    "story": "joseph",
+    "status": "brouillon"
+  },
+  {
+    "id": "AV-8-S-10",
+    "difficulty": "solide",
+    "testament": "AT",
+    "books": [
+      "Genèse"
+    ],
+    "category": "personnages",
+    "question": "Quel âge avait Joseph à sa mort ?",
+    "answer": "Cent dix ans",
+    "wrongs": [
+      "Cent vingt ans",
+      "Cent trente ans",
+      "Cent quarante-sept ans",
+      "Quatre-vingt-dix ans",
+      "Cent ans"
+    ],
+    "reference": "Genèse 50:26",
+    "explanation": "Joseph mourut, âgé de cent dix ans ; on l'embauma et on le mit dans un cercueil en Égypte.",
+    "story": "joseph",
+    "status": "brouillon"
   }
 ]

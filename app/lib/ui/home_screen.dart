@@ -126,9 +126,9 @@ class _HomeScreenState extends State<HomeScreen> {
         listenable: Player.instance,
         builder: (context, _) {
           final p = Player.instance;
-          final stars = p.isKnown ? p.adventureStars : const <String, List>{};
+          final stars = p.isKnown ? p.adventureStars : const <String, Map<String, int>>{};
           final level = Adventure.currentLevel(stars, _levelCount);
-          final won = (stars['$level'] ?? const []).length;
+          final won = Adventure.difficultiesWon(stars, level);
           final breadMessage = p.breadGain > 0
               ? 'Tu as reçu ${p.breadGain} talents !'
               : (p.breadToday ? 'Déjà reçu. Reviens demain !' : 'Connecte-toi pour le recevoir.');

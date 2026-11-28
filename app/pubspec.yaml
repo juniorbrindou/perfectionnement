@@ -3,7 +3,7 @@ description: "Perfectionnement : le duel des cartes bibliques."
 publish_to: 'none'
 
 # Code de version au-dessus de celui de Godot (600) : la version Flutter s'installe par-dessus.
-version: 0.7.2+702
+version: 0.8.0+800
 
 environment:
   sdk: ^3.12.2
@@ -35,6 +35,7 @@ flutter:
     - assets/duel/dos_illustration.jpg
     - assets/duel/paysage.png
     - assets/duel/dos_carte.png
+    - assets/duel/scribe.png
     - assets/logo/logo_livre.png
     - assets/logo/logo_enseigne.png
     - assets/sons/carte.wav

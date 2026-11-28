@@ -31,6 +31,8 @@ class Reglages extends ChangeNotifier {
     'salon_score_victoire': 10,
     'salon_score_defaite': 5,
     'salon_inactif_jours': 7,
+    'aventure_questions': 10,
+    'aventure_delai_s': 30,
   };
 
   final Map<String, int> _valeurs = {};
